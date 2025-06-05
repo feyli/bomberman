@@ -410,14 +410,6 @@ public class GameView {
         }
     }
 
-    @FXML
-    private void onStartGameWithPlayers(int playerCount) {
-        if (controller != null) {
-            controller.startNewGame(playerCount);
-            hideMainMenu();
-            showGameInterface(); // Ajout de cette ligne importante
-        }
-    }
 
     @FXML
     private void onResumeGame() {
