@@ -402,6 +402,11 @@ public class GameView {
             controller.startNewGame();
             showGameInterface(); // Afficher l'interface après restart
             hidePauseMenu();
+
+            // Hide game over screen as well when restarting
+            if (gameOverScreen != null) {
+                gameOverScreen.setVisible(false);
+            }
         }
     }
 

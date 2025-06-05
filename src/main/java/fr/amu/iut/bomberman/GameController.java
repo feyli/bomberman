@@ -36,7 +36,7 @@ public class GameController {
     private void setupGameLoop() {
         gameLoop = new Timeline(new KeyFrame(
                 Duration.millis(Constants.GAME_LOOP_DELAY),
-                e -> updateGame()
+                _ -> updateGame()
         ));
         gameLoop.setCycleCount(Animation.INDEFINITE);
     }
@@ -94,16 +94,6 @@ public class GameController {
         }
     }
 
-    public void endGame() {
-        game.endGame();
-        stopGameLoop();
-
-
-        if (view != null) {
-            view.showGameOver(game.getWinner());
-        }
-    }
-
     public void returnToMenu() {
         stopGameLoop();
         game.returnToMenu();
@@ -139,14 +129,9 @@ public class GameController {
 
     public void playerPlaceBomb(int playerId) {
         if (game.getCurrentState() == GameState.PLAYING) {
-            boolean bombPlaced = false;
             Player player = game.getPlayerById(playerId);
             if (player != null && player.isAlive()) {
-                bombPlaced = player.placeBomb(game.getBoard());
-            }
-
-            if (bombPlaced) {
-
+                player.placeBomb(game.getBoard());
             }
         }
     }
@@ -155,9 +140,4 @@ public class GameController {
     public Game getGame() {
         return game;
     }
-
-    public GameView getView() {
-        return view;
-    }
-
 }
