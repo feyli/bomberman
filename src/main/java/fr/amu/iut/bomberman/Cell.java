@@ -1,7 +1,8 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 public class Cell {
-    private int x, y;
+    private final int x;
+    private final int y;
     private CellType type;
     private boolean isDestructible;
     private PowerUp powerUp;

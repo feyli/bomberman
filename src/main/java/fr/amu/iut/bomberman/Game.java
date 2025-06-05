@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 public class Game {
     private GameState currentState;
     private GameBoard board;
-    private List<Player> players;
+    private final List<Player> players;
     private boolean isRunning;
     private int gameTime; // en millisecondes
     private Player winner;
@@ -115,7 +115,7 @@ public class Game {
         }
     }
 
-    public void movePlayer(int playerId, org.example.bomberman.Direction direction) {
+    public void movePlayer(int playerId, fr.amu.iut.bomberman.Direction direction) {
         if (currentState != GameState.PLAYING) return;
 
         Player player = getPlayerById(playerId);

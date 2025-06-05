@@ -1,10 +1,10 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import java.awt.*;
 
 public class Player {
-    private int id;
-    private String name;
+    private final int id;
+    private final String name;
     private int x, y;
     private int lives;
     private int bombCount;

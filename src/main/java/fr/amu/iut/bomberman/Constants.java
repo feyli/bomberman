@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 public class Constants {
     // Dimensions du jeu

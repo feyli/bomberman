@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 public enum CellType {
     EMPTY,           // Case vide

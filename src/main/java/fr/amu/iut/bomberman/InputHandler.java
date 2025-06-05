@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InputHandler {
-    private GameController controller;
-    private Map<KeyCode, PlayerAction> keyBindings;
+    private final GameController controller;
+    private final Map<KeyCode, PlayerAction> keyBindings;
 
     // Classe interne pour représenter une action de joueur
     private static class PlayerAction {

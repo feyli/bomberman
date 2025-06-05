@@ -1,14 +1,15 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Bomb {
-    private int x, y;
-    private Player owner;
+    private final int x;
+    private final int y;
+    private final Player owner;
     private int timer;
-    private int explosionRange;
+    private final int explosionRange;
     private boolean hasExploded;
 
     public Bomb(int x, int y, Player owner, int explosionRange) {
@@ -30,7 +31,7 @@ public class Bomb {
         explosionCells.add(new Point(x, y)); // Centre de l'explosion
 
         // Explosion dans les 4 directions
-        for (org.example.bomberman.Direction dir : org.example.bomberman.Direction.values()) {
+        for (fr.amu.iut.bomberman.Direction dir : fr.amu.iut.bomberman.Direction.values()) {
             for (int i = 1; i <= explosionRange; i++) {
                 int newX = x + dir.getDx() * i;
                 int newY = y + dir.getDy() * i;
@@ -41,8 +42,8 @@ public class Bomb {
                 explosionCells.add(new Point(newX, newY));
 
                 // L'explosion s'arrête sur les murs
-                if (cell.getType() == org.example.bomberman.CellType.WALL ||
-                        cell.getType() == org.example.bomberman.CellType.DESTRUCTIBLE_WALL) {
+                if (cell.getType() == fr.amu.iut.bomberman.CellType.WALL ||
+                        cell.getType() == fr.amu.iut.bomberman.CellType.DESTRUCTIBLE_WALL) {
                     break;
                 }
             }

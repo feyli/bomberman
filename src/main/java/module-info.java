@@ -1,4 +1,4 @@
-module org.example.bomberman {
+module fr.amu.iut.bomberman {
     requires javafx.controls;
     requires javafx.fxml;
 
@@ -6,6 +6,6 @@ module org.example.bomberman {
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
 
-    opens org.example.bomberman to javafx.fxml;
-    exports org.example.bomberman;
+    opens fr.amu.iut.bomberman to javafx.fxml;
+    exports fr.amu.iut.bomberman;
 }

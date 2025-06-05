@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Random;
 
 public class GameBoard {
-    private int width;
-    private int height;
-    private Cell[][] grid;
-    private List<Bomb> activeBombs;
-    private List<Explosion> activeExplosions;
-    private List<PowerUp> powerUps;
-    private Random random;
+    private final int width;
+    private final int height;
+    private final Cell[][] grid;
+    private final List<Bomb> activeBombs;
+    private final List<Explosion> activeExplosions;
+    private final List<PowerUp> powerUps;
+    private final Random random;
 
     public GameBoard() {
         this.width = Constants.BOARD_WIDTH;

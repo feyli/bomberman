@@ -1,9 +1,10 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 public class PowerUp {
-    private int x, y;
-    private PowerUpType type;
-    private int value;
+    private final int x;
+    private final int y;
+    private final PowerUpType type;
+    private final int value;
 
     public PowerUp(int x, int y, PowerUpType type) {
         this.x = x;

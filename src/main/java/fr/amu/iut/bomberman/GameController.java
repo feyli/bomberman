@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -7,9 +7,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 
 public class GameController {
-    private Game game;
+    private final Game game;
     private GameView view;
-    private InputHandler inputHandler;
+    private final InputHandler inputHandler;
     private Timeline gameLoop;
 
     public GameController() {

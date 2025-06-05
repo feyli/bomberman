@@ -1,7 +1,8 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 public class Explosion {
-    private int x, y;
+    private final int x;
+    private final int y;
     private int duration;
 
     public Explosion(int x, int y) {

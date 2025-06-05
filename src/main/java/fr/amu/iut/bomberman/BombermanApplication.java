@@ -1,4 +1,4 @@
-package org.example.bomberman;
+package fr.amu.iut.bomberman;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
