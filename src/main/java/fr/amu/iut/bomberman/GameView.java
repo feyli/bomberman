@@ -1,7 +1,6 @@
 package fr.amu.iut.bomberman;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -15,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.List;
+import java.util.Objects;
 
 public class GameView {
     @FXML
@@ -165,7 +165,7 @@ public class GameView {
 
     private Image loadImageOrDefault(String path, Color defaultColor) {
         try {
-            return new Image(getClass().getResourceAsStream(path));
+            return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
         } catch (Exception e) {
             System.out.println("Image non trouvée: " + path + ", utilisation de la couleur par défaut");
             return createColoredImage(defaultColor);
@@ -254,28 +254,24 @@ public class GameView {
         }
 
         // Vérifier le type de cellule
-        switch (cell.getType()) {
-            case WALL:
-                return wallImage;
-            case DESTRUCTIBLE_WALL:
-                return destructibleWallImage;
-            case BOMB:
-                return bombImage;
-            case EXPLOSION:
-                return explosionImage;
-            case EMPTY:
-            default:
+        return switch (cell.getType()) {
+            case WALL -> wallImage;
+            case DESTRUCTIBLE_WALL -> destructibleWallImage;
+            case BOMB -> bombImage;
+            case EXPLOSION -> explosionImage;
+            default -> {
                 // Vérifier s'il y a un power-up (seulement si getPowerUp() existe)
                 try {
                     if (cell.getPowerUp() != null) {
                         // Utiliser une image de power-up par défaut
-                        return powerUpImages[0];
+                        yield powerUpImages[0];
                     }
                 } catch (Exception e) {
                     // La méthode getPowerUp() n'existe peut-être pas
                 }
-                return emptyImage;
-        }
+                yield emptyImage;
+            }
+        };
     }
 
     public void updatePlayerInfo(List<Player> players) {
@@ -328,24 +324,6 @@ public class GameView {
         }
     }
 
-    public void showExplosion(int x, int y) {
-        if (cellViews != null && x >= 0 && x < Constants.BOARD_WIDTH &&
-                y >= 0 && y < Constants.BOARD_HEIGHT) {
-
-            ImageView cellView = cellViews[x][y];
-
-            // Animation d'explosion
-            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), cellView);
-            scaleTransition.setFromX(1.0);
-            scaleTransition.setFromY(1.0);
-            scaleTransition.setToX(1.3);
-            scaleTransition.setToY(1.3);
-            scaleTransition.setAutoReverse(true);
-            scaleTransition.setCycleCount(2);
-            scaleTransition.play();
-        }
-    }
-
     public void showPauseMenu() {
         if (pauseMenu != null) {
             pauseMenu.setVisible(true);
@@ -361,7 +339,7 @@ public class GameView {
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), pauseMenu);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished(e -> pauseMenu.setVisible(false));
+            fadeOut.setOnFinished(_ -> pauseMenu.setVisible(false));
             fadeOut.play();
         }
     }
@@ -411,15 +389,6 @@ public class GameView {
     }
 
     @FXML
-    private void onStartGameWithPlayers(int playerCount) {
-        if (controller != null) {
-            controller.startNewGame(playerCount);
-            hideMainMenu();
-            showGameInterface(); // Ajout de cette ligne importante
-        }
-    }
-
-    @FXML
     private void onResumeGame() {
         if (controller != null) {
             controller.pauseGame();
@@ -428,11 +397,16 @@ public class GameView {
 
     @FXML
     private void onRestartGame() {
-        hidePauseMenu();
         hideGameInterface();
         if (controller != null) {
             controller.startNewGame();
             showGameInterface(); // Afficher l'interface après restart
+            hidePauseMenu();
+
+            // Hide game over screen as well when restarting
+            if (gameOverScreen != null) {
+                gameOverScreen.setVisible(false);
+            }
         }
     }
 
