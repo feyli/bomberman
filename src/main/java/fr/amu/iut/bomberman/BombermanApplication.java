@@ -6,23 +6,26 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-public class BombermanApplication extends Application {
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-    private GameController gameController;
-    private GameView gameView;
+public class BombermanApplication extends Application {
+    // Create a logger for this class
+    private static final Logger LOGGER = Logger.getLogger(BombermanApplication.class.getName());
 
     @Override
     public void start(Stage primaryStage) {
         try {
             // Initialiser le contrôleur
-            gameController = new GameController();
+            GameController gameController = new GameController();
 
             // Charger le fichier FXML UNE SEULE FOIS
             FXMLLoader loader = new FXMLLoader(getClass().getResource("game.fxml"));
             StackPane root = loader.load(); // Utiliser loader.load() au lieu de FXMLLoader.load()
 
             // Récupérer la vue depuis le contrôleur FXML
-            gameView = loader.getController(); // Maintenant ça fonctionne !
+            GameView gameView = loader.getController(); // Maintenant ça fonctionne !
 
             // Vérifier que gameView n'est pas null
             if (gameView == null) {
@@ -39,7 +42,7 @@ public class BombermanApplication extends Application {
 
             // Configurer la scène
             Scene scene = new Scene(root, 1200, 800);
-            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("style.css")).toExternalForm());
 
             // Gérer les événements clavier
             scene.setOnKeyPressed(gameController::handlePlayerInput);
@@ -51,9 +54,7 @@ public class BombermanApplication extends Application {
             primaryStage.centerOnScreen();
 
             // Gérer la fermeture de l'application
-            primaryStage.setOnCloseRequest(e -> {
-                System.exit(0);
-            });
+            primaryStage.setOnCloseRequest(_ -> System.exit(0));
 
             primaryStage.show();
 
@@ -61,7 +62,7 @@ public class BombermanApplication extends Application {
             root.requestFocus();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Erreur lors du démarrage de l'application", e);
             System.err.println("Erreur lors du démarrage de l'application: " + e.getMessage());
         }
     }
