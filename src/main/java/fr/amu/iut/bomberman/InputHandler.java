@@ -41,8 +41,8 @@ public class InputHandler {
 
     private void setupKeyBindings() {
         // Joueur 1: WASD + Space
-        keyBindings.put(KeyCode.W, new PlayerAction(1, ActionType.MOVE, Direction.UP));
-        keyBindings.put(KeyCode.A, new PlayerAction(1, ActionType.MOVE, Direction.LEFT));
+        keyBindings.put(KeyCode.Z, new PlayerAction(1, ActionType.MOVE, Direction.UP));
+        keyBindings.put(KeyCode.Q, new PlayerAction(1, ActionType.MOVE, Direction.LEFT));
         keyBindings.put(KeyCode.S, new PlayerAction(1, ActionType.MOVE, Direction.DOWN));
         keyBindings.put(KeyCode.D, new PlayerAction(1, ActionType.MOVE, Direction.RIGHT));
         keyBindings.put(KeyCode.SPACE, new PlayerAction(1, ActionType.PLACE_BOMB));

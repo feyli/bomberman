@@ -14,7 +14,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.WritableImage;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameView {
     @FXML
@@ -47,6 +53,8 @@ public class GameView {
     private Image explosionImage;
     private Image[] playerImages;
     private Image[] powerUpImages;
+
+    private Map<String, Image> imageCache = new HashMap<>();
 
     public void initialize() {
         setupGameGrid();
@@ -113,6 +121,139 @@ public class GameView {
         }
     }
 
+    private String getCacheKey(Cell cell, int x, int y, List<Player> players) {
+        StringBuilder key = new StringBuilder();
+        key.append(cell.getType().toString());
+
+        // Ajouter power-up si présent
+        try {
+            if (cell.getPowerUp() != null) {
+                key.append("_POWERUP");
+            }
+        } catch (Exception e) {
+            // Ignorer
+        }
+
+        // Ajouter joueur si présent
+        for (Player player : players) {
+            if (player.isAlive() && player.getX() == x && player.getY() == y) {
+                key.append("_PLAYER").append(player.getId());
+                break;
+            }
+        }
+
+        return key.toString();
+    }
+
+    private Image getCachedOrCreateImage(Cell cell, int x, int y, List<Player> players) {
+        String cacheKey = getCacheKey(cell, x, y, players);
+
+        Image cachedImage = imageCache.get(cacheKey);
+        if (cachedImage != null) {
+            return cachedImage;
+        }
+
+        // Créer la nouvelle image composée
+        Image newImage = getLayeredImageForCell(cell, x, y, players);
+
+        // Mettre en cache (attention à ne pas trop remplir le cache)
+        if (imageCache.size() < 100) { // Limite pour éviter les fuites mémoire
+            imageCache.put(cacheKey, newImage);
+        }
+
+        return newImage;
+    }
+
+    private Image getLayeredImageForCell(Cell cell, int x, int y, List<Player> players) {
+        Image result = null;
+
+        // Couche 1 : Fond de base (toujours présent)
+        switch (cell.getType()) {
+            case WALL:
+                return wallImage; // Les murs restent sans superposition
+            case DESTRUCTIBLE_WALL:
+                return destructibleWallImage; // Les murs destructibles aussi
+            case EXPLOSION:
+                result = emptyImage; // Fond vide pour les explosions aussi
+                break;
+            default:
+                result = emptyImage; // Fond vide
+                break;
+        }
+
+        // Couche 2 : Power-ups (si présents)
+        if (cell.getType() == CellType.EMPTY) {
+            try {
+                if (cell.getPowerUp() != null) {
+                    result = composeImages(result, powerUpImages[0]);
+                }
+            } catch (Exception e) {
+                // Ignorer si getPowerUp() n'existe pas
+            }
+        }
+
+        // Couche 3 : Bombes
+        if (cell.getType() == CellType.BOMB) {
+            result = composeImages(result, bombImage);
+        }
+
+        // Couche 4 : Explosions (par-dessus le fond)
+        if (cell.getType() == CellType.EXPLOSION) {
+            result = composeImages(result, explosionImage);
+        }
+
+        // Couche 5 : Joueurs (au-dessus de tout, même des explosions)
+        for (Player player : players) {
+            if (player.isAlive() && player.getX() == x && player.getY() == y) {
+                result = composeImages(result, playerImages[player.getId() - 1]);
+                break;
+            }
+        }
+
+        return result != null ? result : emptyImage;
+    }
+
+    public void updateBoard(GameBoard board) {
+        if (cellViews == null || board == null) return;
+
+        Cell[][] grid = board.getGrid();
+        List<Player> players = controller.getGame().getPlayers();
+
+        // Mettre à jour chaque cellule avec superposition
+        for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+            for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+                ImageView cellView = cellViews[x][y];
+                Cell cell = grid[x][y];
+
+                // Utiliser la méthode avec superposition
+                Image composedImage = getLayeredImageForCell(cell, x, y, players);
+                cellView.setImage(composedImage);
+            }
+        }
+    }
+
+    public void clearImageCache() {
+        imageCache.clear();
+    }
+
+    private Image composeImages(Image backgroundImage, Image overlayImage) {
+        if (backgroundImage == null) return overlayImage;
+        if (overlayImage == null) return backgroundImage;
+
+        // Créer un canvas de la taille d'une cellule
+        Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Dessiner l'image de fond d'abord
+        gc.drawImage(backgroundImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+
+        // Dessiner l'image de superposition par-dessus
+        gc.drawImage(overlayImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+
+        // Retourner l'image composée
+        return canvas.snapshot(null, null);
+    }
+
     private void setupGameGrid() {
         if (gameGrid != null) {
             // Configurer la grille de jeu
@@ -130,6 +271,13 @@ public class GameView {
                     cellView.setFitWidth(Constants.CELL_SIZE);
                     cellView.setFitHeight(Constants.CELL_SIZE);
                     cellView.setPreserveRatio(false);
+
+                    // Améliorer le rendu des images
+                    cellView.setSmooth(true);
+                    cellView.setCache(true);
+
+                    // Définir un arrière-plan transparent par défaut
+                    cellView.setStyle("-fx-background-color: transparent;");
 
                     cellViews[x][y] = cellView;
                     gameGrid.add(cellView, x, y);
@@ -163,13 +311,23 @@ public class GameView {
         }
     }
 
+    // 2. Améliorer le chargement des images pour préserver la transparence
     private Image loadImageOrDefault(String path, Color defaultColor) {
         try {
-            return new Image(getClass().getResourceAsStream(path));
+            InputStream imageStream = getClass().getResourceAsStream(path);
+            if (imageStream != null) {
+                Image image = new Image(imageStream);
+                // Vérifier si l'image s'est chargée correctement
+                if (!image.isError()) {
+                    return image;
+                }
+            }
         } catch (Exception e) {
-            System.out.println("Image non trouvée: " + path + ", utilisation de la couleur par défaut");
-            return createColoredImage(defaultColor);
+            System.out.println("Erreur lors du chargement de l'image: " + path);
         }
+
+        System.out.println("Image non trouvée: " + path + ", utilisation de la forme par défaut");
+        return createColoredImage(defaultColor);
     }
 
     private void createDefaultImages() {
@@ -199,9 +357,59 @@ public class GameView {
     }
 
     private Image createColoredImage(Color color) {
-        // Créer une image simple avec une couleur unie
-        Rectangle rect = new Rectangle(Constants.CELL_SIZE, Constants.CELL_SIZE, color);
-        return rect.snapshot(null, null);
+        // Créer un Canvas pour dessiner une forme avec transparence
+        Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Effacer le canvas (transparent par défaut)
+        gc.clearRect(0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+
+        // Dessiner un cercle ou une forme au lieu d'un rectangle plein
+        gc.setFill(color);
+
+        // Pour les joueurs : dessiner un cercle
+        if (color == Color.BLUE || color == Color.RED || color == Color.GREEN || color == Color.YELLOW) {
+            double margin = Constants.CELL_SIZE * 0.1; // 10% de marge
+            gc.fillOval(margin, margin,
+                    Constants.CELL_SIZE - 2 * margin,
+                    Constants.CELL_SIZE - 2 * margin);
+        }
+        // Pour les bombes : dessiner un cercle noir avec contour
+        else if (color == Color.BLACK) {
+            double margin = Constants.CELL_SIZE * 0.15;
+            gc.fillOval(margin, margin,
+                    Constants.CELL_SIZE - 2 * margin,
+                    Constants.CELL_SIZE - 2 * margin);
+            gc.setStroke(Color.DARKGRAY);
+            gc.setLineWidth(2);
+            gc.strokeOval(margin, margin,
+                    Constants.CELL_SIZE - 2 * margin,
+                    Constants.CELL_SIZE - 2 * margin);
+        }
+        // Pour les explosions : dessiner une croix
+        else if (color == Color.ORANGE) {
+            double margin = Constants.CELL_SIZE * 0.1;
+            gc.setLineWidth(Constants.CELL_SIZE * 0.3);
+            gc.setStroke(color);
+            // Croix horizontale
+            gc.strokeLine(margin, Constants.CELL_SIZE / 2,
+                    Constants.CELL_SIZE - margin, Constants.CELL_SIZE / 2);
+            // Croix verticale
+            gc.strokeLine(Constants.CELL_SIZE / 2, margin,
+                    Constants.CELL_SIZE / 2, Constants.CELL_SIZE - margin);
+        }
+        // Pour les murs : garder le rectangle mais avec des bords
+        else {
+            gc.fillRect(0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+            if (color == Color.BROWN) { // Mur destructible
+                gc.setStroke(Color.DARKGRAY);
+                gc.setLineWidth(2);
+                gc.strokeRect(1, 1, Constants.CELL_SIZE - 2, Constants.CELL_SIZE - 2);
+            }
+        }
+
+        // Convertir le canvas en image
+        return canvas.snapshot(null, null);
     }
 
     private void setupUI() {
@@ -226,55 +434,53 @@ public class GameView {
         }
     }
 
-    public void updateBoard(GameBoard board) {
-        if (cellViews == null || board == null) return;
-
-        Cell[][] grid = board.getGrid();
-        List<Player> players = controller.getGame().getPlayers();
-
-        // Mettre à jour chaque cellule
-        for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
-            for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
-                ImageView cellView = cellViews[x][y];
-                Cell cell = grid[x][y];
-
-                // Déterminer quelle image afficher
-                Image imageToShow = getImageForCell(cell, x, y, players);
-                cellView.setImage(imageToShow);
-            }
-        }
-    }
 
     private Image getImageForCell(Cell cell, int x, int y, List<Player> players) {
-        // Vérifier s'il y a un joueur sur cette case
-        for (Player player : players) {
-            if (player.isAlive() && player.getX() == x && player.getY() == y) {
-                return playerImages[player.getId() - 1];
+        Image baseImage = null;
+        Image overlayImage = null;
+
+        // 1. Déterminer l'image de base selon le type de cellule
+        switch (cell.getType()) {
+            case WALL:
+                return wallImage; // Les murs ne peuvent pas avoir de superposition
+            case DESTRUCTIBLE_WALL:
+                return destructibleWallImage; // Les murs destructibles non plus
+            case EXPLOSION:
+                return explosionImage; // Les explosions remplacent tout
+            case BOMB:
+                baseImage = emptyImage; // Fond vide
+                overlayImage = bombImage; // Bombe par-dessus
+                break;
+            case EMPTY:
+            default:
+                baseImage = emptyImage; // Fond vide par défaut
+                break;
+        }
+
+        // 2. Vérifier s'il y a un power-up sur cette case
+        if (cell.getType() == CellType.EMPTY) {
+            try {
+                if (cell.getPowerUp() != null) {
+                    overlayImage = powerUpImages[0]; // Power-up par-dessus le fond
+                }
+            } catch (Exception e) {
+                // La méthode getPowerUp() n'existe peut-être pas
             }
         }
 
-        // Vérifier le type de cellule
-        switch (cell.getType()) {
-            case WALL:
-                return wallImage;
-            case DESTRUCTIBLE_WALL:
-                return destructibleWallImage;
-            case BOMB:
-                return bombImage;
-            case EXPLOSION:
-                return explosionImage;
-            case EMPTY:
-            default:
-                // Vérifier s'il y a un power-up (seulement si getPowerUp() existe)
-                try {
-                    if (cell.getPowerUp() != null) {
-                        // Utiliser une image de power-up par défaut
-                        return powerUpImages[0];
-                    }
-                } catch (Exception e) {
-                    // La méthode getPowerUp() n'existe peut-être pas
-                }
-                return emptyImage;
+        // 3. Vérifier s'il y a un joueur sur cette case (priorité la plus haute)
+        for (Player player : players) {
+            if (player.isAlive() && player.getX() == x && player.getY() == y) {
+                overlayImage = playerImages[player.getId() - 1]; // Joueur par-dessus tout
+                break;
+            }
+        }
+
+        // 4. Composer l'image finale
+        if (overlayImage != null) {
+            return composeImages(baseImage, overlayImage);
+        } else {
+            return baseImage != null ? baseImage : emptyImage;
         }
     }
 
@@ -288,6 +494,8 @@ public class GameView {
             playerInfo.getChildren().add(playerBox);
         }
     }
+
+
 
     private VBox createPlayerInfoBox(Player player) {
         VBox box = new VBox(5);
