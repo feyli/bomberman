@@ -346,6 +346,15 @@ public class GameView {
         }
     }
 
+    @FXML
+    private void onStart1HumanVs2Bots() {
+        if (controller != null) {
+            // Lancer la partie avec 1 humain et 2 bots
+            controller.startNewGame(1, 2);
+            hideMainMenu(); // Masquer le menu principal
+            showGameInterface(); // Afficher l'interface de jeu
+        }
+    }
     public void showPauseMenu() {
         if (pauseMenu != null) {
             pauseMenu.setVisible(true);

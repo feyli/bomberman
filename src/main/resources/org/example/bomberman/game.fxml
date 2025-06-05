@@ -19,6 +19,8 @@
                         <Button fx:id="startButton" onAction="#onStartGame" prefWidth="200.0" styleClass="menu-button" text="Démarrer (2 joueurs)"/>
                         <Button fx:id="start3Button" onAction="#onStartGame3Players" prefWidth="200.0" styleClass="menu-button" text="Démarrer (3 joueurs)"/>
                         <Button fx:id="start4Button" onAction="#onStartGame4Players" prefWidth="200.0" styleClass="menu-button" text="Démarrer (4 joueurs)"/>
+                        <Button fx:id="start5Button" onAction="#onStart1HumanVs2Bots" prefWidth="200.0" styleClass="menu-button" text="1 Humain vs 2 Bots"/>
+                        <Button fx:id="start6Button" onAction="#onShowControls"  prefWidth="200.0" styleClass="menu-button" text="Afficher les contrôles"  />
                         <Button fx:id="controlsButton" onAction="#onShowControls" prefWidth="200.0" styleClass="menu-button" text="Contrôles"/>
                         <Button fx:id="quitButton" onAction="#onQuitGame" prefWidth="200.0" styleClass="menu-button" text="Quitter"/>
                     </children>

@@ -89,6 +89,8 @@ public class Game {
         checkWinConditions();
     }
 
+
+
     private void checkExplosionCollisions() {
         for (Player player : players) {
             if (player.isAlive() && board.isPlayerInExplosion(player)) {

@@ -6,6 +6,9 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 public class BombermanApplication extends Application {
 
     private GameController gameController;
@@ -14,27 +17,30 @@ public class BombermanApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Initialiser le contrôleur
+            // Initialiser le contrôleur de jeu
             gameController = new GameController();
 
-            // Charger le fichier FXML UNE SEULE FOIS
+            // Afficher le menu pour configurer la partie
+
+
+            // Charger le fichier FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("game.fxml"));
-            StackPane root = loader.load(); // Utiliser loader.load() au lieu de FXMLLoader.load()
+            StackPane root = loader.load();
 
-            // Récupérer la vue depuis le contrôleur FXML
-            gameView = loader.getController(); // Maintenant ça fonctionne !
+            // Récupérer la vue à partir du fichier FXML
+            gameView = loader.getController();
 
-            // Vérifier que gameView n'est pas null
+            // Vérifier si la vue a bien été récupérée
             if (gameView == null) {
-                System.err.println("Erreur : Impossible de récupérer le contrôleur depuis le FXML");
+                System.err.println("Erreur : Impossible de récupérer la vue depuis le fichier FXML.");
                 return;
             }
 
-            // Lier le contrôleur et la vue
+            // Lier la vue au contrôleur
             gameController.setView(gameView);
             gameView.setController(gameController);
 
-            // Initialiser les composants
+            // Initialiser la vue et le contrôleur
             gameController.initialize();
 
             // Configurer la scène
@@ -44,27 +50,27 @@ public class BombermanApplication extends Application {
             // Gérer les événements clavier
             scene.setOnKeyPressed(gameController::handlePlayerInput);
 
-            // Configurer la fenêtre
+            // Configurer la fenêtre principale
             primaryStage.setTitle("Bomberman");
             primaryStage.setScene(scene);
             primaryStage.setResizable(false);
             primaryStage.centerOnScreen();
 
-            // Gérer la fermeture de l'application
-            primaryStage.setOnCloseRequest(e -> {
-                System.exit(0);
-            });
+            // Gérer la fermeture correcte de l'application
+            primaryStage.setOnCloseRequest(e -> System.exit(0));
 
+            // Afficher la fenêtre graphique
             primaryStage.show();
 
-            // Demander le focus pour les événements clavier
+            // Donner le focus pour les événements clavier
             root.requestFocus();
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Erreur lors du démarrage de l'application: " + e.getMessage());
+            System.err.println("Erreur lors du démarrage de l'application : " + e.getMessage());
         }
     }
+
 
     public static void main(String[] args) {
         launch(args);
