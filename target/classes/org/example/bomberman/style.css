@@ -16,7 +16,7 @@
     -fx-text-fill: #f39c12;
     -fx-font-weight: bold;
     -fx-font-size: 48px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 2);
 }
 
 .menu-button {
@@ -27,7 +27,7 @@
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
     -fx-padding: 12px 20px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 5, 0, 0, 1);
     -fx-cursor: hand;
 }
 
@@ -108,7 +108,7 @@
     -fx-text-fill: #e74c3c;
     -fx-font-weight: bold;
     -fx-font-size: 36px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 2);
 }
 
 .winner-text {
@@ -153,9 +153,18 @@
 
 /* Animations */
 @keyframes pulse {
-    0% { -fx-scale-x: 1.0; -fx-scale-y: 1.0; }
-    50% { -fx-scale-x: 1.1; -fx-scale-y: 1.1; }
-    100% { -fx-scale-x: 1.0; -fx-scale-y: 1.0; }
+    0% {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
+    50% {
+        -fx-scale-x: 1.1;
+        -fx-scale-y: 1.1;
+    }
+    100% {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+    }
 }
 
 .explosion-animation {
