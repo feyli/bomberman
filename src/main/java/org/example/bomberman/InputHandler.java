@@ -81,7 +81,7 @@ public class InputHandler {
                 controller.pauseGame();
                 return;
             case R:
-                if (controller.getGame().getCurrentState() == GameState.GAME_OVER) {
+                {
                     controller.startNewGame();
                 }
                 return;
@@ -146,8 +146,8 @@ public class InputHandler {
     public Map<KeyCode, String> getKeyBindingDescriptions() {
         Map<KeyCode, String> descriptions = new HashMap<>();
 
-        descriptions.put(KeyCode.W, "Joueur 1 - Haut");
-        descriptions.put(KeyCode.A, "Joueur 1 - Gauche");
+        descriptions.put(KeyCode.Z, "Joueur 1 - Haut");
+        descriptions.put(KeyCode.Q, "Joueur 1 - Gauche");
         descriptions.put(KeyCode.S, "Joueur 1 - Bas");
         descriptions.put(KeyCode.D, "Joueur 1 - Droite");
         descriptions.put(KeyCode.SPACE, "Joueur 1 - Placer bombe");
