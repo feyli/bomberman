@@ -1,7 +1,9 @@
 package fr.amu.iut.bomberman;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -11,12 +13,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.WritableImage;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +40,42 @@ public class GameView {
     private VBox gameInterface;
     @FXML
     private VBox controlsScreen;
+    @FXML
+    private HBox player1Info;
+    @FXML
+    private HBox player2Info;
+    @FXML
+    private HBox player3Info;
+    @FXML
+    private HBox player4Info;
+    @FXML
+    private Label player1BombCount;
+    @FXML
+    private Label player2BombCount;
+    @FXML
+    private Label player3BombCount;
+    @FXML
+    private Label player4BombCount;
+    @FXML
+    private ImageView player1Icon;
+    @FXML
+    private ImageView player2Icon;
+    @FXML
+    private ImageView player3Icon;
+    @FXML
+    private ImageView player4Icon;
+    @FXML
+    private ImageView player1BombIcon;
+    @FXML
+    private ImageView player2BombIcon;
+    @FXML
+    private ImageView player3BombIcon;
+    @FXML
+    private ImageView player4BombIcon;
 
+    // Variables pour les icônes des joueurs
+    private Image[] playerIconImages;
+    private Image bombIconImage;
     private ImageView[][] cellViews;
     private GameController controller;
 
@@ -51,15 +85,27 @@ public class GameView {
     private Image destructibleWallImage;
     private Image bombImage;
     private Image explosionImage;
+    private Image[][] playerDirectionalImages;
     private Image[] playerImages;
     private Image[] powerUpImages;
 
+    private Map<Integer, Direction> playerDirections = new HashMap<>();
     private Map<String, Image> imageCache = new HashMap<>();
+
+    // NOUVEAU : Suivi des bombes par joueur
+    private Map<Integer, Integer> playerActiveBombs = new HashMap<>();
+    private Map<Integer, Integer> playerMaxBombs = new HashMap<>();
 
     public void initialize() {
         setupGameGrid();
         loadImages();
         setupUI();
+
+        // Initialiser le suivi des bombes
+        for (int i = 1; i <= 4; i++) {
+            playerActiveBombs.put(i, 0);
+            playerMaxBombs.put(i, 1); // Valeur par défaut
+        }
     }
 
     public void setController(GameController controller) {
@@ -70,6 +116,7 @@ public class GameView {
     private void onStartGame3Players() {
         if (controller != null) {
             controller.startNewGame(3);
+            initializeGameHUD(3);
             hideMainMenu();
             showGameInterface();
         }
@@ -79,15 +126,20 @@ public class GameView {
     private void onStartGame4Players() {
         if (controller != null) {
             controller.startNewGame(4);
+            initializeGameHUD(4);
             hideMainMenu();
             showGameInterface();
         }
     }
 
     @FXML
-    private void onShowControls() {
-        hideMainMenu();
-        showControlsScreen();
+    private void onStartGame() {
+        if (controller != null) {
+            controller.startNewGame(2);
+            initializeGameHUD(2);
+            hideMainMenu();
+            showGameInterface();
+        }
     }
 
     @FXML
@@ -96,7 +148,6 @@ public class GameView {
         showMainMenu();
     }
 
-    // Méthodes utilitaires pour gérer l'affichage des écrans
     private void showGameInterface() {
         if (gameInterface != null) {
             gameInterface.setVisible(true);
@@ -121,11 +172,105 @@ public class GameView {
         }
     }
 
+    public void forceUpdateHUD() {
+        if (controller != null && controller.getGame() != null) {
+            List<Player> players = controller.getGame().getPlayers();
+            updateBombermanHUD(players);
+        }
+    }
+
+    // NOUVELLE MÉTHODE : Compter les bombes actives du joueur spécifique
+    private int countPlayerActiveBombs(int playerId) {
+        if (controller == null || controller.getGame() == null) {
+            return playerActiveBombs.getOrDefault(playerId, 0);
+        }
+
+        try {
+            GameBoard board = controller.getGame().getBoard();
+            if (board == null) return playerActiveBombs.getOrDefault(playerId, 0);
+
+            Cell[][] grid = board.getGrid();
+            int activeBombs = 0;
+
+            // Parcourir la grille pour compter les bombes du joueur
+            for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
+                for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
+                    Cell cell = grid[x][y];
+                    if (cell.getType() == CellType.BOMB) {
+                        // Ici, vous devrez adapter selon votre implémentation
+                        // pour identifier le propriétaire de la bombe
+                        // Si vous avez une méthode cell.getBombOwnerId() ou similaire
+                        activeBombs++;
+                    }
+                }
+            }
+
+            // Mettre à jour le cache local
+            playerActiveBombs.put(playerId, activeBombs);
+            return activeBombs;
+
+        } catch (Exception e) {
+            System.err.println("Erreur comptage bombes actives pour joueur " + playerId + ": " + e.getMessage());
+            return playerActiveBombs.getOrDefault(playerId, 0);
+        }
+    }
+
+    // CORRECTION : Méthodes pour gérer les bombes correctement
+    public void onBombPlaced(int playerId) {
+        System.out.println("Bombe posée par joueur " + playerId);
+
+        // Incrémenter le compteur local
+        int currentActive = playerActiveBombs.getOrDefault(playerId, 0);
+        playerActiveBombs.put(playerId, currentActive + 1);
+
+        // Mettre à jour SEULEMENT ce joueur
+        updateSinglePlayerHUD(playerId);
+    }
+
+    public void onBombExploded(int playerId) {
+        System.out.println("Bombe explosée pour joueur " + playerId);
+
+        // Décrémenter le compteur local
+        int currentActive = playerActiveBombs.getOrDefault(playerId, 0);
+        playerActiveBombs.put(playerId, Math.max(0, currentActive - 1));
+
+        // Mettre à jour SEULEMENT ce joueur
+        updateSinglePlayerHUD(playerId);
+    }
+
+    // NOUVELLE MÉTHODE : Mettre à jour un seul joueur
+    private void updateSinglePlayerHUD(int playerId) {
+        if (controller == null || controller.getGame() == null) return;
+
+        List<Player> players = controller.getGame().getPlayers();
+        Player targetPlayer = null;
+
+        for (Player player : players) {
+            if (player.getId() == playerId) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer != null) {
+            updatePlayerHUDSection(targetPlayer);
+        }
+    }
+
+    private HBox getPlayerSection(int playerId) {
+        switch (playerId) {
+            case 1: return player1Info;
+            case 2: return player2Info;
+            case 3: return player3Info;
+            case 4: return player4Info;
+            default: return null;
+        }
+    }
+
     private String getCacheKey(Cell cell, int x, int y, List<Player> players) {
         StringBuilder key = new StringBuilder();
         key.append(cell.getType().toString());
 
-        // Ajouter power-up si présent
         try {
             if (cell.getPowerUp() != null) {
                 key.append("_POWERUP");
@@ -134,7 +279,6 @@ public class GameView {
             // Ignorer
         }
 
-        // Ajouter joueur si présent
         for (Player player : players) {
             if (player.isAlive() && player.getX() == x && player.getY() == y) {
                 key.append("_PLAYER").append(player.getId());
@@ -153,11 +297,9 @@ public class GameView {
             return cachedImage;
         }
 
-        // Créer la nouvelle image composée
         Image newImage = getLayeredImageForCell(cell, x, y, players);
 
-        // Mettre en cache (attention à ne pas trop remplir le cache)
-        if (imageCache.size() < 100) { // Limite pour éviter les fuites mémoire
+        if (imageCache.size() < 100) {
             imageCache.put(cacheKey, newImage);
         }
 
@@ -167,50 +309,92 @@ public class GameView {
     private Image getLayeredImageForCell(Cell cell, int x, int y, List<Player> players) {
         Image result = null;
 
-        // Couche 1 : Fond de base (toujours présent)
         switch (cell.getType()) {
             case WALL:
-                return wallImage; // Les murs restent sans superposition
+                return wallImage;
             case DESTRUCTIBLE_WALL:
-                return destructibleWallImage; // Les murs destructibles aussi
+                return destructibleWallImage;
             case EXPLOSION:
-                result = emptyImage; // Fond vide pour les explosions aussi
+                result = emptyImage;
                 break;
             default:
-                result = emptyImage; // Fond vide
+                result = emptyImage;
                 break;
         }
 
-        // Couche 2 : Power-ups (si présents)
         if (cell.getType() == CellType.EMPTY) {
             try {
                 if (cell.getPowerUp() != null) {
                     result = composeImages(result, powerUpImages[0]);
                 }
             } catch (Exception e) {
-                // Ignorer si getPowerUp() n'existe pas
+                // Ignorer
             }
         }
 
-        // Couche 3 : Bombes
         if (cell.getType() == CellType.BOMB) {
             result = composeImages(result, bombImage);
         }
 
-        // Couche 4 : Explosions (par-dessus le fond)
         if (cell.getType() == CellType.EXPLOSION) {
             result = composeImages(result, explosionImage);
         }
 
-        // Couche 5 : Joueurs (au-dessus de tout, même des explosions)
+        // MODIFICATION : Joueurs plus gros (ratio 0.9 au lieu de préserver complètement)
         for (Player player : players) {
             if (player.isAlive() && player.getX() == x && player.getY() == y) {
-                result = composeImages(result, playerImages[player.getId() - 1]);
+                Direction playerDirection = playerDirections.getOrDefault(player.getId(), Direction.DOWN);
+                Image rotatedPlayerImage = getRotatedPlayerImage(player.getId(), playerDirection);
+                result = composeImagesWithPlayerScale(result, rotatedPlayerImage);
                 break;
             }
         }
 
         return result != null ? result : emptyImage;
+    }
+
+    // NOUVELLE MÉTHODE : Composer avec joueur plus gros
+    private Image composeImagesWithPlayerScale(Image backgroundImage, Image playerImage) {
+        if (backgroundImage == null) return playerImage;
+        if (playerImage == null) return backgroundImage;
+
+        Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Dessiner le fond
+        gc.drawImage(backgroundImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+
+        // Dessiner le joueur avec un ratio plus gros (90% de la cellule)
+        double playerSize = Constants.CELL_SIZE * 0.9;
+        double offset = (Constants.CELL_SIZE - playerSize) / 2;
+        gc.drawImage(playerImage, offset, offset, playerSize, playerSize);
+
+        return canvas.snapshot(null, null);
+    }
+
+    private Image getRotatedPlayerImage(int playerId, Direction direction) {
+        if (playerDirectionalImages == null || playerId < 1 || playerId > 4) {
+            return playerImages != null && playerId >= 1 && playerId <= 4 ?
+                    playerImages[playerId - 1] : null;
+        }
+
+        int directionIndex = getDirectionIndex(direction);
+        return playerDirectionalImages[playerId - 1][directionIndex];
+    }
+
+    private int getDirectionIndex(Direction direction) {
+        switch (direction) {
+            case UP: return 0;
+            case RIGHT: return 1;
+            case DOWN: return 2;
+            case LEFT: return 3;
+            default: return 2;
+        }
+    }
+
+    public void setPlayerDirection(int playerId, Direction direction) {
+        playerDirections.put(playerId, direction);
+        clearImageCache();
     }
 
     public void updateBoard(GameBoard board) {
@@ -219,17 +403,136 @@ public class GameView {
         Cell[][] grid = board.getGrid();
         List<Player> players = controller.getGame().getPlayers();
 
-        // Mettre à jour chaque cellule avec superposition
         for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
             for (int y = 0; y < Constants.BOARD_HEIGHT; y++) {
                 ImageView cellView = cellViews[x][y];
                 Cell cell = grid[x][y];
 
-                // Utiliser la méthode avec superposition
                 Image composedImage = getLayeredImageForCell(cell, x, y, players);
                 cellView.setImage(composedImage);
+                adaptRatioForCellType(cellView, cell, x, y, players);
             }
         }
+
+        updateBombermanHUD(players);
+    }
+
+    private void initializeGameHUD(int playerCount) {
+        hideAllPlayerSections();
+
+        // Réinitialiser les compteurs de bombes
+        for (int i = 1; i <= 4; i++) {
+            playerActiveBombs.put(i, 0);
+            playerMaxBombs.put(i, 1);
+        }
+
+        if (player1Info != null && playerCount >= 1) {
+            player1Info.setVisible(true);
+            player1Info.setManaged(true);
+            if (player1Icon != null && playerIconImages != null) {
+                player1Icon.setImage(playerIconImages[0]);
+                player1Icon.setFitWidth(40);
+                player1Icon.setFitHeight(40);
+            }
+            if (player1BombIcon != null && bombIconImage != null) {
+                player1BombIcon.setImage(bombIconImage);
+            }
+        }
+        if (player2Info != null && playerCount >= 2) {
+            player2Info.setVisible(true);
+            player2Info.setManaged(true);
+            if (player2Icon != null && playerIconImages != null) {
+                player2Icon.setImage(playerIconImages[1]);
+                player2Icon.setFitWidth(40);
+                player2Icon.setFitHeight(40);
+            }
+            if (player2BombIcon != null && bombIconImage != null) {
+                player2BombIcon.setImage(bombIconImage);
+            }
+        }
+        if (player3Info != null && playerCount >= 3) {
+            player3Info.setVisible(true);
+            player3Info.setManaged(true);
+            if (player3Icon != null && playerIconImages != null) {
+                player3Icon.setImage(playerIconImages[2]);
+                player3Icon.setFitWidth(40);
+                player3Icon.setFitHeight(40);
+            }
+            if (player3BombIcon != null && bombIconImage != null) {
+                player3BombIcon.setImage(bombIconImage);
+            }
+        }
+        if (player4Info != null && playerCount >= 4) {
+            player4Info.setVisible(true);
+            player4Info.setManaged(true);
+            if (player4Icon != null && playerIconImages != null) {
+                player4Icon.setImage(playerIconImages[3]);
+                player4Icon.setFitWidth(40);
+                player4Icon.setFitHeight(40);
+            }
+            if (player4BombIcon != null && bombIconImage != null) {
+                player4BombIcon.setImage(bombIconImage);
+            }
+        }
+
+        // Initialiser avec les bonnes valeurs
+        if (player1BombCount != null) player1BombCount.setText("1");
+        if (player2BombCount != null) player2BombCount.setText("1");
+        if (player3BombCount != null) player3BombCount.setText("1");
+        if (player4BombCount != null) player4BombCount.setText("1");
+    }
+
+    private void animateCounterChange(Label label) {
+        ScaleTransition scale = new ScaleTransition(Duration.millis(200), label);
+        scale.setFromX(1.0);
+        scale.setFromY(1.0);
+        scale.setToX(1.3);
+        scale.setToY(1.3);
+        scale.setAutoReverse(true);
+        scale.setCycleCount(2);
+        scale.play();
+    }
+
+    public void updateSinglePlayer(Player player) {
+        updatePlayerHUDSection(player);
+    }
+
+    private void adaptRatioForCellType(ImageView cellView, Cell cell, int x, int y, List<Player> players) {
+        boolean shouldPreserveRatio = false;
+
+        boolean hasPlayer = false;
+        for (Player player : players) {
+            if (player.isAlive() && player.getX() == x && player.getY() == y) {
+                hasPlayer = true;
+                break;
+            }
+        }
+
+        switch (cell.getType()) {
+            case WALL:
+            case DESTRUCTIBLE_WALL:
+                shouldPreserveRatio = false;
+                break;
+            case BOMB:
+            case EXPLOSION:
+                shouldPreserveRatio = true;
+                break;
+            case EMPTY:
+                shouldPreserveRatio = hasPlayer;
+                try {
+                    if (cell.getPowerUp() != null) {
+                        shouldPreserveRatio = true;
+                    }
+                } catch (Exception e) {
+                    // Ignorer
+                }
+                break;
+            default:
+                shouldPreserveRatio = false;
+                break;
+        }
+
+        cellView.setPreserveRatio(shouldPreserveRatio);
     }
 
     public void clearImageCache() {
@@ -240,29 +543,47 @@ public class GameView {
         if (backgroundImage == null) return overlayImage;
         if (overlayImage == null) return backgroundImage;
 
-        // Créer un canvas de la taille d'une cellule
         Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // Dessiner l'image de fond d'abord
         gc.drawImage(backgroundImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+        drawImagePreservingRatio(gc, overlayImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
 
-        // Dessiner l'image de superposition par-dessus
-        gc.drawImage(overlayImage, 0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
-
-        // Retourner l'image composée
         return canvas.snapshot(null, null);
+    }
+
+    private void drawImagePreservingRatio(GraphicsContext gc, Image image, double x, double y, double width, double height) {
+        if (image == null) return;
+
+        double imageWidth = image.getWidth();
+        double imageHeight = image.getHeight();
+        double imageRatio = imageWidth / imageHeight;
+        double targetRatio = width / height;
+
+        double drawWidth, drawHeight, drawX, drawY;
+
+        if (imageRatio > targetRatio) {
+            drawWidth = width;
+            drawHeight = width / imageRatio;
+            drawX = x;
+            drawY = y + (height - drawHeight) / 2;
+        } else {
+            drawHeight = height;
+            drawWidth = height * imageRatio;
+            drawX = x + (width - drawWidth) / 2;
+            drawY = y;
+        }
+
+        gc.drawImage(image, drawX, drawY, drawWidth, drawHeight);
     }
 
     private void setupGameGrid() {
         if (gameGrid != null) {
-            // Configurer la grille de jeu
             gameGrid.setAlignment(Pos.CENTER);
-            gameGrid.setHgap(1);
-            gameGrid.setVgap(1);
-            gameGrid.setStyle("-fx-background-color: #333333;");
+            gameGrid.setHgap(0);
+            gameGrid.setVgap(0);
+            gameGrid.setStyle("-fx-background-color: transparent;");
 
-            // Initialiser la matrice de vues
             cellViews = new ImageView[Constants.BOARD_WIDTH][Constants.BOARD_HEIGHT];
 
             for (int x = 0; x < Constants.BOARD_WIDTH; x++) {
@@ -270,13 +591,8 @@ public class GameView {
                     ImageView cellView = new ImageView();
                     cellView.setFitWidth(Constants.CELL_SIZE);
                     cellView.setFitHeight(Constants.CELL_SIZE);
-                    cellView.setPreserveRatio(false);
-
-                    // Améliorer le rendu des images
                     cellView.setSmooth(true);
                     cellView.setCache(true);
-
-                    // Définir un arrière-plan transparent par défaut
                     cellView.setStyle("-fx-background-color: transparent;");
 
                     cellViews[x][y] = cellView;
@@ -288,21 +604,15 @@ public class GameView {
 
     private void loadImages() {
         try {
-            // Chargement des images depuis les ressources
-            emptyImage = loadImageOrDefault("images/empty.png", Color.LIGHTGRAY);
+            emptyImage = loadImageOrDefault("images/empty.png", Color.rgb(16, 121, 49));
             wallImage = loadImageOrDefault("images/wall.png", Color.DARKGRAY);
-            destructibleWallImage = loadImageOrDefault("images/destructible_wall.jpg", Color.BROWN);
-            bombImage = loadImageOrDefault("images/bomb.png", Color.BLACK);
+            destructibleWallImage = loadImageOrDefault("images/destructible_wall.png", Color.BROWN);
+            bombImage = loadImageOrDefault("images/bomb.gif", Color.BLACK);
             explosionImage = loadImageOrDefault("images/explosion.png", Color.ORANGE);
 
-            // Images des joueurs
-            playerImages = new Image[4];
-            Color[] playerColors = {Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW};
-            for (int i = 0; i < 4; i++) {
-                playerImages[i] = loadImageOrDefault("images/player" + (i + 1) + ".png", playerColors[i]);
-            }
-
-            // Images des power-ups - création par défaut car PowerUpType peut ne pas exister
+            loadPlayerDirectionalImages();
+            loadPlayerIconImages();
+            loadBombIcon(); // NOUVEAU : Charger l'icône de bombe pour le HUD
             createDefaultPowerUpImages();
 
         } catch (Exception e) {
@@ -311,13 +621,114 @@ public class GameView {
         }
     }
 
-    // 2. Améliorer le chargement des images pour préserver la transparence
+    private void loadPlayerDirectionalImages() {
+        playerDirectionalImages = new Image[4][4];
+        Color[] playerColors = {Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW};
+        String[] directions = {"upward", "right", "downward", "left"};
+
+        for (int playerId = 0; playerId < 4; playerId++) {
+            for (int dirIndex = 0; dirIndex < 4; dirIndex++) {
+                String imagePath = String.format("images/player" + playerId + 1 + "_" + directions[dirIndex] + ".gif");
+
+                Image directionalImage = loadImageOrDefault(imagePath, null);
+
+                if (directionalImage == null) {
+                    String generalImagePath = String.format("images/player%d.png", playerId + 1);
+                    directionalImage = loadImageOrDefault(generalImagePath, null);
+                }
+
+                if (directionalImage == null) {
+                    directionalImage = createDirectionalPlayerImage(playerColors[playerId], indexToDirection(dirIndex));
+                }
+
+                playerDirectionalImages[playerId][dirIndex] = directionalImage;
+            }
+        }
+
+        playerImages = new Image[4];
+        for (int i = 0; i < 4; i++) {
+            playerImages[i] = playerDirectionalImages[i][2];
+        }
+    }
+
+    private void loadPlayerIconImages() {
+        playerIconImages = new Image[4];
+
+        for (int i = 0; i < 4; i++) {
+            // MODIFICATION : Charger les icônes spécifiques du HUD
+            String iconPath = String.format("images/player%d_hud_icon.png", i + 1);
+            Image iconImage = loadImageOrDefault(iconPath, null);
+
+            if (iconImage == null) {
+                iconPath = String.format("images/player%d_icon.png", i + 1);
+                iconImage = loadImageOrDefault(iconPath, null);
+            }
+
+            if (iconImage == null && playerImages != null && playerImages[i] != null) {
+                iconImage = playerImages[i];
+            }
+
+            if (iconImage == null && playerDirectionalImages != null) {
+                iconImage = playerDirectionalImages[i][2];
+            }
+
+            playerIconImages[i] = iconImage;
+
+            if (iconImage != null) {
+                System.out.println("Icône joueur " + (i + 1) + " chargée : " + iconPath);
+            } else {
+                System.err.println("Impossible de charger l'icône pour le joueur " + (i + 1));
+            }
+        }
+    }
+
+    // NOUVELLE MÉTHODE : Charger l'icône de bombe pour le HUD
+    private void loadBombIcon() {
+        String bombIconPath = "images/bomb_hud_icon.png";
+        bombIconImage = loadImageOrDefault(bombIconPath, null);
+
+        if (bombIconImage == null) {
+            // Utiliser l'image de bombe normale si pas d'icône spécifique
+            bombIconImage = bombImage;
+        }
+
+        if (bombIconImage == null) {
+            // Créer une icône de bombe par défaut
+            bombIconImage = createBombIcon();
+        }
+
+        System.out.println("Icône de bombe chargée pour le HUD");
+    }
+
+    // NOUVELLE MÉTHODE : Créer une icône de bombe par défaut
+    private Image createBombIcon() {
+        Canvas canvas = new Canvas(16, 16);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        // Fond transparent
+        gc.clearRect(0, 0, 16, 16);
+
+        // Corps de la bombe (cercle noir)
+        gc.setFill(Color.BLACK);
+        gc.fillOval(2, 4, 12, 10);
+
+        // Mèche (petite ligne)
+        gc.setStroke(Color.DARKGRAY);
+        gc.setLineWidth(2);
+        gc.strokeLine(8, 1, 8, 4);
+
+        // Étincelle (petit point rouge)
+        gc.setFill(Color.RED);
+        gc.fillOval(7, 0, 2, 2);
+
+        return canvas.snapshot(null, null);
+    }
+
     private Image loadImageOrDefault(String path, Color defaultColor) {
         try {
             InputStream imageStream = getClass().getResourceAsStream(path);
             if (imageStream != null) {
                 Image image = new Image(imageStream);
-                // Vérifier si l'image s'est chargée correctement
                 if (!image.isError()) {
                     return image;
                 }
@@ -327,29 +738,100 @@ public class GameView {
         }
 
         System.out.println("Image non trouvée: " + path + ", utilisation de la forme par défaut");
-        return createColoredImage(defaultColor);
+
+        if (defaultColor != null) {
+            return createColoredImage(defaultColor);
+        } else {
+            return null;
+        }
     }
 
     private void createDefaultImages() {
-        // Créer des images par défaut si les fichiers ne sont pas trouvés
-        emptyImage = createColoredImage(Color.LIGHTGRAY);
+        emptyImage = createColoredImage(Color.rgb(16, 121, 49));
         wallImage = createColoredImage(Color.DARKGRAY);
         destructibleWallImage = createColoredImage(Color.BROWN);
         bombImage = createColoredImage(Color.BLACK);
         explosionImage = createColoredImage(Color.ORANGE);
 
-        playerImages = new Image[4];
-        Color[] playerColors = {Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW};
-        for (int i = 0; i < 4; i++) {
-            playerImages[i] = createColoredImage(playerColors[i]);
-        }
-
+        createDefaultPlayerDirectionalImages();
         createDefaultPowerUpImages();
     }
 
+    private void createDefaultPlayerDirectionalImages() {
+        playerDirectionalImages = new Image[4][4];
+        Color[] playerColors = {Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW};
+
+        for (int playerId = 0; playerId < 4; playerId++) {
+            for (int dirIndex = 0; dirIndex < 4; dirIndex++) {
+                playerDirectionalImages[playerId][dirIndex] =
+                        createDirectionalPlayerImage(playerColors[playerId], indexToDirection(dirIndex));
+            }
+        }
+    }
+
+    private Image createDirectionalPlayerImage(Color color, Direction direction) {
+        Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        gc.clearRect(0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
+
+        double margin = Constants.CELL_SIZE * 0.1;
+        double size = Constants.CELL_SIZE - 2 * margin;
+
+        gc.setFill(color);
+        gc.fillOval(margin, margin, size, size);
+
+        gc.setFill(Color.WHITE);
+        double centerX = Constants.CELL_SIZE / 2;
+        double centerY = Constants.CELL_SIZE / 2;
+        double arrowSize = Constants.CELL_SIZE * 0.2;
+
+        switch (direction) {
+            case UP:
+                gc.fillPolygon(
+                        new double[]{centerX, centerX - arrowSize/2, centerX + arrowSize/2},
+                        new double[]{centerY - arrowSize, centerY, centerY},
+                        3
+                );
+                break;
+            case RIGHT:
+                gc.fillPolygon(
+                        new double[]{centerX + arrowSize, centerX, centerX},
+                        new double[]{centerY, centerY - arrowSize/2, centerY + arrowSize/2},
+                        3
+                );
+                break;
+            case DOWN:
+                gc.fillPolygon(
+                        new double[]{centerX, centerX - arrowSize/2, centerX + arrowSize/2},
+                        new double[]{centerY + arrowSize, centerY, centerY},
+                        3
+                );
+                break;
+            case LEFT:
+                gc.fillPolygon(
+                        new double[]{centerX - arrowSize, centerX, centerX},
+                        new double[]{centerY, centerY - arrowSize/2, centerY + arrowSize/2},
+                        3
+                );
+                break;
+        }
+
+        return canvas.snapshot(null, null);
+    }
+
+    private Direction indexToDirection(int index) {
+        switch (index) {
+            case 0: return Direction.UP;
+            case 1: return Direction.RIGHT;
+            case 2: return Direction.DOWN;
+            case 3: return Direction.LEFT;
+            default: return Direction.DOWN;
+        }
+    }
+
     private void createDefaultPowerUpImages() {
-        // Créer des images par défaut pour les power-ups
-        powerUpImages = new Image[4]; // Nombre arbitraire de power-ups
+        powerUpImages = new Image[4];
         Color[] powerUpColors = {Color.PURPLE, Color.CYAN, Color.MAGENTA, Color.PINK};
         for (int i = 0; i < powerUpImages.length; i++) {
             powerUpImages[i] = createColoredImage(powerUpColors[i]);
@@ -357,24 +839,18 @@ public class GameView {
     }
 
     private Image createColoredImage(Color color) {
-        // Créer un Canvas pour dessiner une forme avec transparence
         Canvas canvas = new Canvas(Constants.CELL_SIZE, Constants.CELL_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // Effacer le canvas (transparent par défaut)
         gc.clearRect(0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
-
-        // Dessiner un cercle ou une forme au lieu d'un rectangle plein
         gc.setFill(color);
 
-        // Pour les joueurs : dessiner un cercle
         if (color == Color.BLUE || color == Color.RED || color == Color.GREEN || color == Color.YELLOW) {
-            double margin = Constants.CELL_SIZE * 0.1; // 10% de marge
+            double margin = Constants.CELL_SIZE * 0.1;
             gc.fillOval(margin, margin,
                     Constants.CELL_SIZE - 2 * margin,
                     Constants.CELL_SIZE - 2 * margin);
         }
-        // Pour les bombes : dessiner un cercle noir avec contour
         else if (color == Color.BLACK) {
             double margin = Constants.CELL_SIZE * 0.15;
             gc.fillOval(margin, margin,
@@ -386,36 +862,31 @@ public class GameView {
                     Constants.CELL_SIZE - 2 * margin,
                     Constants.CELL_SIZE - 2 * margin);
         }
-        // Pour les explosions : dessiner une croix
         else if (color == Color.ORANGE) {
             double margin = Constants.CELL_SIZE * 0.1;
             gc.setLineWidth(Constants.CELL_SIZE * 0.3);
             gc.setStroke(color);
-            // Croix horizontale
             gc.strokeLine(margin, Constants.CELL_SIZE / 2,
                     Constants.CELL_SIZE - margin, Constants.CELL_SIZE / 2);
-            // Croix verticale
             gc.strokeLine(Constants.CELL_SIZE / 2, margin,
                     Constants.CELL_SIZE / 2, Constants.CELL_SIZE - margin);
         }
-        // Pour les murs : garder le rectangle mais avec des bords
         else {
             gc.fillRect(0, 0, Constants.CELL_SIZE, Constants.CELL_SIZE);
-            if (color == Color.BROWN) { // Mur destructible
+            if (color == Color.BROWN) {
                 gc.setStroke(Color.DARKGRAY);
                 gc.setLineWidth(2);
                 gc.strokeRect(1, 1, Constants.CELL_SIZE - 2, Constants.CELL_SIZE - 2);
             }
         }
 
-        // Convertir le canvas en image
         return canvas.snapshot(null, null);
     }
 
     private void setupUI() {
-        // Configuration des éléments UI
         if (gameTimer != null) {
-            gameTimer.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+            // MODIFICATION : Police pixelisée pour le timer
+            gameTimer.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Courier New', monospace;");
         }
 
         if (pauseMenu != null) {
@@ -434,49 +905,44 @@ public class GameView {
         }
     }
 
-
     private Image getImageForCell(Cell cell, int x, int y, List<Player> players) {
         Image baseImage = null;
         Image overlayImage = null;
 
-        // 1. Déterminer l'image de base selon le type de cellule
         switch (cell.getType()) {
             case WALL:
-                return wallImage; // Les murs ne peuvent pas avoir de superposition
+                return wallImage;
             case DESTRUCTIBLE_WALL:
-                return destructibleWallImage; // Les murs destructibles non plus
+                return destructibleWallImage;
             case EXPLOSION:
-                return explosionImage; // Les explosions remplacent tout
+                return explosionImage;
             case BOMB:
-                baseImage = emptyImage; // Fond vide
-                overlayImage = bombImage; // Bombe par-dessus
+                baseImage = emptyImage;
+                overlayImage = bombImage;
                 break;
             case EMPTY:
             default:
-                baseImage = emptyImage; // Fond vide par défaut
+                baseImage = emptyImage;
                 break;
         }
 
-        // 2. Vérifier s'il y a un power-up sur cette case
         if (cell.getType() == CellType.EMPTY) {
             try {
                 if (cell.getPowerUp() != null) {
-                    overlayImage = powerUpImages[0]; // Power-up par-dessus le fond
+                    overlayImage = powerUpImages[0];
                 }
             } catch (Exception e) {
-                // La méthode getPowerUp() n'existe peut-être pas
+                // Ignorer
             }
         }
 
-        // 3. Vérifier s'il y a un joueur sur cette case (priorité la plus haute)
         for (Player player : players) {
             if (player.isAlive() && player.getX() == x && player.getY() == y) {
-                overlayImage = playerImages[player.getId() - 1]; // Joueur par-dessus tout
+                overlayImage = playerImages[player.getId() - 1];
                 break;
             }
         }
 
-        // 4. Composer l'image finale
         if (overlayImage != null) {
             return composeImages(baseImage, overlayImage);
         } else {
@@ -485,17 +951,101 @@ public class GameView {
     }
 
     public void updatePlayerInfo(List<Player> players) {
-        if (playerInfo == null) return;
+        if (playerInfo != null) {
+            playerInfo.getChildren().clear();
+            for (Player player : players) {
+                VBox playerBox = createPlayerInfoBox(player);
+                playerInfo.getChildren().add(playerBox);
+            }
+        }
 
-        playerInfo.getChildren().clear();
+        updateBombermanHUD(players);
+    }
+
+    private void updateBombermanHUD(List<Player> players) {
+        if (players == null) return;
 
         for (Player player : players) {
-            VBox playerBox = createPlayerInfoBox(player);
-            playerInfo.getChildren().add(playerBox);
+            updatePlayerHUDSection(player);
         }
     }
 
+    private void updatePlayerHUDSection(Player player) {
+        int playerId = player.getId();
+        HBox playerSection = null;
+        Label bombCountLabel = null;
 
+        switch (playerId) {
+            case 1:
+                playerSection = player1Info;
+                bombCountLabel = player1BombCount;
+                break;
+            case 2:
+                playerSection = player2Info;
+                bombCountLabel = player2BombCount;
+                break;
+            case 3:
+                playerSection = player3Info;
+                bombCountLabel = player3BombCount;
+                break;
+            case 4:
+                playerSection = player4Info;
+                bombCountLabel = player4BombCount;
+                break;
+            default:
+                return;
+        }
+
+        if (playerSection != null && bombCountLabel != null) {
+            playerSection.setVisible(true);
+            playerSection.setManaged(true);
+
+            // CORRECTION : Calculer les bombes disponibles correctement
+            int availableBombs = getPlayerAvailableBombs(player);
+
+            String newCount = String.valueOf(availableBombs);
+            if (!bombCountLabel.getText().equals(newCount)) {
+                bombCountLabel.setText(newCount);
+                animateCounterChange(bombCountLabel);
+            }
+
+            if (!player.isAlive()) {
+                playerSection.setOpacity(0.3);
+            } else {
+                playerSection.setOpacity(1.0);
+            }
+        }
+    }
+
+    private int getPlayerAvailableBombs(Player player) {
+        try {
+            int playerId = player.getId();
+
+            // Obtenir le maximum de bombes du joueur
+            int maxBombs = player.getBombCount();
+            playerMaxBombs.put(playerId, maxBombs);
+
+            // Obtenir les bombes actives
+            int activeBombs = playerActiveBombs.getOrDefault(playerId, 0);
+
+            // Bombes disponibles = max - actives
+            int available = Math.max(0, maxBombs - activeBombs);
+
+
+            return available;
+
+        } catch (Exception e) {
+            System.err.println("Erreur getBombCount pour joueur " + player.getId() + ": " + e.getMessage());
+            return 1;
+        }
+    }
+
+    private void hideAllPlayerSections() {
+        if (player1Info != null) player1Info.setVisible(false);
+        if (player2Info != null) player2Info.setVisible(false);
+        if (player3Info != null) player3Info.setVisible(false);
+        if (player4Info != null) player4Info.setVisible(false);
+    }
 
     private VBox createPlayerInfoBox(Player player) {
         VBox box = new VBox(5);
@@ -517,7 +1067,6 @@ public class GameView {
 
         box.getChildren().addAll(nameLabel, livesLabel, bombsLabel, rangeLabel);
 
-        // Griser si le joueur est mort
         if (!player.isAlive()) {
             box.setOpacity(0.5);
         }
@@ -532,7 +1081,15 @@ public class GameView {
 
     public void updateGameTimer(String timeString) {
         if (gameTimer != null) {
-            gameTimer.setText("Temps: " + timeString);
+            // MODIFICATION : Format timer style Bomberman (ex: "1:41")
+            String formattedTime = timeString.replace("Temps: ", "");
+
+            // Assurer le format minutes:secondes
+            if (formattedTime.startsWith("00:")) {
+                formattedTime = formattedTime.substring(1); // Enlever le premier 0
+            }
+
+            gameTimer.setText(formattedTime);
         }
     }
 
@@ -542,7 +1099,6 @@ public class GameView {
 
             ImageView cellView = cellViews[x][y];
 
-            // Animation d'explosion
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), cellView);
             scaleTransition.setFromX(1.0);
             scaleTransition.setFromY(1.0);
@@ -594,7 +1150,7 @@ public class GameView {
     }
 
     public void showMainMenu() {
-        hideGameInterface(); // Ajout de cette ligne importante
+        hideGameInterface();
 
         if (mainMenu != null) {
             mainMenu.setVisible(true);
@@ -610,27 +1166,16 @@ public class GameView {
     }
 
     @FXML
-    private void onStartGame() {
-        if (controller != null) {
-            controller.startNewGame(2); // 2 joueurs par défaut
-            hideMainMenu();
-            showGameInterface();
-        }
-    }
-
-    @FXML
-    private void onStartGameWithPlayers(int playerCount) {
-        if (controller != null) {
-            controller.startNewGame(playerCount);
-            hideMainMenu();
-            showGameInterface(); // Ajout de cette ligne importante
-        }
+    private void onShowControls() {
+        hideMainMenu();
+        showControlsScreen();
     }
 
     @FXML
     private void onResumeGame() {
         if (controller != null) {
             controller.pauseGame();
+            hidePauseMenu();
         }
     }
 
@@ -640,7 +1185,7 @@ public class GameView {
         hideGameInterface();
         if (controller != null) {
             controller.startNewGame();
-            showGameInterface(); // Afficher l'interface après restart
+            showGameInterface();
         }
     }
 
@@ -649,6 +1194,9 @@ public class GameView {
         if (controller != null) {
             controller.returnToMenu();
         }
+        hidePauseMenu();
+        hideGameInterface();
+        showMainMenu();
     }
 
     @FXML

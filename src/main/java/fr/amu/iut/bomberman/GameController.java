@@ -15,12 +15,10 @@ public class GameController {
     public GameController() {
         this.game = new Game();
         this.inputHandler = new InputHandler(this);
-
     }
 
     public void initialize() {
         setupGameLoop();
-
 
         // Initialiser la vue si elle existe
         if (view != null) {
@@ -43,7 +41,26 @@ public class GameController {
 
     private void updateGame() {
         if (game.isRunning() && game.getCurrentState() == GameState.PLAYING) {
+            // NOUVEAU : Compter les bombes avant mise à jour
+            int[] bombCountsBefore = new int[5]; // Index 0 non utilisé, 1-4 pour joueurs
+            for (Player player : game.getPlayers()) {
+                bombCountsBefore[player.getId()] = game.getBoard().getActiveBombsCount(player);
+            }
+
             game.update();
+
+            // NOUVEAU : Compter les bombes après mise à jour et notifier les changements
+            for (Player player : game.getPlayers()) {
+                int bombCountAfter = game.getBoard().getActiveBombsCount(player);
+                int bombCountBefore = bombCountsBefore[player.getId()];
+
+                // Si le nombre de bombes a diminué, une bombe a explosé
+                if (bombCountAfter < bombCountBefore) {
+                    if (view != null) {
+                        view.onBombExploded(player.getId());
+                    }
+                }
+            }
 
             if (view != null) {
                 view.updateBoard(game.getBoard());
@@ -75,7 +92,6 @@ public class GameController {
         }
 
         startGameLoop();
-
     }
 
     public void pauseGame() {
@@ -97,7 +113,6 @@ public class GameController {
     public void endGame() {
         game.endGame();
         stopGameLoop();
-
 
         if (view != null) {
             view.showGameOver(game.getWinner());
@@ -133,20 +148,19 @@ public class GameController {
     public void movePlayer(int playerId, Direction direction) {
         if (game.getCurrentState() == GameState.PLAYING) {
             game.movePlayer(playerId, direction);
-
         }
     }
 
     public void playerPlaceBomb(int playerId) {
         if (game.getCurrentState() == GameState.PLAYING) {
-            boolean bombPlaced = false;
             Player player = game.getPlayerById(playerId);
             if (player != null && player.isAlive()) {
-                bombPlaced = player.placeBomb(game.getBoard());
-            }
+                boolean bombPlaced = player.placeBomb(game.getBoard());
 
-            if (bombPlaced) {
-
+                // CORRECTION : Notifier la vue qu'une bombe a été placée
+                if (bombPlaced && view != null) {
+                    view.onBombPlaced(playerId);
+                }
             }
         }
     }
@@ -159,5 +173,4 @@ public class GameController {
     public GameView getView() {
         return view;
     }
-
 }

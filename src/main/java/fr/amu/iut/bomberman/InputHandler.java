@@ -123,6 +123,10 @@ public class InputHandler {
     private void executePlayerAction(PlayerAction action) {
         switch (action.actionType) {
             case MOVE:
+                // Notifier la vue de la nouvelle direction avant le mouvement
+                if (controller.getView() != null) {
+                    controller.getView().setPlayerDirection(action.playerId, action.direction);
+                }
                 controller.movePlayer(action.playerId, action.direction);
                 break;
             case PLACE_BOMB:
