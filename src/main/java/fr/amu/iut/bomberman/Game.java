@@ -107,7 +107,7 @@ public class Game {
 
         if (alivePlayers.size() <= 1) {
             if (alivePlayers.size() == 1) {
-                winner = alivePlayers.get(0);
+                winner = alivePlayers.getFirst();
             } else {
                 winner = null; // Égalité
             }
@@ -124,15 +124,6 @@ public class Game {
         }
     }
 
-    public void playerPlaceBomb(int playerId) {
-        if (currentState != GameState.PLAYING) return;
-
-        Player player = getPlayerById(playerId);
-        if (player != null && player.isAlive()) {
-            player.placeBomb(board);
-        }
-    }
-
     public Player getPlayerById(int id) {
         for (Player player : players) {
             if (player.getId() == id) {
@@ -140,16 +131,6 @@ public class Game {
             }
         }
         return null;
-    }
-
-    public List<Player> getAlivePlayers() {
-        List<Player> alive = new ArrayList<>();
-        for (Player player : players) {
-            if (player.isAlive()) {
-                alive.add(player);
-            }
-        }
-        return alive;
     }
 
     public String getGameTimeString() {

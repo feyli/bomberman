@@ -42,7 +42,8 @@ public class BombermanApplication extends Application {
 
             // Configurer la scène
             Scene scene = new Scene(root, 1200, 800);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("style.css")).toExternalForm());
+            String cssPath = Objects.requireNonNull(getClass().getResource("style.css")).toExternalForm();
+            scene.getStylesheets().add(cssPath);
 
             // Gérer les événements clavier
             scene.setOnKeyPressed(gameController::handlePlayerInput);
