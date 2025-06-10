@@ -26,6 +26,9 @@ public class Player {
     private int firePower;
     private double speed;
 
+    // Invincibilité
+    private boolean isInvincible; // Invincibilité activée de manière éphémère
+
     // Constantes
     private static final int DEFAULT_LIVES = 3;
     private static final int DEFAULT_MAX_BOMBS = 1;
@@ -50,6 +53,8 @@ public class Player {
         this.bombsPlaced = 0;
         this.firePower = DEFAULT_FIRE_POWER;
         this.speed = DEFAULT_SPEED;
+
+        enableTemporaryInvincibility();
 
         System.out.println("Joueur " + playerId + " créé: " + name + " à (" + x + ", " + y + ")");
     }
@@ -113,10 +118,15 @@ public class Player {
      * Le joueur perd une vie
      */
     public void loseLife() {
+        if (!alive || isInvincible) {
+            System.out.println("Joueur " + playerId + " ne peut pas perdre de vie (mort ou invincible)!");
+            return;
+        }
         lives--;
         if (lives <= 0) {
             alive = false;
         }
+        enableTemporaryInvincibility();
         System.out.println("Joueur " + playerId + " perd une vie! Vies restantes: " + lives);
     }
 
@@ -205,6 +215,22 @@ public class Player {
         if (direction != Direction.NONE) {
             this.lastValidDirection = direction;
         }
+    }
+
+    public void enableTemporaryInvincibility() {
+        System.out.println("Joueur " + playerId + " est temporairement invincible!");
+        this.isInvincible = true;
+
+        // Désactiver l'invincibilité après 3 secondes
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000); // 3 secondes d'invincibilité
+                this.isInvincible = false;
+                System.out.println("Joueur " + playerId + " n'est plus invincible!");
+            } catch (InterruptedException e) {
+                System.out.println("Erreur lors de la désactivation de l'invincibilité du joueur " + playerId + ": " + e.getMessage());
+            }
+        }).start();
     }
 
     /**

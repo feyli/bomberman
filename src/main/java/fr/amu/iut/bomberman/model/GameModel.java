@@ -169,7 +169,8 @@ public class GameModel {
         int p1X = (int) Math.round(player1.getX());
         int p1Y = (int) Math.round(player1.getY());
         if (gameBoard.hasExplosion(p1X, p1Y) && player1.isAlive()) {
-            player1.die();
+            player1.reset(1.5, 1.5); // Réinitialiser la position du joueur 1
+            player1.loseLife();
             notifyPlayerHit(player1);
         }
 
@@ -177,7 +178,8 @@ public class GameModel {
         int p2X = (int) Math.round(player2.getX());
         int p2Y = (int) Math.round(player2.getY());
         if (gameBoard.hasExplosion(p2X, p2Y) && player2.isAlive()) {
-            player2.die();
+            player2.reset(13.5, 11.5); // Réinitialiser la position du joueur 2
+            player2.loseLife();
             notifyPlayerHit(player2);
         }
     }
@@ -709,3 +711,4 @@ public class GameModel {
         }
     }
 }
+
