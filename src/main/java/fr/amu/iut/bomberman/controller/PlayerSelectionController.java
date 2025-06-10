@@ -1,7 +1,9 @@
 package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.PlayerProfile;
+import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -18,6 +20,8 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * Contrôleur pour la sélection des joueurs
@@ -116,12 +120,12 @@ public class PlayerSelectionController {
         player2ComboBox.setConverter(converter);
 
         // Sélection par défaut
-        if (profiles.size() > 0) {
+        if (!profiles.isEmpty()) {
             player1ComboBox.setValue(profiles.get(0));
         }
         if (profiles.size() > 1) {
             player2ComboBox.setValue(profiles.get(1));
-        } else if (profiles.size() > 0) {
+        } else if (!profiles.isEmpty()) {
             // S'il n'y a qu'un profil, on sélectionne le même pour les deux (sera corrigé plus tard)
             player2ComboBox.setValue(profiles.get(0));
         }
@@ -147,13 +151,13 @@ public class PlayerSelectionController {
     private void updatePlayer1Display(PlayerProfile profile) {
         if (profile != null && player1Avatar != null) {
             try {
-                Image avatar = new Image(getClass().getResourceAsStream(profile.getAvatarPath()));
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
                 player1Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
                 System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
                 try {
-                    Image defaultAvatar = new Image(getClass().getResourceAsStream("/images/avatars/default.png"));
+                    Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player1Avatar.setImage(defaultAvatar);
                 } catch (Exception ex) {
                     System.err.println("Impossible de charger l'avatar par défaut");
@@ -170,13 +174,13 @@ public class PlayerSelectionController {
     private void updatePlayer2Display(PlayerProfile profile) {
         if (profile != null && player2Avatar != null) {
             try {
-                Image avatar = new Image(getClass().getResourceAsStream(profile.getAvatarPath()));
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
                 player2Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
                 System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
                 try {
-                    Image defaultAvatar = new Image(getClass().getResourceAsStream("/images/avatars/default.png"));
+                    Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player2Avatar.setImage(defaultAvatar);
                 } catch (Exception ex) {
                     System.err.println("Impossible de charger l'avatar par défaut");
@@ -196,7 +200,7 @@ public class PlayerSelectionController {
         boolean canStart = p1 != null && p2 != null && !p1.equals(p2);
         startButton.setDisable(!canStart);
 
-        if (p1 != null && p2 != null && p1.equals(p2)) {
+        if (p1 != null && p1.equals(p2)) {
             // Ne pas afficher l'avertissement immédiatement, juste désactiver le bouton
             System.out.println("Même profil sélectionné pour les deux joueurs");
         }
@@ -233,7 +237,7 @@ public class PlayerSelectionController {
 
         // Appliquer le style
         dialog.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
         );
 
         // Boutons
@@ -311,14 +315,21 @@ public class PlayerSelectionController {
      * Gère le clic sur "Commencer"
      */
     @FXML
-    private void handleStart() {
-        PlayerProfile profile1 = player1ComboBox.getValue();
-        PlayerProfile profile2 = player2ComboBox.getValue();
-
-        if (profile1 == null || profile2 == null || profile1.equals(profile2)) {
-            showWarning("Sélection invalide", "Veuillez sélectionner deux profils différents.");
+    private void handleStartGame() {
+        // Vérifier les sélections de profils
+        if (player1ComboBox.getValue() == null || player2ComboBox.getValue() == null) {
+            showWarning("Veuillez sélectionner un profil pour chaque joueur.");
             return;
         }
+
+        // Récupérer les données de jeu
+        PlayerProfile profile1 = player1ComboBox.getValue();
+        PlayerProfile profile2 = player2ComboBox.getValue();
+        int rounds = roundsSpinner.getValue();
+        String timeString = timeComboBox.getValue();
+
+        // Convertir le temps sélectionné en secondes
+        int timeInSeconds = convertTimeToSeconds(timeString);
 
         SoundManager.getInstance().playSound("game_start");
 
@@ -329,21 +340,44 @@ public class PlayerSelectionController {
 
             // Obtenir le contrôleur et démarrer le jeu
             GameController gameController = loader.getController();
-            gameController.startGame(profile1, profile2);
+            gameController.startGame(profile1, profile2, rounds, timeInSeconds);
 
             // Créer la scène
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
             // Changer de scène
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Configurer le plein écran pour le jeu
+            FullScreenManager.getInstance().configureForGame(stage);
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Erreur", "Impossible de démarrer le jeu: " + e.getMessage());
+            showError("Impossible de démarrer le jeu: " + e.getMessage());
         }
+    }
+
+    /**
+     * Convertit le temps affiché (MM:SS) en secondes
+     *
+     * @param timeString Temps au format MM:SS
+     * @return Temps en secondes
+     */
+    private int convertTimeToSeconds(String timeString) {
+        String[] parts = timeString.split(":");
+        if (parts.length == 2) {
+            try {
+                int minutes = Integer.parseInt(parts[0]);
+                int seconds = Integer.parseInt(parts[1]);
+                return minutes * 60 + seconds;
+            } catch (NumberFormatException e) {
+                System.err.println("Format de temps invalide: " + timeString);
+            }
+        }
+        // Valeur par défaut en cas d'erreur (3 minutes)
+        return 180;
     }
 
     /**
@@ -359,31 +393,30 @@ public class PlayerSelectionController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Configurer pour le mode menu (sans plein écran)
+            FullScreenManager.getInstance().configureForMenu(stage);
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Erreur", "Impossible de retourner au menu: " + e.getMessage());
+            showError("Impossible de retourner au menu: " + e.getMessage());
         }
     }
 
     /**
      * Affiche un avertissement
-     *
-     * @param title   Titre
-     * @param message Message
      */
-    private void showWarning(String title, String message) {
+    private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
+        alert.setTitle("Sélection invalide");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
         );
         alert.showAndWait();
     }
@@ -391,16 +424,15 @@ public class PlayerSelectionController {
     /**
      * Affiche une erreur
      *
-     * @param title   Titre
      * @param message Message
      */
-    private void showError(String title, String message) {
+    private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle("Erreur");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
         );
         alert.showAndWait();
     }
@@ -423,3 +455,4 @@ public class PlayerSelectionController {
         }
     }
 }
+

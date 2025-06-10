@@ -35,6 +35,9 @@ public class Player {
     private static final int DEFAULT_FIRE_POWER = 1;
     private static final double DEFAULT_SPEED = 3.5; // Augmenté pour un meilleur gameplay
 
+    // Score du joueur
+    private int score;
+
     /**
      * Constructeur
      */
@@ -238,6 +241,24 @@ public class Player {
      */
     public Direction getLastValidDirection() {
         return lastValidDirection;
+    }
+
+    /**
+     * Retourne le score du joueur
+     *
+     * @return score actuel
+     */
+    public int getScore() {
+        return score;
+    }
+
+    /**
+     * Ajoute des points au score du joueur
+     *
+     * @param points Points à ajouter
+     */
+    public void addScore(int points) {
+        this.score += points;
     }
 
     // Getters

@@ -1,5 +1,6 @@
 package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.fxml.FXML;
@@ -372,11 +373,9 @@ public class SettingsController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainMenu.fxml"));
             Parent root = loader.load();
 
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
-
             Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
-            stage.setScene(scene);
+            // Utiliser SceneManager pour préserver le mode plein écran
+            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
 
         } catch (IOException e) {
             showError("Impossible de retourner au menu: " + e.getMessage());
@@ -418,3 +417,4 @@ public class SettingsController {
         alert.showAndWait();
     }
 }
+

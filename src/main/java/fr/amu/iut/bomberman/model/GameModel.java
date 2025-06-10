@@ -34,11 +34,11 @@ public class GameModel {
     private final IntegerProperty player2Score;
     private final IntegerProperty timeRemaining;
 
-    private GameBoard gameBoard;
+    private final GameBoard gameBoard;
     private Player player1;
     private Player player2;
-    private final int roundsToWin;
-    private final int roundTimeLimit; // en secondes
+    private int roundsToWin;
+    private int roundTimeLimit; // en secondes
 
 
     private List<GameModelListener> listeners;
@@ -54,23 +54,30 @@ public class GameModel {
         this.timeRemaining = new SimpleIntegerProperty(180); // 3 minutes par défaut
 
         this.gameBoard = new GameBoard();
-        this.roundsToWin = 3;
-        this.roundTimeLimit = 180;
+        this.roundsToWin = 3; // Valeur par défaut
+        this.roundTimeLimit = 180; // Valeur par défaut
         this.listeners = new ArrayList<>();
     }
 
+
     /**
-     * Initialise une nouvelle partie
+     * Initialise une nouvelle partie avec paramètres personnalisés
      *
-     * @param player1Name Nom du joueur 1
-     * @param player2Name Nom du joueur 2
+     * @param player1Name  Nom du joueur 1
+     * @param player2Name  Nom du joueur 2
+     * @param roundsToWin  Nombre de rounds à gagner pour remporter la partie
+     * @param timeLimit    Temps limite par round en secondes
      */
-    public void startNewGame(String player1Name, String player2Name) {
+    public void startNewGame(String player1Name, String player2Name, int roundsToWin, int timeLimit) {
+        // Enregistrer les paramètres de jeu
+        this.roundsToWin = roundsToWin;
+        this.roundTimeLimit = timeLimit;
+
         // Créer les joueurs avec positions corrigées
         // Joueur 1 en haut à gauche (1,1)
         player1 = new Player(1, player1Name, 1.5, 1.5);
 
-        // Joueur 2 en bas à droite - CORRECTION ICI
+        // Joueur 2 en bas à droite
         // La grille fait 15x13, donc le coin bas-droit est (13,11)
         player2 = new Player(2, player2Name, 13.5, 11.5);
 
@@ -78,6 +85,7 @@ public class GameModel {
         System.out.println("Grille: " + GameBoard.GRID_WIDTH + "x" + GameBoard.GRID_HEIGHT);
         System.out.println("Joueur 1 créé à la position: (" + player1.getX() + ", " + player1.getY() + ")");
         System.out.println("Joueur 2 créé à la position: (" + player2.getX() + ", " + player2.getY() + ")");
+        System.out.println("Paramètres: " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
 
         // Réinitialiser les scores
         player1Score.set(0);
@@ -146,19 +154,41 @@ public class GameModel {
         checkRoundEnd();
     }
 
+    private double accumulatedTime = 0; // Accumulateur pour deltaTime
+
     /**
-     * Met à jour le timer du round
+     * Met à jour le timer du round en minutes:secondes
      *
-     * @param deltaTime Temps écoulé
+     * @param deltaTime Temps écoulé depuis la dernière mise à jour (en secondes)
      */
     private void updateTimer(double deltaTime) {
-        int newTime = timeRemaining.get() - (int) deltaTime;
-        if (newTime <= 0) {
-            timeRemaining.set(0);
-            endRoundByTimeout();
-        } else {
-            timeRemaining.set(newTime);
+        if (gameState.get() != GameState.PLAYING) {
+            return;
         }
+
+        // Ajouter deltaTime à l'accumulateur
+        accumulatedTime += deltaTime;
+
+        // Décrémenter le temps restant par secondes entières
+        while (accumulatedTime >= 1.0) {
+            int currentTime = timeRemaining.get();
+            int newTime = currentTime - 1;
+
+            if (newTime <= 0) {
+                timeRemaining.set(0);
+                endRoundByTimeout();
+                return;
+            } else {
+                timeRemaining.set(newTime);
+            }
+
+            accumulatedTime -= 1.0; // Réduire l'accumulateur
+        }
+
+        // Afficher en format minutes:secondes pour le débogage
+        int currentTime = timeRemaining.get();
+        int minutes = currentTime / 60;
+        int seconds = currentTime % 60;
     }
 
     /**
@@ -432,15 +462,13 @@ public class GameModel {
         int playerY = (int) Math.round(player.getY());
 
         // Placer la bombe directement sur la case du joueur
-        int bombX = playerX;
-        int bombY = playerY;
 
         System.out.println("=== PLACEMENT BOMBE ===");
         System.out.println("Joueur " + playerId + " position: (" + player.getX() + ", " + player.getY() + ")");
-        System.out.println("Case cible pour la bombe: (" + bombX + ", " + bombY + ")");
+        System.out.println("Case cible pour la bombe: (" + playerX + ", " + playerY + ")");
 
         // Vérifier si la position est un mur ou un mur cassable
-        GameBoard.TileType tile = gameBoard.getTile(bombX, bombY);
+        GameBoard.TileType tile = gameBoard.getTile(playerX, playerY);
         if (tile == GameBoard.TileType.WALL || tile == GameBoard.TileType.BREAKABLE_WALL) {
             System.out.println("Impossible de placer une bombe dans un mur!");
             return;
@@ -448,20 +476,20 @@ public class GameModel {
 
         // Vérifier qu'il n'y a pas déjà une bombe sur le joueur
         for (Bomb bomb : gameBoard.getBombs()) {
-            if (bomb.getX() == bombX && bomb.getY() == bombY) {
+            if (bomb.getX() == playerX && bomb.getY() == playerY) {
                 System.out.println("Il y a déjà une bombe sur la case du joueur!");
                 return;
             }
         }
 
         // Vérifier qu'il existe au moins une issue pour le joueur
-        if (!hasEscapeRoute(player, bombX, bombY)) {
+        if (!hasEscapeRoute(player, playerX, playerY)) {
             System.out.println("Impossible de placer une bombe - Le joueur serait bloqué sans issue!");
             return;
         }
 
         // Créer et placer la bombe
-        Bomb bomb = new Bomb(bombX, bombY, player.getFirePower(), playerId);
+        Bomb bomb = new Bomb(playerX, playerY, player.getFirePower(), playerId);
         gameBoard.addBomb(bomb);
         player.incrementBombsPlaced();
 
@@ -472,7 +500,7 @@ public class GameModel {
         int otherPlayerId = (playerId == 1) ? 2 : 1;
         bomb.setCanBeTraversedBy(otherPlayerId, false);
 
-        System.out.println("✅ Bombe placée avec succès à (" + bombX + ", " + bombY + ")!");
+        System.out.println("✅ Bombe placée avec succès à (" + playerX + ", " + playerY + ")!");
         System.out.println("Bombes du joueur: " + player.getBombsPlaced() + "/" + player.getMaxBombs());
 
         notifyBombPlaced(player, bomb);
@@ -644,10 +672,6 @@ public class GameModel {
         return timeRemaining.get();
     }
 
-    public IntegerProperty timeRemainingProperty() {
-        return timeRemaining;
-    }
-
     public GameBoard getGameBoard() {
         return gameBoard;
     }
@@ -683,9 +707,6 @@ public class GameModel {
         }
 
         default void onPowerUpCollected(Player player, PowerUp powerUp) {
-        }
-
-        default void onGameStateChanged() {
         }
     }
 }

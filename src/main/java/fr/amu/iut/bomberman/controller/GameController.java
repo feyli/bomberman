@@ -1,7 +1,9 @@
 package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.*;
+import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -13,12 +15,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Contrôleur principal du jeu
@@ -33,10 +35,6 @@ public class GameController implements GameModel.GameModelListener {
     private Canvas gameCanvas;
     @FXML
     private Pane gamePane;
-    @FXML
-    private HBox player1Info;
-    @FXML
-    private HBox player2Info;
     @FXML
     private Label player1Name;
     @FXML
@@ -61,7 +59,7 @@ public class GameController implements GameModel.GameModelListener {
     private AnimationTimer gameLoop;
 
     // Gestion des touches
-    private Map<KeyCode, Boolean> keysPressed = new HashMap<>();
+    private final Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     private long lastFrameTime = 0;
     private int frameCount = 0;
 
@@ -140,20 +138,27 @@ public class GameController implements GameModel.GameModelListener {
         }
     }
 
+
+
     /**
-     * Démarre une nouvelle partie
+     * Démarre une nouvelle partie avec paramètres personnalisés
      *
      * @param player1Profile Profil du joueur 1
      * @param player2Profile Profil du joueur 2
+     * @param roundsToWin    Nombre de rounds à gagner
+     * @param timeLimit      Limite de temps par round en secondes
      */
-    public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile) {
+    public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile, int roundsToWin, int timeLimit) {
         System.out.println("Démarrage du jeu entre " + player1Profile.getDisplayName() +
-                " et " + player2Profile.getDisplayName());
+                " et " + player2Profile.getDisplayName() +
+                " - " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
 
-        // Démarrer le jeu
+        // Démarrer le jeu avec les paramètres personnalisés
         gameModel.startNewGame(
                 player1Profile.getDisplayName(),
-                player2Profile.getDisplayName()
+                player2Profile.getDisplayName(),
+                roundsToWin,
+                timeLimit
         );
 
         // Mettre à jour les noms des joueurs
@@ -428,11 +433,13 @@ public class GameController implements GameModel.GameModelListener {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Utiliser le FullScreenManager pour configurer le mode menu
+            FullScreenManager.getInstance().configureForMenuFromGame(stage);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -500,6 +507,34 @@ public class GameController implements GameModel.GameModelListener {
 
         System.out.println("Partie terminée - Gagnant: " + winner.getName());
 
+        // Mettre à jour les statistiques du gagnant via ProfileManager
+        // Vérification si le profil existe avant la mise à jour
+        // Ajout de messages de débogage pour vérifier les étapes
+        System.out.println("Débogage: Nom du gagnant: " + winner.getName());
+
+        // Recherche du profil par pseudo (nickname) pour le gagnant
+        PlayerProfile winnerProfile = ProfileManager.getInstance().getProfileByNickname(winner.getName());
+        if (winnerProfile != null) {
+            winnerProfile.updateStats(true, winner.getScore()); // Mise à jour des stats avec victoire
+            ProfileManager.getInstance().updateProfile(winnerProfile);
+            System.out.println("Statistiques du gagnant " + winner.getName() + " mises à jour.");
+        } else {
+            System.err.println("Profil introuvable pour le joueur gagnant: " + winner.getName());
+        }
+
+        // Identifier le joueur perdant (l'autre joueur)
+        Player loser = (winner == gameModel.getPlayer1()) ? gameModel.getPlayer2() : gameModel.getPlayer1();
+
+        // Mettre à jour les statistiques du perdant
+        PlayerProfile loserProfile = ProfileManager.getInstance().getProfileByNickname(loser.getName());
+        if (loserProfile != null) {
+            loserProfile.updateStats(false, loser.getScore()); // Mise à jour des stats sans victoire
+            ProfileManager.getInstance().updateProfile(loserProfile);
+            System.out.println("Statistiques du perdant " + loser.getName() + " mises à jour.");
+        } else {
+            System.err.println("Profil introuvable pour le joueur perdant: " + loser.getName());
+        }
+
         // Retourner au menu après 5 secondes
         new Thread(() -> {
             try {
@@ -543,17 +578,4 @@ public class GameController implements GameModel.GameModelListener {
         }).start();
     }
 
-    /**
-     * Nettoyage lors de la fermeture
-     */
-    public void cleanup() {
-        System.out.println("Nettoyage du GameController");
-
-        if (gameLoop != null) {
-            gameLoop.stop();
-            gameLoop = null;
-        }
-
-        SoundManager.getInstance().stopMusic();
-    }
 }
