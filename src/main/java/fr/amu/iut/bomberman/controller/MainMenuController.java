@@ -1,15 +1,17 @@
-package com.bomberman.controller;
+package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.utils.SoundManager;
+import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import javafx.animation.*;
 import javafx.util.Duration;
-import javafx.application.Platform;
-import com.bomberman.utils.SoundManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,9 +25,12 @@ import java.net.URL;
  */
 public class MainMenuController {
 
-    @FXML private Button playButton;
-    @FXML private Button profileButton;
-    @FXML private Button quitButton;
+    @FXML
+    private Button playButton;
+    @FXML
+    private Button profileButton;
+    @FXML
+    private Button quitButton;
 
     /**
      * Initialisation du contrôleur
@@ -228,7 +233,7 @@ public class MainMenuController {
     /**
      * Affiche une erreur
      *
-     * @param title Titre de l'erreur
+     * @param title   Titre de l'erreur
      * @param message Message d'erreur
      */
     private void showError(String title, String message) {

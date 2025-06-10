@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
+            <version>22</version>
         </dependency>
 
         <!-- JavaFX FXML -->
@@ -74,13 +74,13 @@
                 <version>0.0.8</version>
                 <configuration>
                     <!-- CORRECTION : Classe principale corrigée -->
-                    <mainClass>com.bomberman.Main</mainClass>
+                    <mainClass>fr.amu.iut.bomberman.Main</mainClass>
                 </configuration>
                 <executions>
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.bomberman.Main</mainClass>
+                            <mainClass>fr.amu.iut.bomberman.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

@@ -1,7 +1,12 @@
-package com.bomberman.model;
+package fr.amu.iut.bomberman.model;
 
-import java.util.*;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Classe représentant le plateau de jeu
@@ -496,11 +501,25 @@ public class GameBoard {
     }
 
     // Getters
-    public TileType[][] getGrid() { return grid; }
-    public ObjectProperty<TileType[][]> gridProperty() { return gridProperty; }
-    public List<Bomb> getBombs() { return new ArrayList<>(bombs); }
-    public List<PowerUp> getPowerUps() { return new ArrayList<>(powerUps); }
-    public List<Explosion> getExplosions() { return new ArrayList<>(explosions); }
+    public TileType[][] getGrid() {
+        return grid;
+    }
+
+    public ObjectProperty<TileType[][]> gridProperty() {
+        return gridProperty;
+    }
+
+    public List<Bomb> getBombs() {
+        return new ArrayList<>(bombs);
+    }
+
+    public List<PowerUp> getPowerUps() {
+        return new ArrayList<>(powerUps);
+    }
+
+    public List<Explosion> getExplosions() {
+        return new ArrayList<>(explosions);
+    }
 
     public TileType getTile(int x, int y) {
         if (isValidPosition(x, y)) {

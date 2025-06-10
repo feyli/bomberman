@@ -1,4 +1,4 @@
-package com.bomberman.model;
+package fr.amu.iut.bomberman.model;
 
 /**
  * Représente une explosion dans le jeu
@@ -57,8 +57,19 @@ public class Explosion {
     }
 
     // Getters
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public Type getType() { return type; }
-    public double getTimeRemaining() { return timeRemaining; }
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public double getTimeRemaining() {
+        return timeRemaining;
+    }
 }

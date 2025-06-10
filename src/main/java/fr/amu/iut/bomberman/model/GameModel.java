@@ -1,7 +1,12 @@
-package com.bomberman.model;
+package fr.amu.iut.bomberman.model;
 
-import javafx.beans.property.*;
-import java.util.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Modèle principal du jeu Bomberman
@@ -147,7 +152,7 @@ public class GameModel {
      * @param deltaTime Temps écoulé
      */
     private void updateTimer(double deltaTime) {
-        int newTime = timeRemaining.get() - (int)deltaTime;
+        int newTime = timeRemaining.get() - (int) deltaTime;
         if (newTime <= 0) {
             timeRemaining.set(0);
             endRoundByTimeout();
@@ -291,7 +296,7 @@ public class GameModel {
     /**
      * Déplace un joueur
      *
-     * @param playerId Numéro du joueur (1 ou 2)
+     * @param playerId  Numéro du joueur (1 ou 2)
      * @param direction Direction du mouvement
      * @param deltaTime Temps écoulé
      */
@@ -623,36 +628,84 @@ public class GameModel {
 
     // Getters
 
-    public GameState getGameState() { return gameState.get(); }
-    public ObjectProperty<GameState> gameStateProperty() { return gameState; }
+    public GameState getGameState() {
+        return gameState.get();
+    }
 
-    public int getCurrentRound() { return currentRound.get(); }
-    public IntegerProperty currentRoundProperty() { return currentRound; }
+    public ObjectProperty<GameState> gameStateProperty() {
+        return gameState;
+    }
 
-    public int getPlayer1Score() { return player1Score.get(); }
-    public IntegerProperty player1ScoreProperty() { return player1Score; }
+    public int getCurrentRound() {
+        return currentRound.get();
+    }
 
-    public int getPlayer2Score() { return player2Score.get(); }
-    public IntegerProperty player2ScoreProperty() { return player2Score; }
+    public IntegerProperty currentRoundProperty() {
+        return currentRound;
+    }
 
-    public int getTimeRemaining() { return timeRemaining.get(); }
-    public IntegerProperty timeRemainingProperty() { return timeRemaining; }
+    public int getPlayer1Score() {
+        return player1Score.get();
+    }
 
-    public GameBoard getGameBoard() { return gameBoard; }
-    public Player getPlayer1() { return player1; }
-    public Player getPlayer2() { return player2; }
+    public IntegerProperty player1ScoreProperty() {
+        return player1Score;
+    }
+
+    public int getPlayer2Score() {
+        return player2Score.get();
+    }
+
+    public IntegerProperty player2ScoreProperty() {
+        return player2Score;
+    }
+
+    public int getTimeRemaining() {
+        return timeRemaining.get();
+    }
+
+    public IntegerProperty timeRemainingProperty() {
+        return timeRemaining;
+    }
+
+    public GameBoard getGameBoard() {
+        return gameBoard;
+    }
+
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public Player getPlayer2() {
+        return player2;
+    }
 
     /**
      * Interface pour les écouteurs d'événements du modèle
      */
     public interface GameModelListener {
-        default void onGameStarted() {}
-        default void onRoundStarted(int roundNumber) {}
-        default void onRoundEnded(Player winner) {}
-        default void onGameEnded(Player winner) {}
-        default void onPlayerHit(Player player) {}
-        default void onBombPlaced(Player player, Bomb bomb) {}
-        default void onPowerUpCollected(Player player, PowerUp powerUp) {}
-        default void onGameStateChanged() {}
+        default void onGameStarted() {
+        }
+
+        default void onRoundStarted(int roundNumber) {
+        }
+
+        default void onRoundEnded(Player winner) {
+        }
+
+        default void onGameEnded(Player winner) {
+        }
+
+        default void onPlayerHit(Player player) {
+        }
+
+        default void onBombPlaced(Player player, Bomb bomb) {
+        }
+
+        default void onPowerUpCollected(Player player, PowerUp powerUp) {
+        }
+
+        default void onGameStateChanged() {
+        }
     }
 }

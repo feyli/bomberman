@@ -1,4 +1,4 @@
-package com.bomberman.model;
+package fr.amu.iut.bomberman.model;
 
 /**
  * Représente un joueur dans le jeu Bomberman
@@ -215,19 +215,56 @@ public class Player {
     }
 
     // Getters
-    public int getPlayerId() { return playerId; }
-    public String getName() { return name; }
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public int getLives() { return lives; }
-    public boolean isAlive() { return alive; }
-    public Direction getCurrentDirection() { return currentDirection; }
-    public int getMaxBombs() { return maxBombs; }
-    public int getBombsPlaced() { return bombsPlaced; }
-    public int getFirePower() { return firePower; }
-    public double getSpeed() { return speed; }
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public Direction getCurrentDirection() {
+        return currentDirection;
+    }
+
+    public int getMaxBombs() {
+        return maxBombs;
+    }
+
+    public int getBombsPlaced() {
+        return bombsPlaced;
+    }
+
+    public int getFirePower() {
+        return firePower;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
 
     // Setters
-    public void setName(String name) { this.name = name; }
-    public void setAlive(boolean alive) { this.alive = alive; }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
 }

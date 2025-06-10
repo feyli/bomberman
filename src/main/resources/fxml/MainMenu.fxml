@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
 <VBox alignment="CENTER" spacing="30"
       xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bomberman.controller.MainMenuController"
+      fx:controller="fr.amu.iut.bomberman.controller.MainMenuController"
       styleClass="menu-container">
 
     <padding>
@@ -18,7 +17,7 @@
     <!-- Titre du jeu -->
     <Label text="SUPER BOMBERMAN" styleClass="title-label">
         <font>
-            <Font name="Arial Black" size="48" />
+            <Font name="Arial Black" size="48"/>
         </font>
     </Label>
 
@@ -31,7 +30,7 @@
                 prefHeight="50"
                 styleClass="menu-button">
             <font>
-                <Font size="18" />
+                <Font size="18"/>
             </font>
         </Button>
 
@@ -42,7 +41,7 @@
                 prefHeight="50"
                 styleClass="menu-button">
             <font>
-                <Font size="18" />
+                <Font size="18"/>
             </font>
         </Button>
 
@@ -52,7 +51,7 @@
                 prefHeight="50"
                 styleClass="menu-button">
             <font>
-                <Font size="18" />
+                <Font size="18"/>
             </font>
         </Button>
 
@@ -63,7 +62,7 @@
                 styleClass="menu-button"
                 onAction="#handleQuit">
             <font>
-                <Font size="18" />
+                <Font size="18"/>
             </font>
         </Button>
     </VBox>
@@ -71,7 +70,7 @@
     <!-- Version -->
     <Label text="Version 1.0" styleClass="version-label">
         <font>
-            <Font size="12" />
+            <Font size="12"/>
         </font>
     </Label>
 </VBox>

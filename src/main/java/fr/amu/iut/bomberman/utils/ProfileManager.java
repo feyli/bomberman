@@ -1,8 +1,10 @@
-package com.bomberman.utils;
+package fr.amu.iut.bomberman.utils;
 
-import com.bomberman.model.PlayerProfile;
+import fr.amu.iut.bomberman.model.PlayerProfile;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gestionnaire des profils de joueurs

@@ -1,13 +1,13 @@
-package com.bomberman.view;
+package fr.amu.iut.bomberman.view;
 
+import fr.amu.iut.bomberman.model.*;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import com.bomberman.model.*;
-import com.bomberman.utils.ThemeManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -221,9 +221,9 @@ public class GameRenderer {
             String imageKey = getPowerUpImageKey(powerUp.getType());
 
             gc.save();
-            gc.translate(drawX + tileSize/2, drawY + tileSize/2);
+            gc.translate(drawX + tileSize / 2, drawY + tileSize / 2);
             gc.scale(scale, scale);
-            gc.translate(-tileSize/2, -tileSize/2);
+            gc.translate(-tileSize / 2, -tileSize / 2);
 
             drawTile(0, 0, POWERUP_COLOR, imageKey);
 
@@ -245,14 +245,14 @@ public class GameRenderer {
             double scale = 1.0 + Math.sin(animationTimer * pulseSpeed) * 0.2 * (1.0 - timePercent);
 
             gc.save();
-            gc.translate(drawX + tileSize/2, drawY + tileSize/2);
+            gc.translate(drawX + tileSize / 2, drawY + tileSize / 2);
             gc.scale(scale, scale);
-            gc.translate(-tileSize/2, -tileSize/2);
+            gc.translate(-tileSize / 2, -tileSize / 2);
 
             // Couleur qui devient rouge près de l'explosion
             Color bombColor = Color.rgb(
                     255,
-                    (int)(140 * timePercent),
+                    (int) (140 * timePercent),
                     0
             );
 
@@ -280,9 +280,9 @@ public class GameRenderer {
             double scale = 1.0 + (1.0 - intensity) * 0.3;
 
             gc.save();
-            gc.translate(drawX + tileSize/2, drawY + tileSize/2);
+            gc.translate(drawX + tileSize / 2, drawY + tileSize / 2);
             gc.scale(scale, scale);
-            gc.translate(-tileSize/2, -tileSize/2);
+            gc.translate(-tileSize / 2, -tileSize / 2);
 
             drawTile(0, 0, explosionColor, imageKey);
 
@@ -409,7 +409,7 @@ public class GameRenderer {
             gc.setFill(Color.WHITE);
             gc.setFont(new Font("Arial Black", size * 0.4));
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(String.valueOf(playerNumber), x + size/2, y + size/2 + size*0.15);
+            gc.fillText(String.valueOf(playerNumber), x + size / 2, y + size / 2 + size * 0.15);
         }
     }
 

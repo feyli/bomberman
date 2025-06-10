@@ -1,6 +1,11 @@
-package com.bomberman.controller;
+package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.model.PlayerProfile;
+import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.SoundManager;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,11 +15,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import com.bomberman.model.PlayerProfile;
-import com.bomberman.utils.ProfileManager;
-import com.bomberman.utils.SoundManager;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
@@ -28,13 +28,20 @@ import java.io.IOException;
  */
 public class PlayerSelectionController {
 
-    @FXML private ComboBox<PlayerProfile> player1ComboBox;
-    @FXML private ComboBox<PlayerProfile> player2ComboBox;
-    @FXML private ImageView player1Avatar;
-    @FXML private ImageView player2Avatar;
-    @FXML private Spinner<Integer> roundsSpinner;
-    @FXML private ComboBox<String> timeComboBox;
-    @FXML private Button startButton;
+    @FXML
+    private ComboBox<PlayerProfile> player1ComboBox;
+    @FXML
+    private ComboBox<PlayerProfile> player2ComboBox;
+    @FXML
+    private ImageView player1Avatar;
+    @FXML
+    private ImageView player2Avatar;
+    @FXML
+    private Spinner<Integer> roundsSpinner;
+    @FXML
+    private ComboBox<String> timeComboBox;
+    @FXML
+    private Button startButton;
 
     private ProfileManager profileManager;
     private ObservableList<PlayerProfile> profiles;
@@ -367,7 +374,7 @@ public class PlayerSelectionController {
     /**
      * Affiche un avertissement
      *
-     * @param title Titre
+     * @param title   Titre
      * @param message Message
      */
     private void showWarning(String title, String message) {
@@ -384,7 +391,7 @@ public class PlayerSelectionController {
     /**
      * Affiche une erreur
      *
-     * @param title Titre
+     * @param title   Titre
      * @param message Message
      */
     private void showError(String title, String message) {

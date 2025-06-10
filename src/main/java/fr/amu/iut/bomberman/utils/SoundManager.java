@@ -1,7 +1,8 @@
-package com.bomberman.utils;
+package fr.amu.iut.bomberman.utils;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -233,7 +234,15 @@ public class SoundManager {
 
     // Getters
 
-    public double getSoundVolume() { return soundVolume; }
-    public double getMusicVolume() { return musicVolume; }
-    public boolean isSoundEnabled() { return soundEnabled; }
+    public double getSoundVolume() {
+        return soundVolume;
+    }
+
+    public double getMusicVolume() {
+        return musicVolume;
+    }
+
+    public boolean isSoundEnabled() {
+        return soundEnabled;
+    }
 }

@@ -1,20 +1,20 @@
-package com.bomberman.controller;
+package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import com.bomberman.utils.SoundManager;
-import com.bomberman.utils.ThemeManager;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
@@ -27,31 +27,51 @@ import java.util.prefs.Preferences;
 public class SettingsController {
 
     // Onglet Audio
-    @FXML private Slider soundVolumeSlider;
-    @FXML private Label soundVolumeLabel;
-    @FXML private Slider musicVolumeSlider;
-    @FXML private Label musicVolumeLabel;
-    @FXML private CheckBox soundEnabledCheckBox;
-    @FXML private CheckBox musicEnabledCheckBox;
+    @FXML
+    private Slider soundVolumeSlider;
+    @FXML
+    private Label soundVolumeLabel;
+    @FXML
+    private Slider musicVolumeSlider;
+    @FXML
+    private Label musicVolumeLabel;
+    @FXML
+    private CheckBox soundEnabledCheckBox;
+    @FXML
+    private CheckBox musicEnabledCheckBox;
 
     // Onglet Graphismes
-    @FXML private ComboBox<String> themeComboBox;
-    @FXML private HBox themePreviewBox;
-    @FXML private CheckBox fullscreenCheckBox;
-    @FXML private CheckBox vsyncCheckBox;
+    @FXML
+    private ComboBox<String> themeComboBox;
+    @FXML
+    private HBox themePreviewBox;
+    @FXML
+    private CheckBox fullscreenCheckBox;
+    @FXML
+    private CheckBox vsyncCheckBox;
 
     // Onglet Contrôles
-    @FXML private Button p1UpButton;
-    @FXML private Button p1DownButton;
-    @FXML private Button p1LeftButton;
-    @FXML private Button p1RightButton;
-    @FXML private Button p1BombButton;
+    @FXML
+    private Button p1UpButton;
+    @FXML
+    private Button p1DownButton;
+    @FXML
+    private Button p1LeftButton;
+    @FXML
+    private Button p1RightButton;
+    @FXML
+    private Button p1BombButton;
 
-    @FXML private Button p2UpButton;
-    @FXML private Button p2DownButton;
-    @FXML private Button p2LeftButton;
-    @FXML private Button p2RightButton;
-    @FXML private Button p2BombButton;
+    @FXML
+    private Button p2UpButton;
+    @FXML
+    private Button p2DownButton;
+    @FXML
+    private Button p2LeftButton;
+    @FXML
+    private Button p2RightButton;
+    @FXML
+    private Button p2BombButton;
 
     private SoundManager soundManager;
     private ThemeManager themeManager;
@@ -112,13 +132,9 @@ public class SettingsController {
      */
     private void setupListeners() {
         // Sliders audio
-        soundVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            soundVolumeLabel.setText(String.format("%.0f%%", newVal.doubleValue()));
-        });
+        soundVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> soundVolumeLabel.setText(String.format("%.0f%%", newVal.doubleValue())));
 
-        musicVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            musicVolumeLabel.setText(String.format("%.0f%%", newVal.doubleValue()));
-        });
+        musicVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> musicVolumeLabel.setText(String.format("%.0f%%", newVal.doubleValue())));
 
         // Changement de thème
         themeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -145,7 +161,7 @@ public class SettingsController {
      * Configure un bouton de contrôle
      *
      * @param button Bouton à configurer
-     * @param key Clé de la touche
+     * @param key    Clé de la touche
      */
     private void setupControlButton(Button button, String key) {
         button.setOnAction(e -> startKeyCapture(button, key));
@@ -155,7 +171,7 @@ public class SettingsController {
      * Démarre la capture d'une touche
      *
      * @param button Bouton concerné
-     * @param key Clé de la touche
+     * @param key    Clé de la touche
      */
     private void startKeyCapture(Button button, String key) {
         currentKeyButton = button;
@@ -171,8 +187,8 @@ public class SettingsController {
                     keyBindings.put(key, keyCode);
                     button.setText(getKeyName(keyCode));
                 } else {
-                    showWarning("Touche déjà utilisée",
-                            "Cette touche est déjà assignée à une autre action.");
+                    showWarning(
+                    );
                     button.setText(getKeyName(keyBindings.get(key)));
                 }
 
@@ -185,7 +201,7 @@ public class SettingsController {
     /**
      * Vérifie si une touche est déjà utilisée
      *
-     * @param keyCode Code de la touche
+     * @param keyCode    Code de la touche
      * @param excludeKey Clé à exclure de la vérification
      * @return true si la touche est utilisée
      */
@@ -344,7 +360,7 @@ public class SettingsController {
             preferences.put("key." + entry.getKey(), entry.getValue().toString());
         }
 
-        showInfo("Paramètres appliqués", "Les paramètres ont été enregistrés avec succès.");
+        showInfo();
     }
 
     /**
@@ -357,53 +373,46 @@ public class SettingsController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
             Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
             stage.setScene(scene);
 
         } catch (IOException e) {
-            showError("Erreur", "Impossible de retourner au menu: " + e.getMessage());
+            showError("Impossible de retourner au menu: " + e.getMessage());
         }
     }
 
     /**
      * Affiche une information
-     *
-     * @param title Titre
-     * @param message Message
      */
-    private void showInfo(String title, String message) {
+    private void showInfo() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle("Paramètres appliqués");
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText("Les paramètres ont été enregistrés avec succès.");
         alert.showAndWait();
     }
 
     /**
      * Affiche un avertissement
-     *
-     * @param title Titre
-     * @param message Message
      */
-    private void showWarning(String title, String message) {
+    private void showWarning() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
+        alert.setTitle("Touche déjà utilisée");
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText("Cette touche est déjà assignée à une autre action.");
         alert.showAndWait();
     }
 
     /**
      * Affiche une erreur
      *
-     * @param title Titre
      * @param message Message
      */
-    private void showError(String title, String message) {
+    private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle("Erreur");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

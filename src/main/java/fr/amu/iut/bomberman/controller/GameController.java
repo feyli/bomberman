@@ -1,5 +1,8 @@
-package com.bomberman.controller;
+package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.model.*;
+import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -13,9 +16,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import com.bomberman.model.*;
-import com.bomberman.view.GameRenderer;
-import com.bomberman.utils.SoundManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,19 +29,32 @@ import java.util.Map;
  */
 public class GameController implements GameModel.GameModelListener {
 
-    @FXML private Canvas gameCanvas;
-    @FXML private Pane gamePane;
-    @FXML private HBox player1Info;
-    @FXML private HBox player2Info;
-    @FXML private Label player1Name;
-    @FXML private Label player1Lives;
-    @FXML private Label player1Score;
-    @FXML private Label player2Name;
-    @FXML private Label player2Lives;
-    @FXML private Label player2Score;
-    @FXML private Label timerLabel;
-    @FXML private Label roundLabel;
-    @FXML private Label messageLabel;
+    @FXML
+    private Canvas gameCanvas;
+    @FXML
+    private Pane gamePane;
+    @FXML
+    private HBox player1Info;
+    @FXML
+    private HBox player2Info;
+    @FXML
+    private Label player1Name;
+    @FXML
+    private Label player1Lives;
+    @FXML
+    private Label player1Score;
+    @FXML
+    private Label player2Name;
+    @FXML
+    private Label player2Lives;
+    @FXML
+    private Label player2Score;
+    @FXML
+    private Label timerLabel;
+    @FXML
+    private Label roundLabel;
+    @FXML
+    private Label messageLabel;
 
     private GameModel gameModel;
     private GameRenderer gameRenderer;

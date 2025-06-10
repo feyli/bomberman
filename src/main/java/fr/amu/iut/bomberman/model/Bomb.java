@@ -1,4 +1,4 @@
-package com.bomberman.model;
+package fr.amu.iut.bomberman.model;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -91,9 +91,23 @@ public class Bomb {
     }
 
     // Getters
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public int getFirePower() { return firePower; }
-    public int getOwnerId() { return ownerId; }
-    public double getTimeRemaining() { return timeRemaining; }
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getFirePower() {
+        return firePower;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public double getTimeRemaining() {
+        return timeRemaining;
+    }
 }
