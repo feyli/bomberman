@@ -2,6 +2,7 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.*;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -502,6 +503,34 @@ public class GameController implements GameModel.GameModelListener {
         }
 
         System.out.println("Partie terminée - Gagnant: " + winner.getName());
+
+        // Mettre à jour les statistiques du gagnant via ProfileManager
+        // Vérification si le profil existe avant la mise à jour
+        // Ajout de messages de débogage pour vérifier les étapes
+        System.out.println("Débogage: Nom du gagnant: " + winner.getName());
+
+        // Recherche du profil par pseudo (nickname) pour le gagnant
+        PlayerProfile winnerProfile = ProfileManager.getInstance().getProfileByNickname(winner.getName());
+        if (winnerProfile != null) {
+            winnerProfile.updateStats(true, winner.getScore()); // Mise à jour des stats avec victoire
+            ProfileManager.getInstance().updateProfile(winnerProfile);
+            System.out.println("Statistiques du gagnant " + winner.getName() + " mises à jour.");
+        } else {
+            System.err.println("Profil introuvable pour le joueur gagnant: " + winner.getName());
+        }
+
+        // Identifier le joueur perdant (l'autre joueur)
+        Player loser = (winner == gameModel.getPlayer1()) ? gameModel.getPlayer2() : gameModel.getPlayer1();
+
+        // Mettre à jour les statistiques du perdant
+        PlayerProfile loserProfile = ProfileManager.getInstance().getProfileByNickname(loser.getName());
+        if (loserProfile != null) {
+            loserProfile.updateStats(false, loser.getScore()); // Mise à jour des stats sans victoire
+            ProfileManager.getInstance().updateProfile(loserProfile);
+            System.out.println("Statistiques du perdant " + loser.getName() + " mises à jour.");
+        } else {
+            System.err.println("Profil introuvable pour le joueur perdant: " + loser.getName());
+        }
 
         // Retourner au menu après 5 secondes
         new Thread(() -> {

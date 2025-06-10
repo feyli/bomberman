@@ -22,12 +22,17 @@ public class SoundManager {
     private double musicVolume = 0.5;
     private boolean soundEnabled = true;
     private boolean musicEnabled = true;
+    // Référence au gestionnaire de paramètres
+    private final SettingsManager settingsManager;
 
     /**
      * Constructeur privé (Singleton)
      */
     private SoundManager() {
         soundCache = new HashMap<>();
+        // Initialiser avec les paramètres sauvegardés
+        settingsManager = SettingsManager.getInstance();
+        loadSettings();
         loadSounds();
     }
 
@@ -197,6 +202,8 @@ public class SoundManager {
      */
     public void setSoundVolume(double volume) {
         soundVolume = Math.max(0.0, Math.min(1.0, volume));
+        // Sauvegarder le nouveau volume
+        saveSettings();
     }
 
     /**
@@ -209,6 +216,8 @@ public class SoundManager {
         if (currentMusic != null) {
             currentMusic.setVolume(musicVolume);
         }
+        // Sauvegarder le nouveau volume
+        saveSettings();
     }
 
     /**
@@ -218,6 +227,8 @@ public class SoundManager {
      */
     public void setSoundEnabled(boolean enabled) {
         soundEnabled = enabled;
+        // Sauvegarder le nouvel état
+        saveSettings();
     }
 
     /**
@@ -229,7 +240,36 @@ public class SoundManager {
         musicEnabled = enabled;
         if (!enabled) {
             stopMusic();
+        } else if (currentMusic != null) {
+            currentMusic.play();
         }
+        // Sauvegarder le nouvel état
+        saveSettings();
+    }
+
+    /**
+     * Charge les paramètres audio depuis le gestionnaire de paramètres
+     */
+    private void loadSettings() {
+        soundEnabled = settingsManager.getBooleanSetting("audio.soundEnabled");
+        musicEnabled = settingsManager.getBooleanSetting("audio.musicEnabled");
+        soundVolume = settingsManager.getDoubleSetting("audio.soundVolume");
+        musicVolume = settingsManager.getDoubleSetting("audio.musicVolume");
+
+        System.out.println("Paramètres audio chargés: musique=" + (musicEnabled ? "activée" : "désactivée") +
+                ", son=" + (soundEnabled ? "activé" : "désactivé") +
+                ", volume musique=" + musicVolume +
+                ", volume son=" + soundVolume);
+    }
+
+    /**
+     * Sauvegarde les paramètres audio dans le gestionnaire de paramètres
+     */
+    private void saveSettings() {
+        settingsManager.setBooleanSetting("audio.soundEnabled", soundEnabled);
+        settingsManager.setBooleanSetting("audio.musicEnabled", musicEnabled);
+        settingsManager.setDoubleSetting("audio.soundVolume", soundVolume);
+        settingsManager.setDoubleSetting("audio.musicVolume", musicVolume);
     }
 
     // Getters

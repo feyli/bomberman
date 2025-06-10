@@ -2,6 +2,7 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.PlayerProfile;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

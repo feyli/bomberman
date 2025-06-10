@@ -43,19 +43,46 @@
 .title-label {
     -fx-font-size: 36px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-primary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 2, 2);
+    -fx-text-fill: #FFFFFF;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 12, 0, 2, 2);
+
 }
 
 .subtitle-label {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-secondary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 8, 0, 1, 1);
 }
 
+/* Amélioration de la lisibilité des textes dans les menus */
+.menu-text {
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+}
+
+.menu-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+}
+
+/* Pour les boutons radio et checkbox */
+.radio-button, .check-box {
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 5, 0, 1, 1);
+}
+
+.label {
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 5, 0, 1, 1);
+}
+
+/* Version et autres labels */
 .version-label {
     -fx-font-size: 12px;
     -fx-text-fill: -fx-text-secondary;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 3, 0, 1, 1);
 }
 
 /* Boutons du menu principal */

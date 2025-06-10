@@ -1,5 +1,6 @@
 package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
@@ -99,14 +100,11 @@ public class MainMenuController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // Créer la nouvelle scène
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
-
-            // Obtenir le stage actuel et changer de scène
+            // Obtenir la scène actuelle
             Stage stage = (Stage) playButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
+            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -142,14 +140,11 @@ public class MainMenuController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // Créer la nouvelle scène
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
-
-            // Obtenir le stage actuel et changer de scène
+            // Obtenir la scène actuelle
             Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
+            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -185,14 +180,11 @@ public class MainMenuController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // Créer la nouvelle scène
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            // Obtenir la scène actuelle
+            Stage stage = (Stage) playButton.getScene().getWindow();
 
-            // Obtenir le stage actuel et changer de scène
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.centerOnScreen();
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
+            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();

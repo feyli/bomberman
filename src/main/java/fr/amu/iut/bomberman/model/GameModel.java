@@ -189,7 +189,6 @@ public class GameModel {
         int currentTime = timeRemaining.get();
         int minutes = currentTime / 60;
         int seconds = currentTime % 60;
-        System.out.printf("Temps restant: %02d:%02d%n", minutes, seconds);
     }
 
     /**

@@ -166,6 +166,23 @@ public class ProfileManager {
     }
 
     /**
+     * Met à jour le score d'un joueur
+     *
+     * @param playerId Identifiant du joueur
+     * @param score Score à ajouter
+     */
+    public void updatePlayerScore(String playerId, int score) {
+        for (PlayerProfile profile : profiles) {
+            if (profile.getId().equals(playerId)) {
+                profile.updateStats(true, score); // Met à jour les stats avec victoire et score
+                saveProfiles(); // Sauvegarde les modifications
+                return;
+            }
+        }
+        System.err.println("Profil introuvable pour l'ID: " + playerId);
+    }
+
+    /**
      * Obtient un profil par son ID
      *
      * @param id ID du profil
@@ -174,6 +191,19 @@ public class ProfileManager {
     public PlayerProfile getProfileById(String id) {
         return profiles.stream()
                 .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Obtient un profil par son pseudo (nickname)
+     *
+     * @param nickname Pseudo du profil
+     * @return Profil trouvé ou null
+     */
+    public PlayerProfile getProfileByNickname(String nickname) {
+        return profiles.stream()
+                .filter(p -> p.getNickname().equalsIgnoreCase(nickname))
                 .findFirst()
                 .orElse(null);
     }
