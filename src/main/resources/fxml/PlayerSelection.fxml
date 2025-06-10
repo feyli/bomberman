@@ -45,6 +45,15 @@
                     styleClass="secondary-button"/>
         </VBox>
 
+
+        <VBox alignment="CENTER" spacing="10.0">
+            <Label fx:id="player2Label" text="Joueur 2" styleClass="player-title" />
+            <ComboBox fx:id="player4ComboBox" />
+            <CheckBox fx:id="player2BotCheckbox" text="Robot" />
+            <ImageView fx:id="player4Avatar" fitHeight="64.0" fitWidth="64.0" />
+            <Button text="Nouveau Profil" onAction="#handleNewProfile2" />
+        </VBox>
+
         <!-- VS au centre -->
         <Label text="VS" styleClass="vs-label"/>
 

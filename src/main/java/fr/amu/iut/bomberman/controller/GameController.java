@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * Contrôleur principal du jeu
  * Gère la boucle de jeu, les entrées et la logique
+ * Support pour les bots ajouté
  *
  * @author Super Bomberman Team
  * @version 1.0
@@ -64,6 +65,12 @@ public class GameController implements GameModel.GameModelListener {
     private Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     private long lastFrameTime = 0;
     private int frameCount = 0;
+
+    // Support pour les bots
+    private Bot bot1;
+    private Bot bot2;
+    private boolean player1IsBot = false;
+    private boolean player2IsBot = false;
 
     // Configuration des touches
     private static final Map<KeyCode, Player.Direction> PLAYER1_KEYS = Map.of(
@@ -141,14 +148,31 @@ public class GameController implements GameModel.GameModelListener {
     }
 
     /**
-     * Démarre une nouvelle partie
+     * Démarre une nouvelle partie contre un humain
      *
      * @param player1Profile Profil du joueur 1
      * @param player2Profile Profil du joueur 2
      */
     public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile) {
+        startGame(player1Profile, player2Profile, false, false);
+    }
+
+    /**
+     * Démarre une nouvelle partie avec possibilité de bots
+     *
+     * @param player1Profile Profil du joueur 1
+     * @param player2Profile Profil du joueur 2
+     * @param player1IsBot   true si le joueur 1 est un bot
+     * @param player2IsBot   true si le joueur 2 est un bot
+     */
+    public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile,
+                          boolean player1IsBot, boolean player2IsBot) {
         System.out.println("Démarrage du jeu entre " + player1Profile.getDisplayName() +
                 " et " + player2Profile.getDisplayName());
+
+        // Stocker les informations sur les bots
+        this.player1IsBot = player1IsBot;
+        this.player2IsBot = player2IsBot;
 
         // Démarrer le jeu
         gameModel.startNewGame(
@@ -156,12 +180,31 @@ public class GameController implements GameModel.GameModelListener {
                 player2Profile.getDisplayName()
         );
 
-        // Mettre à jour les noms des joueurs
+        // Créer les bots si nécessaire
+        if (player1IsBot) {
+            bot1 = new Bot(1, player1Profile.getDisplayName(), 1, 1);
+            // Copier les stats du joueur du modèle vers le bot
+            copyPlayerStatsToBot(gameModel.getPlayer1(), bot1);
+            System.out.println("Bot 1 créé: " + player1Profile.getDisplayName());
+        }
+
+        if (player2IsBot) {
+            bot2 = new Bot(2, player2Profile.getDisplayName(), 13, 11);
+            // Copier les stats du joueur du modèle vers le bot
+            copyPlayerStatsToBot(gameModel.getPlayer2(), bot2);
+            System.out.println("Bot 2 créé: " + player2Profile.getDisplayName());
+        }
+
+        // Mettre à jour les noms des joueurs avec indication bot
         if (player1Name != null) {
-            player1Name.setText(player1Profile.getDisplayName());
+            String name = player1Profile.getDisplayName();
+            if (player1IsBot) name += " (Bot)";
+            player1Name.setText(name);
         }
         if (player2Name != null) {
-            player2Name.setText(player2Profile.getDisplayName());
+            String name = player2Profile.getDisplayName();
+            if (player2IsBot) name += " (Bot)";
+            player2Name.setText(name);
         }
 
         // Démarrer la boucle de jeu
@@ -173,6 +216,34 @@ public class GameController implements GameModel.GameModelListener {
         // S'assurer que le canvas a le focus
         if (gameCanvas != null) {
             gameCanvas.requestFocus();
+        }
+    }
+
+    /**
+     * Copie les statistiques d'un joueur vers un bot
+     */
+    private void copyPlayerStatsToBot(Player player, Bot bot) {
+        if (player != null && bot != null) {
+            bot.setPosition(player.getX(), player.getY());
+            bot.setLives(player.getLives());
+            bot.setMaxBombs(player.getMaxBombs());
+            bot.setFirePower(player.getFirePower());
+            bot.setSpeed(player.getSpeed());
+        }
+    }
+
+    /**
+     * Met à jour les statistiques d'un joueur depuis un bot
+     */
+    private void copyBotStatsToPlayer(Bot bot, Player player) {
+        if (bot != null && player != null) {
+            player.setPosition(bot.getX(), bot.getY());
+            player.setDirection(bot.getCurrentDirection());
+            player.setLives(bot.getLives());
+            player.setMaxBombs(bot.getMaxBombs());
+            player.setFirePower(bot.getFirePower());
+            player.setSpeed(bot.getSpeed());
+            player.setBombsPlaced(bot.getBombsPlaced());
         }
     }
 
@@ -227,11 +298,11 @@ public class GameController implements GameModel.GameModelListener {
             }
         }
 
-        // Bombes
-        if (code == PLAYER1_BOMB) {
+        // Bombes - seulement pour les joueurs humains
+        if (code == PLAYER1_BOMB && !player1IsBot) {
             System.out.println("Joueur 1 tente de placer une bombe");
             gameModel.placeBomb(1);
-        } else if (code == PLAYER2_BOMB) {
+        } else if (code == PLAYER2_BOMB && !player2IsBot) {
             System.out.println("Joueur 2 tente de placer une bombe");
             gameModel.placeBomb(2);
         }
@@ -287,8 +358,11 @@ public class GameController implements GameModel.GameModelListener {
             return;
         }
 
-        // Gérer les mouvements des joueurs
+        // Gérer les mouvements des joueurs humains
         handlePlayerMovements(deltaTime);
+
+        // Gérer les actions des bots
+        handleBotActions();
 
         // Mettre à jour le modèle
         gameModel.update(deltaTime);
@@ -298,42 +372,75 @@ public class GameController implements GameModel.GameModelListener {
     }
 
     /**
-     * Gère les mouvements des joueurs
+     * Gère les actions des bots
+     */
+    private void handleBotActions() {
+        // Bot 1
+        if (player1IsBot && bot1 != null && bot1.isAlive()) {
+            // Synchroniser les stats du joueur vers le bot
+            copyPlayerStatsToBot(gameModel.getPlayer1(), bot1);
+
+            // Faire jouer le bot
+            bot1.playTurn(gameModel.getGameBoard());
+
+            // Synchroniser les stats du bot vers le joueur
+            copyBotStatsToPlayer(bot1, gameModel.getPlayer1());
+        }
+
+        // Bot 2
+        if (player2IsBot && bot2 != null && bot2.isAlive()) {
+            // Synchroniser les stats du joueur vers le bot
+            copyPlayerStatsToBot(gameModel.getPlayer2(), bot2);
+
+            // Faire jouer le bot
+            bot2.playTurn(gameModel.getGameBoard());
+
+            // Synchroniser les stats du bot vers le joueur
+            copyBotStatsToPlayer(bot2, gameModel.getPlayer2());
+        }
+    }
+
+    /**
+     * Gère les mouvements des joueurs humains
      */
     private void handlePlayerMovements(double deltaTime) {
-        // Joueur 1
-        Player.Direction p1Direction = Player.Direction.NONE;
-        for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER1_KEYS.entrySet()) {
-            if (keysPressed.getOrDefault(entry.getKey(), false)) {
-                p1Direction = entry.getValue();
-                break;
+        // Joueur 1 - seulement si ce n'est pas un bot
+        if (!player1IsBot) {
+            Player.Direction p1Direction = Player.Direction.NONE;
+            for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER1_KEYS.entrySet()) {
+                if (keysPressed.getOrDefault(entry.getKey(), false)) {
+                    p1Direction = entry.getValue();
+                    break;
+                }
             }
-        }
-        if (p1Direction != Player.Direction.NONE) {
-            gameModel.movePlayer(1, p1Direction, deltaTime);
-            // Debug réduit - seulement tous les 30 frames
-            if (frameCount % 30 == 0) {
-                System.out.println("Joueur 1 - Direction: " + p1Direction +
-                        ", Position: (" + gameModel.getPlayer1().getX() +
-                        ", " + gameModel.getPlayer1().getY() + ")");
+            if (p1Direction != Player.Direction.NONE) {
+                gameModel.movePlayer(1, p1Direction, deltaTime);
+                // Debug réduit - seulement tous les 30 frames
+                if (frameCount % 30 == 0) {
+                    System.out.println("Joueur 1 - Direction: " + p1Direction +
+                            ", Position: (" + gameModel.getPlayer1().getX() +
+                            ", " + gameModel.getPlayer1().getY() + ")");
+                }
             }
         }
 
-        // Joueur 2
-        Player.Direction p2Direction = Player.Direction.NONE;
-        for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER2_KEYS.entrySet()) {
-            if (keysPressed.getOrDefault(entry.getKey(), false)) {
-                p2Direction = entry.getValue();
-                break;
+        // Joueur 2 - seulement si ce n'est pas un bot
+        if (!player2IsBot) {
+            Player.Direction p2Direction = Player.Direction.NONE;
+            for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER2_KEYS.entrySet()) {
+                if (keysPressed.getOrDefault(entry.getKey(), false)) {
+                    p2Direction = entry.getValue();
+                    break;
+                }
             }
-        }
-        if (p2Direction != Player.Direction.NONE) {
-            gameModel.movePlayer(2, p2Direction, deltaTime);
-            // Debug réduit - seulement tous les 30 frames
-            if (frameCount % 30 == 0) {
-                System.out.println("Joueur 2 - Direction: " + p2Direction +
-                        ", Position: (" + gameModel.getPlayer2().getX() +
-                        ", " + gameModel.getPlayer2().getY() + ")");
+            if (p2Direction != Player.Direction.NONE) {
+                gameModel.movePlayer(2, p2Direction, deltaTime);
+                // Debug réduit - seulement tous les 30 frames
+                if (frameCount % 30 == 0) {
+                    System.out.println("Joueur 2 - Direction: " + p2Direction +
+                            ", Position: (" + gameModel.getPlayer2().getX() +
+                            ", " + gameModel.getPlayer2().getY() + ")");
+                }
             }
         }
 
@@ -450,6 +557,18 @@ public class GameController implements GameModel.GameModelListener {
 
     @Override
     public void onRoundStarted(int roundNumber) {
+        // Réinitialiser les bots pour le nouveau round
+        if (player1IsBot && bot1 != null) {
+            bot1.setPosition(1, 1);
+            bot1.setAlive(true);
+            copyPlayerStatsToBot(gameModel.getPlayer1(), bot1);
+        }
+        if (player2IsBot && bot2 != null) {
+            bot2.setPosition(13, 11);
+            bot2.setAlive(true);
+            copyPlayerStatsToBot(gameModel.getPlayer2(), bot2);
+        }
+
         showMessage("Round " + roundNumber);
         System.out.println("Round " + roundNumber + " démarré");
 
@@ -513,6 +632,16 @@ public class GameController implements GameModel.GameModelListener {
 
     @Override
     public void onPlayerHit(Player player) {
+        // Mettre à jour le statut du bot correspondant
+        if (player1IsBot && bot1 != null && player.getPlayerId() == 1) {
+            bot1.setAlive(player.isAlive());
+            bot1.setLives(player.getLives());
+        }
+        if (player2IsBot && bot2 != null && player.getPlayerId() == 2) {
+            bot2.setAlive(player.isAlive());
+            bot2.setLives(player.getLives());
+        }
+
         SoundManager.getInstance().playSound("player_hit");
         System.out.println("Joueur touché: " + player.getName());
     }
@@ -525,6 +654,14 @@ public class GameController implements GameModel.GameModelListener {
 
     @Override
     public void onPowerUpCollected(Player player, PowerUp powerUp) {
+        // Mettre à jour les stats du bot correspondant
+        if (player1IsBot && bot1 != null && player.getPlayerId() == 1) {
+            copyPlayerStatsToBot(player, bot1);
+        }
+        if (player2IsBot && bot2 != null && player.getPlayerId() == 2) {
+            copyPlayerStatsToBot(player, bot2);
+        }
+
         SoundManager.getInstance().playSound("powerup_collect");
 
         // Afficher le type de power-up collecté
@@ -553,6 +690,10 @@ public class GameController implements GameModel.GameModelListener {
             gameLoop.stop();
             gameLoop = null;
         }
+
+        // Nettoyer les références aux bots
+        bot1 = null;
+        bot2 = null;
 
         SoundManager.getInstance().stopMusic();
     }

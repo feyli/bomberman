@@ -434,6 +434,36 @@ public class GameBoard {
     }
 
     /**
+     * Compte le nombre de bombes actives d'un joueur spécifique
+     */
+    public int getActiveBombsCount(Player player) {
+        int count = 0;
+        for (Bomb bomb : bombs) {
+            if (bomb.getOwnerId() == player.getPlayerId()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Vérifie si un mouvement est valide pour un joueur
+     */
+    public boolean isValidMove(int x, int y) {
+        if (!isValidPosition(x, y)) return false;
+        if (!isWalkable(x, y)) return false;
+        return true;
+    }
+
+    /**
+     * Méthode pour placer une bombe (si vous n'en avez pas déjà une)
+     */
+    public void placeBomb(Player player, int x, int y, int firePower) {
+        Bomb bomb = new Bomb(x, y, firePower, player.getPlayerId());
+        addBomb(bomb);
+    }
+
+    /**
      * Collecte un power-up à une position
      *
      * @param x Position X

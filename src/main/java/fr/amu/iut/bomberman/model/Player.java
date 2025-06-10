@@ -1,5 +1,7 @@
 package fr.amu.iut.bomberman.model;
 
+import java.awt.Point;
+
 /**
  * Représente un joueur dans le jeu Bomberman
  *
@@ -9,7 +11,27 @@ package fr.amu.iut.bomberman.model;
 public class Player {
 
     public enum Direction {
-        UP, DOWN, LEFT, RIGHT, NONE
+        UP(0, -1),
+        DOWN(0, 1),
+        LEFT(-1, 0),
+        RIGHT(1, 0),
+        NONE(0, 0);
+
+        private final int dx;
+        private final int dy;
+
+        Direction(int dx, int dy) {
+            this.dx = dx;
+            this.dy = dy;
+        }
+
+        public int getDx() {
+            return dx;
+        }
+
+        public int getDy() {
+            return dy;
+        }
     }
 
     private final int playerId;
@@ -18,7 +40,7 @@ public class Player {
     private int lives;
     private boolean alive;
     private Direction currentDirection;
-    private Direction lastValidDirection; // Dernière direction valide pour le placement des bombes
+    private Direction lastValidDirection;
 
     // Capacités du joueur
     private int maxBombs;
@@ -30,11 +52,8 @@ public class Player {
     private static final int DEFAULT_LIVES = 3;
     private static final int DEFAULT_MAX_BOMBS = 1;
     private static final int DEFAULT_FIRE_POWER = 1;
-    private static final double DEFAULT_SPEED = 3.5; // Augmenté pour un meilleur gameplay
+    private static final double DEFAULT_SPEED = 3.5;
 
-    /**
-     * Constructeur
-     */
     public Player(int playerId, String name, double x, double y) {
         this.playerId = playerId;
         this.name = name;
@@ -44,19 +63,12 @@ public class Player {
         this.alive = true;
         this.currentDirection = Direction.DOWN;
         this.lastValidDirection = Direction.DOWN;
-
-        // Capacités initiales
         this.maxBombs = DEFAULT_MAX_BOMBS;
         this.bombsPlaced = 0;
         this.firePower = DEFAULT_FIRE_POWER;
         this.speed = DEFAULT_SPEED;
-
-        System.out.println("Joueur " + playerId + " créé: " + name + " à (" + x + ", " + y + ")");
     }
 
-    /**
-     * Remet le joueur à sa position initiale pour un nouveau round
-     */
     public void reset(double newX, double newY) {
         this.x = newX;
         this.y = newY;
@@ -64,19 +76,12 @@ public class Player {
         this.currentDirection = Direction.DOWN;
         this.lastValidDirection = Direction.DOWN;
         this.bombsPlaced = 0;
-        // Les capacités (maxBombs, firePower, speed) sont conservées entre les rounds
-
-        System.out.println("Joueur " + playerId + " réinitialisé à (" + x + ", " + y + ")");
     }
 
-    /**
-     * Déplace le joueur dans une direction
-     */
     public void move(Direction direction, double deltaTime) {
         if (!alive) return;
 
         this.currentDirection = direction;
-
         double moveDistance = speed * deltaTime;
 
         switch (direction) {
@@ -87,129 +92,100 @@ public class Player {
         }
     }
 
-    /**
-     * Définit la position du joueur
-     */
+    public Point getPosition() {
+        return new Point((int) Math.round(x), (int) Math.round(y));
+    }
+
     public void setPosition(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    /**
-     * Définit la position X du joueur
-     */
     public void setX(double x) {
         this.x = x;
     }
 
-    /**
-     * Définit la position Y du joueur
-     */
     public void setY(double y) {
         this.y = y;
     }
 
-    /**
-     * Le joueur perd une vie
-     */
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    public void setMaxBombs(int maxBombs) {
+        this.maxBombs = maxBombs;
+    }
+
+    public void setFirePower(int firePower) {
+        this.firePower = firePower;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public void setBombsPlaced(int bombsPlaced) {
+        this.bombsPlaced = bombsPlaced;
+    }
+
     public void loseLife() {
         lives--;
         if (lives <= 0) {
             alive = false;
         }
-        System.out.println("Joueur " + playerId + " perd une vie! Vies restantes: " + lives);
     }
 
-    /**
-     * Le joueur meurt
-     */
     public void die() {
         this.alive = false;
-        System.out.println("Joueur " + playerId + " est mort!");
     }
 
-    /**
-     * Incrémente le nombre de bombes placées
-     */
     public void incrementBombsPlaced() {
         bombsPlaced++;
     }
 
-    /**
-     * Décrémente le nombre de bombes placées (quand une bombe explose)
-     */
     public void decrementBombsPlaced() {
         if (bombsPlaced > 0) {
             bombsPlaced--;
         }
     }
 
-    /**
-     * Améliore la capacité de bombes
-     */
     public void increaseBombCapacity() {
         maxBombs++;
-        System.out.println("Joueur " + playerId + " - Bomb Up! Max bombes: " + maxBombs);
     }
 
-    /**
-     * Améliore la puissance de feu
-     */
     public void increaseFirePower() {
         firePower++;
-        System.out.println("Joueur " + playerId + " - Fire Up! Puissance: " + firePower);
     }
 
-    /**
-     * Améliore la vitesse
-     */
     public void increaseSpeed() {
         speed += 0.5;
-        System.out.println("Joueur " + playerId + " - Speed Up! Vitesse: " + speed);
     }
 
-    /**
-     * Ajoute une vie
-     */
     public void addLife() {
         lives++;
-        System.out.println("Joueur " + playerId + " - Extra Life! Vies: " + lives);
     }
 
-    /**
-     * Applique un power-up au joueur
-     */
     public void applyPowerUp(PowerUp.Type type) {
         switch (type) {
             case BOMB_UP -> increaseBombCapacity();
             case FIRE_UP -> increaseFirePower();
             case SPEED_UP -> increaseSpeed();
             case EXTRA_LIFE -> addLife();
-            // Les autres types peuvent être ajoutés plus tard
         }
     }
 
-    /**
-     * Retourne le numéro du joueur (alias pour getPlayerId)
-     */
     public int getPlayerNumber() {
         return playerId;
     }
 
-    /**
-     * Définit la direction courante du joueur
-     */
     public void setDirection(Direction direction) {
         this.currentDirection = direction;
-        // Sauvegarder la dernière direction valide (non NONE)
         if (direction != Direction.NONE) {
             this.lastValidDirection = direction;
         }
     }
 
-    /**
-     * Obtient la dernière direction valide du joueur
-     */
     public Direction getLastValidDirection() {
         return lastValidDirection;
     }
@@ -257,6 +233,10 @@ public class Player {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public int getBombCount() {
+        return maxBombs;
     }
 
     // Setters
