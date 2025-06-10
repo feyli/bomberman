@@ -39,7 +39,7 @@ public class GameModel {
     private Player player2;
     private final int roundsToWin;
     private final int roundTimeLimit; // en secondes
-    private int frameCount = 0;
+
 
     private List<GameModelListener> listeners;
 
@@ -431,75 +431,33 @@ public class GameModel {
         int playerX = (int) Math.round(player.getX());
         int playerY = (int) Math.round(player.getY());
 
-        // Utiliser la dernière direction valide si le joueur ne bouge pas
-        Player.Direction direction = player.getCurrentDirection();
-        if (direction == Player.Direction.NONE) {
-            direction = player.getLastValidDirection();
-        }
-
-        // Calculer la position devant le joueur selon sa direction
+        // Placer la bombe directement sur la case du joueur
         int bombX = playerX;
         int bombY = playerY;
 
-        switch (direction) {
-            case UP -> bombY = playerY - 1;
-            case DOWN -> bombY = playerY + 1;
-            case LEFT -> bombX = playerX - 1;
-            case RIGHT -> bombX = playerX + 1;
-            default -> {
-                // Par défaut, placer sur la case du joueur
-                bombX = playerX;
-                bombY = playerY;
-            }
-        }
-
         System.out.println("=== PLACEMENT BOMBE ===");
         System.out.println("Joueur " + playerId + " position: (" + player.getX() + ", " + player.getY() + ")");
-        System.out.println("Direction: " + direction);
         System.out.println("Case cible pour la bombe: (" + bombX + ", " + bombY + ")");
 
-        // Vérifier que la position est valide et accessible
-        boolean canPlaceAtTarget = true;
-
-        // Vérifier les limites
-        if (!gameBoard.isValidPosition(bombX, bombY)) {
-            canPlaceAtTarget = false;
-            System.out.println("Position hors limites!");
+        // Vérifier si la position est un mur ou un mur cassable
+        GameBoard.TileType tile = gameBoard.getTile(bombX, bombY);
+        if (tile == GameBoard.TileType.WALL || tile == GameBoard.TileType.BREAKABLE_WALL) {
+            System.out.println("Impossible de placer une bombe dans un mur!");
+            return;
         }
 
-        // Vérifier si la case est libre (pas de mur)
-        if (canPlaceAtTarget) {
-            GameBoard.TileType tile = gameBoard.getTile(bombX, bombY);
-            if (tile == GameBoard.TileType.WALL || tile == GameBoard.TileType.BREAKABLE_WALL) {
-                canPlaceAtTarget = false;
-                System.out.println("Il y a un mur à cette position!");
+        // Vérifier qu'il n'y a pas déjà une bombe sur le joueur
+        for (Bomb bomb : gameBoard.getBombs()) {
+            if (bomb.getX() == bombX && bomb.getY() == bombY) {
+                System.out.println("Il y a déjà une bombe sur la case du joueur!");
+                return;
             }
         }
 
-        // Vérifier s'il y a déjà une bombe
-        if (canPlaceAtTarget) {
-            for (Bomb bomb : gameBoard.getBombs()) {
-                if (bomb.getX() == bombX && bomb.getY() == bombY) {
-                    canPlaceAtTarget = false;
-                    System.out.println("Il y a déjà une bombe à cette position!");
-                    break;
-                }
-            }
-        }
-
-        // Si on ne peut pas placer devant, placer sur la case du joueur
-        if (!canPlaceAtTarget) {
-            bombX = playerX;
-            bombY = playerY;
-            System.out.println("Placement sur la case du joueur à la place");
-
-            // Vérifier qu'il n'y a pas déjà une bombe sur le joueur
-            for (Bomb bomb : gameBoard.getBombs()) {
-                if (bomb.getX() == bombX && bomb.getY() == bombY) {
-                    System.out.println("Il y a déjà une bombe sur la case du joueur!");
-                    return;
-                }
-            }
+        // Vérifier qu'il existe au moins une issue pour le joueur
+        if (!hasEscapeRoute(player, bombX, bombY)) {
+            System.out.println("Impossible de placer une bombe - Le joueur serait bloqué sans issue!");
+            return;
         }
 
         // Créer et placer la bombe
@@ -507,15 +465,65 @@ public class GameModel {
         gameBoard.addBomb(bomb);
         player.incrementBombsPlaced();
 
-        // Si la bombe est sur la case du joueur, il peut la traverser
-        if (bombX == playerX && bombY == playerY) {
-            bomb.setCanBeTraversedBy(playerId, true);
-        }
+        // Le joueur qui pose la bombe peut la traverser
+        bomb.setCanBeTraversedBy(playerId, true);
+
+        // Le joueur adverse ne peut pas traverser cette bombe
+        int otherPlayerId = (playerId == 1) ? 2 : 1;
+        bomb.setCanBeTraversedBy(otherPlayerId, false);
 
         System.out.println("✅ Bombe placée avec succès à (" + bombX + ", " + bombY + ")!");
         System.out.println("Bombes du joueur: " + player.getBombsPlaced() + "/" + player.getMaxBombs());
 
         notifyBombPlaced(player, bomb);
+    }
+
+    /**
+     * Vérifie s'il existe un chemin d'échappement pour un joueur si une bombe est placée à la position spécifiée
+     *
+     * @param player Le joueur qui place la bombe
+     * @param bombX Position X de la bombe
+     * @param bombY Position Y de la bombe
+     * @return true si le joueur peut s'échapper après avoir placé une bombe
+     */
+    private boolean hasEscapeRoute(Player player, int bombX, int bombY) {
+        // Directions possibles d'échappement : HAUT, BAS, GAUCHE, DROITE
+        int[][] directions = {
+            {0, -1}, // HAUT
+            {0, 1},  // BAS
+            {-1, 0}, // GAUCHE
+            {1, 0}   // DROITE
+        };
+
+        // Vérifier chaque direction adjacente
+        for (int[] dir : directions) {
+            int checkX = bombX + dir[0];
+            int checkY = bombY + dir[1];
+
+            // Si la case est valide et accessible
+            if (gameBoard.isValidPosition(checkX, checkY) && gameBoard.isWalkable(checkX, checkY)) {
+                // Vérifier si cette case contient déjà une bombe
+                boolean hasBomb = false;
+                for (Bomb existingBomb : gameBoard.getBombs()) {
+                    if (existingBomb.getX() == checkX && existingBomb.getY() == checkY) {
+                        hasBomb = true;
+                        // Si c'est une bombe qu'on peut traverser, c'est une issue valide
+                        if (existingBomb.canBeTraversedBy(player.getPlayerId())) {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+
+                // Si pas de bombe sur cette case, c'est une issue valide
+                if (!hasBomb) {
+                    return true;
+                }
+            }
+        }
+
+        // Aucune issue trouvée
+        return false;
     }
 
     // Méthodes pour les listeners
@@ -531,25 +539,7 @@ public class GameModel {
         System.out.println("Listener ajouté - Total listeners: " + listeners.size());
     }
 
-    /**
-     * Supprime un listener
-     */
-    public void removeListener(GameModelListener listener) {
-        if (listeners != null) {
-            listeners.remove(listener);
-        }
-    }
 
-    /**
-     * Notifie les listeners d'un changement d'état du jeu
-     */
-    private void notifyGameStateChanged() {
-        if (listeners != null) {
-            for (GameModelListener listener : listeners) {
-                listener.onGameStateChanged();
-            }
-        }
-    }
 
     /**
      * Notifie les listeners du début d'une partie
@@ -634,33 +624,21 @@ public class GameModel {
         return gameState.get();
     }
 
-    public ObjectProperty<GameState> gameStateProperty() {
-        return gameState;
-    }
 
     public int getCurrentRound() {
         return currentRound.get();
     }
 
-    public IntegerProperty currentRoundProperty() {
-        return currentRound;
-    }
 
     public int getPlayer1Score() {
         return player1Score.get();
     }
 
-    public IntegerProperty player1ScoreProperty() {
-        return player1Score;
-    }
 
     public int getPlayer2Score() {
         return player2Score.get();
     }
 
-    public IntegerProperty player2ScoreProperty() {
-        return player2Score;
-    }
 
     public int getTimeRemaining() {
         return timeRemaining.get();
@@ -711,4 +689,3 @@ public class GameModel {
         }
     }
 }
-
