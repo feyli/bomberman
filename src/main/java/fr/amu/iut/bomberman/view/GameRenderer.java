@@ -333,10 +333,9 @@ public class GameRenderer {
         // Déterminer l'image selon la direction
         String direction = switch (player.getCurrentDirection()) {
             case UP -> "up";
-            case DOWN -> "down";
+            case DOWN, NONE -> "down";
             case LEFT -> "left";
             case RIGHT -> "right";
-            case NONE -> "down";
         };
 
         String imageKey = "player" + playerNumber + "_" + direction;
