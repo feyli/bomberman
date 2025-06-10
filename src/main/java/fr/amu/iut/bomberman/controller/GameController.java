@@ -13,12 +13,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Contrôleur principal du jeu
@@ -33,10 +33,6 @@ public class GameController implements GameModel.GameModelListener {
     private Canvas gameCanvas;
     @FXML
     private Pane gamePane;
-    @FXML
-    private HBox player1Info;
-    @FXML
-    private HBox player2Info;
     @FXML
     private Label player1Name;
     @FXML
@@ -61,7 +57,7 @@ public class GameController implements GameModel.GameModelListener {
     private AnimationTimer gameLoop;
 
     // Gestion des touches
-    private Map<KeyCode, Boolean> keysPressed = new HashMap<>();
+    private final Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     private long lastFrameTime = 0;
     private int frameCount = 0;
 
@@ -140,20 +136,27 @@ public class GameController implements GameModel.GameModelListener {
         }
     }
 
+
+
     /**
-     * Démarre une nouvelle partie
+     * Démarre une nouvelle partie avec paramètres personnalisés
      *
      * @param player1Profile Profil du joueur 1
      * @param player2Profile Profil du joueur 2
+     * @param roundsToWin    Nombre de rounds à gagner
+     * @param timeLimit      Limite de temps par round en secondes
      */
-    public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile) {
+    public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile, int roundsToWin, int timeLimit) {
         System.out.println("Démarrage du jeu entre " + player1Profile.getDisplayName() +
-                " et " + player2Profile.getDisplayName());
+                " et " + player2Profile.getDisplayName() +
+                " - " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
 
-        // Démarrer le jeu
+        // Démarrer le jeu avec les paramètres personnalisés
         gameModel.startNewGame(
                 player1Profile.getDisplayName(),
-                player2Profile.getDisplayName()
+                player2Profile.getDisplayName(),
+                roundsToWin,
+                timeLimit
         );
 
         // Mettre à jour les noms des joueurs
@@ -428,7 +431,7 @@ public class GameController implements GameModel.GameModelListener {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(scene);
@@ -543,17 +546,4 @@ public class GameController implements GameModel.GameModelListener {
         }).start();
     }
 
-    /**
-     * Nettoyage lors de la fermeture
-     */
-    public void cleanup() {
-        System.out.println("Nettoyage du GameController");
-
-        if (gameLoop != null) {
-            gameLoop.stop();
-            gameLoop = null;
-        }
-
-        SoundManager.getInstance().stopMusic();
-    }
 }
