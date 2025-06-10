@@ -100,7 +100,7 @@
 
         <Button fx:id="startButton"
                 text="COMMENCER"
-                onAction="#handleStart"
+                onAction="#handleStartGame"
                 styleClass="primary-button"
                 prefWidth="200"
                 disable="true"/>

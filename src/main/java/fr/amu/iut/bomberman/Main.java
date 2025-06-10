@@ -47,9 +47,11 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);
 
-        // Activation du mode plein écran
+        // Maximiser la fenêtre mais sans le plein écran pour les menus
         primaryStage.setMaximized(true);
-        primaryStage.setFullScreen(true);
+
+        // Ne pas activer le plein écran au démarrage
+        // primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("Appuyez sur F11 pour quitter le mode plein écran");
 
         // Icône de l'application

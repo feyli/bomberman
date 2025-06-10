@@ -1,6 +1,7 @@
 package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.*;
+import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.view.GameRenderer;
@@ -436,7 +437,9 @@ public class GameController implements GameModel.GameModelListener {
 
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Utiliser le FullScreenManager pour configurer le mode menu
+            FullScreenManager.getInstance().configureForMenuFromGame(stage);
 
         } catch (Exception e) {
             e.printStackTrace();

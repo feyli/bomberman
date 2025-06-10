@@ -1,6 +1,7 @@
 package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.PlayerProfile;
+import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
@@ -20,6 +21,7 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * Contrôleur pour la sélection des joueurs
@@ -313,16 +315,16 @@ public class PlayerSelectionController {
      * Gère le clic sur "Commencer"
      */
     @FXML
-    private void handleStart() {
-        PlayerProfile profile1 = player1ComboBox.getValue();
-        PlayerProfile profile2 = player2ComboBox.getValue();
-
-        if (profile1 == null || profile2 == null || profile1.equals(profile2)) {
-            showWarning();
+    private void handleStartGame() {
+        // Vérifier les sélections de profils
+        if (player1ComboBox.getValue() == null || player2ComboBox.getValue() == null) {
+            showWarning("Veuillez sélectionner un profil pour chaque joueur.");
             return;
         }
 
-        // Récupérer les paramètres de jeu
+        // Récupérer les données de jeu
+        PlayerProfile profile1 = player1ComboBox.getValue();
+        PlayerProfile profile2 = player2ComboBox.getValue();
         int rounds = roundsSpinner.getValue();
         String timeString = timeComboBox.getValue();
 
@@ -347,7 +349,9 @@ public class PlayerSelectionController {
             // Changer de scène
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Configurer le plein écran pour le jeu
+            FullScreenManager.getInstance().configureForGame(stage);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -393,7 +397,9 @@ public class PlayerSelectionController {
 
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.centerOnScreen();
+
+            // Configurer pour le mode menu (sans plein écran)
+            FullScreenManager.getInstance().configureForMenu(stage);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -404,11 +410,11 @@ public class PlayerSelectionController {
     /**
      * Affiche un avertissement
      */
-    private void showWarning() {
+    private void showWarning(String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Sélection invalide");
         alert.setHeaderText(null);
-        alert.setContentText("Veuillez sélectionner deux profils différents.");
+        alert.setContentText(message);
         alert.getDialogPane().getStylesheets().add(
                 Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
         );
