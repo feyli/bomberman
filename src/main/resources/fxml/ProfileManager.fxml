@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bomberman.controller.ProfileManagerController"
+            styleClass="profile-manager-container">
+
+    <!-- En-tête -->
+    <top>
+        <VBox alignment="CENTER" spacing="10">
+            <padding>
+                <Insets/>
+            </padding>
+            <Label text="GESTION DES PROFILS" styleClass="title-label"/>
+            <Separator/>
+        </VBox>
+    </top>
+
+    <!-- Contenu principal -->
+    <center>
+        <HBox spacing="30">
+            <padding>
+                <Insets/>
+            </padding>
+
+            <!-- Liste des profils -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Profils existants" styleClass="subtitle-label"/>
+
+                <ListView fx:id="profileListView"
+                          prefWidth="400"
+                          VBox.vgrow="ALWAYS"/>
+
+                <HBox spacing="10">
+                    <Button text="Nouveau"
+                            onAction="#handleNewProfile"
+                            styleClass="secondary-button"/>
+                    <Button text="Modifier"
+                            fx:id="editButton"
+                            onAction="#handleEditProfile"
+                            styleClass="secondary-button"
+                            disable="true"/>
+                    <Button text="Supprimer"
+                            fx:id="deleteButton"
+                            onAction="#handleDeleteProfile"
+                            styleClass="danger-button"
+                            disable="true"/>
+                </HBox>
+            </VBox>
+
+            <!-- Détails du profil sélectionné -->
+            <VBox spacing="15" minWidth="300">
+                <Label text="Détails du profil" styleClass="subtitle-label"/>
+
+                <GridPane hgap="10" vgap="10">
+                    <ImageView fx:id="avatarImageView"
+                               GridPane.columnIndex="0"
+                               GridPane.rowIndex="0"
+                               GridPane.columnSpan="2"
+                               GridPane.halignment="CENTER"
+                               fitWidth="100"
+                               fitHeight="100"/>
+
+                    <Label text="Prénom:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="firstNameLabel" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="lastNameLabel" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="Pseudo:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <Label fx:id="nicknameLabel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                    <Separator GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2"/>
+
+                    <Label text="Parties jouées:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                    <Label fx:id="gamesPlayedLabel" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+                    <Label text="Parties gagnées:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                    <Label fx:id="gamesWonLabel" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+                    <Label text="Taux de victoire:" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                    <Label fx:id="winRateLabel" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+                    <Label text="Score total:" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                    <Label fx:id="totalScoreLabel" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+
+                    <Label text="Créé le:" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                    <Label fx:id="createdDateLabel" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                </GridPane>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Button text="Exporter statistiques"
+                        onAction="#handleExportStats"
+                        styleClass="secondary-button"/>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- Pied de page -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10">
+            <padding>
+                <Insets/>
+            </padding>
+            <Button text="Retour au menu"
+                    onAction="#handleBack"
+                    styleClass="primary-button"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

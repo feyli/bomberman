@@ -1,0 +1,418 @@
+package com.bomberman.controller;
+
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import com.bomberman.model.PlayerProfile;
+import com.bomberman.utils.ProfileManager;
+import com.bomberman.utils.SoundManager;
+import javafx.util.StringConverter;
+
+import java.io.IOException;
+
+/**
+ * Contrôleur pour la sélection des joueurs
+ * Permet de choisir les profils avant de commencer une partie
+ *
+ * @author Super Bomberman Team
+ * @version 1.0
+ */
+public class PlayerSelectionController {
+
+    @FXML private ComboBox<PlayerProfile> player1ComboBox;
+    @FXML private ComboBox<PlayerProfile> player2ComboBox;
+    @FXML private ImageView player1Avatar;
+    @FXML private ImageView player2Avatar;
+    @FXML private Spinner<Integer> roundsSpinner;
+    @FXML private ComboBox<String> timeComboBox;
+    @FXML private Button startButton;
+
+    private ProfileManager profileManager;
+    private ObservableList<PlayerProfile> profiles;
+
+    /**
+     * Initialisation du contrôleur
+     */
+    @FXML
+    public void initialize() {
+        System.out.println("PlayerSelectionController initialisé");
+
+        profileManager = ProfileManager.getInstance();
+        loadProfiles();
+
+        // Configuration des ComboBox
+        setupComboBoxes();
+
+        // Configuration de la ComboBox de temps
+        setupTimeComboBox();
+
+        // Listeners pour activer/désactiver le bouton Start
+        player1ComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            updatePlayer1Display(newVal);
+            checkStartButtonState();
+        });
+
+        player2ComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            updatePlayer2Display(newVal);
+            checkStartButtonState();
+        });
+
+        // Configuration du spinner
+        if (roundsSpinner != null) {
+            SpinnerValueFactory<Integer> valueFactory =
+                    new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 3);
+            roundsSpinner.setValueFactory(valueFactory);
+        }
+
+        // Jouer un son d'entrée
+        SoundManager.getInstance().playSound("menu_select");
+    }
+
+    /**
+     * Charge les profils disponibles
+     */
+    private void loadProfiles() {
+        profiles = FXCollections.observableArrayList(profileManager.getAllProfiles());
+
+        // Ajouter des profils par défaut si nécessaire
+        if (profiles.isEmpty()) {
+            profiles.add(new PlayerProfile("Joueur", "1", "Player1"));
+            profiles.add(new PlayerProfile("Joueur", "2", "Player2"));
+
+            // Sauvegarder les profils par défaut
+            for (PlayerProfile profile : profiles) {
+                profileManager.addProfile(profile);
+            }
+        }
+    }
+
+    /**
+     * Configure les ComboBox avec les profils
+     */
+    private void setupComboBoxes() {
+        // Configuration de l'affichage des profils
+        player1ComboBox.setItems(profiles);
+        player2ComboBox.setItems(profiles);
+
+        // Convertisseur pour afficher le nom du profil
+        ProfileStringConverter converter = new ProfileStringConverter();
+        player1ComboBox.setConverter(converter);
+        player2ComboBox.setConverter(converter);
+
+        // Sélection par défaut
+        if (profiles.size() > 0) {
+            player1ComboBox.setValue(profiles.get(0));
+        }
+        if (profiles.size() > 1) {
+            player2ComboBox.setValue(profiles.get(1));
+        } else if (profiles.size() > 0) {
+            // S'il n'y a qu'un profil, on sélectionne le même pour les deux (sera corrigé plus tard)
+            player2ComboBox.setValue(profiles.get(0));
+        }
+    }
+
+    /**
+     * Configure la ComboBox de temps
+     */
+    private void setupTimeComboBox() {
+        if (timeComboBox != null) {
+            timeComboBox.setItems(FXCollections.observableArrayList(
+                    "1:30", "2:00", "3:00", "4:00", "5:00"
+            ));
+            timeComboBox.setValue("3:00");
+        }
+    }
+
+    /**
+     * Met à jour l'affichage du joueur 1
+     *
+     * @param profile Profil sélectionné
+     */
+    private void updatePlayer1Display(PlayerProfile profile) {
+        if (profile != null && player1Avatar != null) {
+            try {
+                Image avatar = new Image(getClass().getResourceAsStream(profile.getAvatarPath()));
+                player1Avatar.setImage(avatar);
+            } catch (Exception e) {
+                // Avatar par défaut en cas d'erreur
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                try {
+                    Image defaultAvatar = new Image(getClass().getResourceAsStream("/images/avatars/default.png"));
+                    player1Avatar.setImage(defaultAvatar);
+                } catch (Exception ex) {
+                    System.err.println("Impossible de charger l'avatar par défaut");
+                }
+            }
+        }
+    }
+
+    /**
+     * Met à jour l'affichage du joueur 2
+     *
+     * @param profile Profil sélectionné
+     */
+    private void updatePlayer2Display(PlayerProfile profile) {
+        if (profile != null && player2Avatar != null) {
+            try {
+                Image avatar = new Image(getClass().getResourceAsStream(profile.getAvatarPath()));
+                player2Avatar.setImage(avatar);
+            } catch (Exception e) {
+                // Avatar par défaut en cas d'erreur
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                try {
+                    Image defaultAvatar = new Image(getClass().getResourceAsStream("/images/avatars/default.png"));
+                    player2Avatar.setImage(defaultAvatar);
+                } catch (Exception ex) {
+                    System.err.println("Impossible de charger l'avatar par défaut");
+                }
+            }
+        }
+    }
+
+    /**
+     * Vérifie si le bouton Start doit être activé
+     */
+    private void checkStartButtonState() {
+        PlayerProfile p1 = player1ComboBox.getValue();
+        PlayerProfile p2 = player2ComboBox.getValue();
+
+        // Activer seulement si deux profils différents sont sélectionnés
+        boolean canStart = p1 != null && p2 != null && !p1.equals(p2);
+        startButton.setDisable(!canStart);
+
+        if (p1 != null && p2 != null && p1.equals(p2)) {
+            // Ne pas afficher l'avertissement immédiatement, juste désactiver le bouton
+            System.out.println("Même profil sélectionné pour les deux joueurs");
+        }
+    }
+
+    /**
+     * Gère le clic sur "Nouveau Profil" pour le joueur 1
+     */
+    @FXML
+    private void handleNewProfile1() {
+        SoundManager.getInstance().playSound("menu_select");
+        createNewProfile(1);
+    }
+
+    /**
+     * Gère le clic sur "Nouveau Profil" pour le joueur 2
+     */
+    @FXML
+    private void handleNewProfile2() {
+        SoundManager.getInstance().playSound("menu_select");
+        createNewProfile(2);
+    }
+
+    /**
+     * Crée un nouveau profil
+     *
+     * @param playerNumber Numéro du joueur
+     */
+    private void createNewProfile(int playerNumber) {
+        // Dialogue de création de profil
+        Dialog<PlayerProfile> dialog = new Dialog<>();
+        dialog.setTitle("Nouveau Profil");
+        dialog.setHeaderText("Créer un nouveau profil de joueur");
+
+        // Appliquer le style
+        dialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/css/main.css").toExternalForm()
+        );
+
+        // Boutons
+        ButtonType createButton = new ButtonType("Créer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(createButton, ButtonType.CANCEL);
+
+        // Formulaire
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField firstNameField = new TextField();
+        firstNameField.setPromptText("Prénom");
+        TextField lastNameField = new TextField();
+        lastNameField.setPromptText("Nom");
+        TextField nicknameField = new TextField();
+        nicknameField.setPromptText("Pseudo (optionnel)");
+
+        grid.add(new Label("Prénom:"), 0, 0);
+        grid.add(firstNameField, 1, 0);
+        grid.add(new Label("Nom:"), 0, 1);
+        grid.add(lastNameField, 1, 1);
+        grid.add(new Label("Pseudo:"), 0, 2);
+        grid.add(nicknameField, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Focus sur le premier champ
+        Platform.runLater(firstNameField::requestFocus);
+
+        // Validation en temps réel
+        Button createBtn = (Button) dialog.getDialogPane().lookupButton(createButton);
+        createBtn.setDisable(true);
+
+        firstNameField.textProperty().addListener((obs, oldText, newText) -> {
+            createBtn.setDisable(newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty());
+        });
+
+        lastNameField.textProperty().addListener((obs, oldText, newText) -> {
+            createBtn.setDisable(newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty());
+        });
+
+        // Convertisseur de résultat
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == createButton) {
+                String firstName = firstNameField.getText().trim();
+                String lastName = lastNameField.getText().trim();
+                String nickname = nicknameField.getText().trim();
+
+                if (!firstName.isEmpty() && !lastName.isEmpty()) {
+                    return new PlayerProfile(firstName, lastName, nickname.isEmpty() ? firstName : nickname);
+                }
+            }
+            return null;
+        });
+
+        // Afficher et traiter le résultat
+        dialog.showAndWait().ifPresent(profile -> {
+            profileManager.addProfile(profile);
+            loadProfiles();
+            setupComboBoxes();
+
+            // Sélectionner le nouveau profil
+            if (playerNumber == 1) {
+                player1ComboBox.setValue(profile);
+            } else {
+                player2ComboBox.setValue(profile);
+            }
+
+            SoundManager.getInstance().playSound("powerup_collect");
+        });
+    }
+
+    /**
+     * Gère le clic sur "Commencer"
+     */
+    @FXML
+    private void handleStart() {
+        PlayerProfile profile1 = player1ComboBox.getValue();
+        PlayerProfile profile2 = player2ComboBox.getValue();
+
+        if (profile1 == null || profile2 == null || profile1.equals(profile2)) {
+            showWarning("Sélection invalide", "Veuillez sélectionner deux profils différents.");
+            return;
+        }
+
+        SoundManager.getInstance().playSound("game_start");
+
+        try {
+            // Charger la vue du jeu
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameView.fxml"));
+            Parent root = loader.load();
+
+            // Obtenir le contrôleur et démarrer le jeu
+            GameController gameController = loader.getController();
+            gameController.startGame(profile1, profile2);
+
+            // Créer la scène
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+
+            // Changer de scène
+            Stage stage = (Stage) startButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible de démarrer le jeu: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gère le clic sur "Retour"
+     */
+    @FXML
+    private void handleBack() {
+        SoundManager.getInstance().playSound("menu_select");
+
+        try {
+            // Retour au menu principal
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainMenu.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+
+            Stage stage = (Stage) startButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Erreur", "Impossible de retourner au menu: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Affiche un avertissement
+     *
+     * @param title Titre
+     * @param message Message
+     */
+    private void showWarning(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("/css/main.css").toExternalForm()
+        );
+        alert.showAndWait();
+    }
+
+    /**
+     * Affiche une erreur
+     *
+     * @param title Titre
+     * @param message Message
+     */
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("/css/main.css").toExternalForm()
+        );
+        alert.showAndWait();
+    }
+
+    /**
+     * Convertisseur pour afficher les profils dans les ComboBox
+     */
+    private static class ProfileStringConverter extends StringConverter<PlayerProfile> {
+        @Override
+        public String toString(PlayerProfile profile) {
+            if (profile == null) {
+                return "";
+            }
+            return profile.getDisplayName() + " (" + profile.getGamesPlayed() + " parties)";
+        }
+
+        @Override
+        public PlayerProfile fromString(String string) {
+            return null; // Non utilisé
+        }
+    }
+}

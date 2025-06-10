@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER" spacing="30"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bomberman.controller.MainMenuController"
+      styleClass="menu-container">
+
+    <padding>
+        <Insets bottom="40" left="40" right="40" top="40"/>
+    </padding>
+
+    <!-- Titre du jeu -->
+    <Label text="SUPER BOMBERMAN" styleClass="title-label">
+        <font>
+            <Font name="Arial Black" size="48" />
+        </font>
+    </Label>
+
+    <!-- Boutons du menu -->
+    <VBox alignment="CENTER" spacing="15" maxWidth="300">
+        <Button fx:id="playButton"
+                text="JOUER"
+                onAction="#handlePlay"
+                prefWidth="250"
+                prefHeight="50"
+                styleClass="menu-button">
+            <font>
+                <Font size="18" />
+            </font>
+        </Button>
+
+        <Button fx:id="profileButton"
+                text="PROFILS"
+                onAction="#handleProfiles"
+                prefWidth="250"
+                prefHeight="50"
+                styleClass="menu-button">
+            <font>
+                <Font size="18" />
+            </font>
+        </Button>
+
+        <Button text="PARAMÈTRES"
+                onAction="#handleSettings"
+                prefWidth="250"
+                prefHeight="50"
+                styleClass="menu-button">
+            <font>
+                <Font size="18" />
+            </font>
+        </Button>
+
+        <Button fx:id="quitButton"
+                text="QUITTER"
+                prefWidth="250"
+                prefHeight="50"
+                styleClass="menu-button"
+                onAction="#handleQuit">
+            <font>
+                <Font size="18" />
+            </font>
+        </Button>
+    </VBox>
+
+    <!-- Version -->
+    <Label text="Version 1.0" styleClass="version-label">
+        <font>
+            <Font size="12" />
+        </font>
+    </Label>
+</VBox>
