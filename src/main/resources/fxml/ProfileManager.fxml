@@ -94,9 +94,14 @@
 
                 <Region VBox.vgrow="ALWAYS"/>
 
-                <Button text="Exporter statistiques"
-                        onAction="#handleExportStats"
-                        styleClass="secondary-button"/>
+                <HBox spacing="10">
+                    <Button text="Exporter statistiques"
+                            onAction="#handleExportStats"
+                            styleClass="secondary-button"/>
+                    <Button text="Importer statistiques"
+                            onAction="#handleImportStats"
+                            styleClass="secondary-button"/>
+                </HBox>
             </VBox>
         </HBox>
     </center>

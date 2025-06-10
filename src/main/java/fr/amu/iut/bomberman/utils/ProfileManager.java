@@ -252,11 +252,11 @@ public class ProfileManager {
     /**
      * Exporte les statistiques en CSV
      *
-     * @param filename Nom du fichier de sortie
+     * @param filePath Chemin complet du fichier de sortie
      * @return true si l'export a réussi
      */
-    public boolean exportStatistics(String filename) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(PROFILES_DIR + filename))) {
+    public boolean exportStatistics(String filePath) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
             writer.println("Nom,Prénom,Pseudo,Parties jouées,Parties gagnées,Taux de victoire,Score total,Score moyen");
 
             for (PlayerProfile profile : profiles) {
@@ -272,10 +272,121 @@ public class ProfileManager {
                 );
             }
 
-            System.out.println("Statistiques exportées vers: " + PROFILES_DIR + filename);
+            System.out.println("Statistiques exportées vers: " + filePath);
             return true;
         } catch (IOException e) {
             System.err.println("Erreur lors de l'export: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Importe les statistiques depuis un fichier CSV
+     *
+     * @param filePath Chemin complet du fichier à importer
+     * @return true si l'import a réussi
+     */
+    public boolean importStatistics(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            // Ignorer l'en-tête
+            String line = reader.readLine();
+
+            // Lire les lignes de données
+            while ((line = reader.readLine()) != null) {
+                try {
+                    System.out.println("Analyse de la ligne: " + line); // Debug
+
+                    // Format attendu: Nom,Prénom,Pseudo,Parties jouées,Parties gagnées,Taux de victoire (peut être divisé en plusieurs colonnes),Score total,Score moyen
+                    String[] data = line.split(",");
+
+                    // Vérifier qu'il y a assez de données
+                    if (data.length >= 7) {
+                        String lastName = data[0].trim();
+                        String firstName = data[1].trim();
+                        String nickname = data[2].trim();
+
+                        // Vérifier si le profil existe déjà
+                        PlayerProfile existingProfile = getProfileByNickname(nickname);
+
+                        try {
+                            // Nettoyer et convertir les données numériques - peut-être à des positions différentes selon le format exact
+                            int gamesPlayed = Integer.parseInt(data[3].trim());
+                            int gamesWon = Integer.parseInt(data[4].trim());
+
+                            // Pour le score total, chercher la première valeur numérique après le taux de victoire
+                            int totalScore = 0;
+                            for (int i = 5; i < data.length; i++) {
+                                try {
+                                    totalScore = Integer.parseInt(data[i].trim());
+                                    break; // Prend la première valeur numérique valide
+                                } catch (NumberFormatException ignored) {
+                                    // Continue de chercher
+                                }
+                            }
+
+                            if (existingProfile != null) {
+                                // Si le profil existe déjà, mettre à jour ses statistiques
+                                int currentGamesPlayed = existingProfile.getGamesPlayed();
+                                int currentGamesWon = existingProfile.getGamesWon();
+                                int currentTotalScore = existingProfile.getTotalScore();
+
+                                // Calculer les différences pour n'ajouter que les nouvelles statistiques
+                                int newGamesPlayed = Math.max(0, gamesPlayed - currentGamesPlayed);
+                                int newGamesWon = Math.max(0, gamesWon - currentGamesWon);
+                                int newTotalScore = Math.max(0, totalScore - currentTotalScore);
+
+                                // Si des nouvelles parties ont été jouées
+                                if (newGamesPlayed > 0) {
+                                    // Mettre à jour pour les parties gagnées
+                                    for (int i = 0; i < newGamesWon; i++) {
+                                        existingProfile.updateStats(true,
+                                            newGamesPlayed > 0 ? newTotalScore / newGamesPlayed : 0);
+                                    }
+
+                                    // Et pour les parties perdues
+                                    for (int i = 0; i < newGamesPlayed - newGamesWon; i++) {
+                                        existingProfile.updateStats(false, 0);
+                                    }
+                                }
+                            } else {
+                                // Créer un nouveau profil
+                                PlayerProfile newProfile = new PlayerProfile(firstName, lastName, nickname);
+
+                                // Ajouter le profil à la liste
+                                profiles.add(newProfile);
+
+                                // Mettre à jour les statistiques
+                                for (int i = 0; i < gamesWon; i++) {
+                                    newProfile.updateStats(true,
+                                        gamesPlayed > 0 ? totalScore / gamesPlayed : 0);
+                                }
+
+                                for (int i = 0; i < gamesPlayed - gamesWon; i++) {
+                                    newProfile.updateStats(false, 0);
+                                }
+                            }
+
+                            System.out.println("Profil importé avec succès: " + nickname);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Erreur lors de la conversion des statistiques pour " + nickname + ": " + e.getMessage());
+                        }
+                    } else {
+                        System.err.println("Format de ligne invalide (pas assez de colonnes): " + line);
+                    }
+                } catch (Exception e) {
+                    // Afficher un message d'erreur détaillé mais continuer avec les autres lignes
+                    System.err.println("Erreur lors de l'analyse de la ligne: " + line);
+                    System.err.println("Détail de l'erreur: " + e.getMessage());
+                }
+            }
+
+            // Sauvegarder les modifications
+            saveProfiles();
+
+            System.out.println("Statistiques importées depuis: " + filePath);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'import: " + e.getMessage());
             return false;
         }
     }
