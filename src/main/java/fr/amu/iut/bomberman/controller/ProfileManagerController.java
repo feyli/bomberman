@@ -191,6 +191,7 @@ public class ProfileManagerController {
             selectedProfile.setFirstName(updatedProfile.getFirstName());
             selectedProfile.setLastName(updatedProfile.getLastName());
             selectedProfile.setNickname(updatedProfile.getNickname());
+            selectedProfile.setAvatarPath(updatedProfile.getAvatarPath());
 
             profileManager.updateProfile(selectedProfile);
             refreshProfileList();
@@ -394,13 +395,114 @@ public class ProfileManagerController {
         // Validation
         dialog.getDialogPane().lookupButton(saveButton).setDisable(true);
 
-        firstNameField.textProperty().addListener((obs, oldText, newText) -> dialog.getDialogPane().lookupButton(saveButton).setDisable(
-                newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty()
-        ));
+        // Store original values for comparison
+        final String originalFirstName = profile != null ? profile.getFirstName() : "";
+        final String originalLastName = profile != null ? profile.getLastName() : "";
+        final String originalNickname = profile != null ? profile.getNickname() : "";
+        final String originalAvatarPath = profile != null ? profile.getAvatarPath() : "/images/avatars/default.png";
 
-        lastNameField.textProperty().addListener((obs, oldText, newText) -> dialog.getDialogPane().lookupButton(saveButton).setDisable(
-                newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty()
-        ));
+        // Validation function to check if anything has changed and fields aren't empty
+        Runnable updateSaveButtonState = () -> {
+            boolean firstNameValid = !firstNameField.getText().trim().isEmpty();
+            boolean lastNameValid = !lastNameField.getText().trim().isEmpty();
+
+            boolean nameChanged = !firstNameField.getText().equals(originalFirstName) ||
+                    !lastNameField.getText().equals(originalLastName);
+            boolean nicknameChanged = !nicknameField.getText().equals(originalNickname);
+            boolean avatarChanged = !selectedAvatarPath[0].equals(originalAvatarPath);
+
+            boolean anyChange = nameChanged || nicknameChanged || avatarChanged;
+
+            // Enable save button if required fields are valid AND any field has changed
+            dialog.getDialogPane().lookupButton(saveButton).setDisable(
+                    !(firstNameValid && lastNameValid && anyChange)
+            );
+        };
+
+        // Add change listeners to all fields
+        firstNameField.textProperty().addListener((obs, oldText, newText) -> updateSaveButtonState.run());
+        lastNameField.textProperty().addListener((obs, oldText, newText) -> updateSaveButtonState.run());
+        nicknameField.textProperty().addListener((obs, oldText, newText) -> updateSaveButtonState.run());
+
+        // Update the avatar selection logic to check if avatar has changed
+        chooseAvatarButton.setOnAction(e -> {
+            Dialog<String> avatarDialog = new Dialog<>();
+            avatarDialog.setTitle("Choisir un avatar");
+            avatarDialog.setHeaderText("Sélectionnez votre avatar");
+
+            // Grille d'avatars
+            GridPane avatarGrid = new GridPane();
+            avatarGrid.setHgap(10);
+            avatarGrid.setVgap(10);
+            avatarGrid.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+
+            // Liste des avatars disponibles
+            String[] avatarFiles = {
+                    "/images/avatars/default.png",
+                    "/images/avatars/avatar1.png",
+                    "/images/avatars/avatar2.png",
+                    "/images/avatars/avatar3.png",
+                    "/images/avatars/avatar4.png",
+                    "/images/avatars/avatar5.png",
+                    "/images/avatars/avatar6.png",
+                    "/images/avatars/avatar7.png",
+                    "/images/avatars/avatar8.png"
+            };
+
+            ToggleGroup avatarToggleGroup = new ToggleGroup();
+            int col = 0;
+            int row = 0;
+
+            for (String avatarFile : avatarFiles) {
+                try {
+                    Image avatarImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarFile)));
+                    ImageView avatarView = new ImageView(avatarImage);
+                    avatarView.setFitWidth(64);
+                    avatarView.setFitHeight(64);
+
+                    RadioButton avatarRadio = new RadioButton();
+                    avatarRadio.setGraphic(avatarView);
+                    avatarRadio.setToggleGroup(avatarToggleGroup);
+                    avatarRadio.setUserData(avatarFile);
+
+                    // Sélectionner l'avatar actuel
+                    if (avatarFile.equals(selectedAvatarPath[0])) {
+                        avatarRadio.setSelected(true);
+                    }
+
+                    avatarGrid.add(avatarRadio, col, row);
+
+                    col++;
+                    if (col > 2) {
+                        col = 0;
+                        row++;
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Erreur lors du chargement de l'avatar: " + avatarFile);
+                }
+            }
+
+            // Boutons du dialogue
+            ButtonType selectButton = new ButtonType("Sélectionner", ButtonBar.ButtonData.OK_DONE);
+            avatarDialog.getDialogPane().getButtonTypes().addAll(selectButton, ButtonType.CANCEL);
+
+            avatarDialog.getDialogPane().setContent(avatarGrid);
+
+            // Résultat du dialogue
+            avatarDialog.setResultConverter(dialogBtn -> {
+                if (dialogBtn == selectButton && avatarToggleGroup.getSelectedToggle() != null) {
+                    return (String) avatarToggleGroup.getSelectedToggle().getUserData();
+                }
+                return null;
+            });
+
+            // Traiter le résultat
+            avatarDialog.showAndWait().ifPresent(avatarPath -> {
+                selectedAvatarPath[0] = avatarPath;
+                selectedAvatarView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath))));
+                updateSaveButtonState.run(); // Check for changes when avatar is updated
+            });
+        });
 
         // Convertisseur de résultat
         dialog.setResultConverter(dialogButton -> {
