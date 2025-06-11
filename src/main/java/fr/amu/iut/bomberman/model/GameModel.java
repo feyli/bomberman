@@ -209,7 +209,8 @@ public class GameModel {
      * @param hitboxSize Taille de la hitbox (en pourcentage de la taille d'une case)
      */
     private void checkPlayerExplosionCollision(Player player, double resetX, double resetY, double hitboxSize) {
-        if (!player.isAlive()) return;
+        // Ne pas vérifier si le joueur n'est pas en vie ou s'il est déjà invincible
+        if (!player.isAlive() || player.getIsInvincible()) return;
 
         double playerX = player.getX();
         double playerY = player.getY();

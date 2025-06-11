@@ -76,14 +76,9 @@ public class Player {
         this.currentDirection = Direction.DOWN;
         this.lastValidDirection = Direction.DOWN;
         this.bombsPlaced = 0;
+        enableTemporaryInvincibility();
         // Les capacités (maxBombs, firePower, speed) sont conservées entre les rounds
         if (resetLives) this.lives = DEFAULT_LIVES; // Réinitialise les vies si le paramètre est vrai
-        this.isInvincible = false; // Désactive l'invincibilité lors de la réinitialisation
-
-        // Interrompre le thread d'invincibilité s'il existe
-        if (invincibilityThread != null && invincibilityThread.isAlive()) {
-            invincibilityThread.interrupt();
-        }
 
         System.out.println("Joueur " + playerId + " réinitialisé à (" + x + ", " + y + ")");
     }
@@ -134,16 +129,11 @@ public class Player {
      * Le joueur perd une vie
      */
     public void loseLife() {
-        if (!alive || isInvincible) {
-            System.out.println("Joueur " + playerId + " ne peut pas perdre de vie (mort ou invincible)!");
-            return;
-        }
         lives--;
         if (lives <= 0) {
             alive = false;
         }
-        enableTemporaryInvincibility();
-        System.out.println("Joueur " + playerId + " perd une vie! Vies restantes: " + lives);
+        System.out.println("Joueur " + playerId + " perd une vie ! Vies restantes:  " + lives);
     }
 
     /**
@@ -257,41 +247,8 @@ public class Player {
         invincibilityThread.start();
     }
 
-    /**
-     * Désactive l'invincibilité du joueur
-     */
-    public void disableInvincibility() {
-        // Interrompre le thread d'invincibilité s'il existe
-        if (invincibilityThread != null && invincibilityThread.isAlive()) {
-            invincibilityThread.interrupt();
-        }
-        this.isInvincible = false;
-        System.out.println("Joueur " + playerId + " n'est plus invincible (invincibilité désactivée manuellement)!");
-    }
-
-    /**
-     * Obtient la dernière direction valide du joueur
-     */
-    public Direction getLastValidDirection() {
-        return lastValidDirection;
-    }
-
-    /**
-     * Retourne le score du joueur
-     *
-     * @return score actuel
-     */
     public int getScore() {
         return score;
-    }
-
-    /**
-     * Ajoute des points au score du joueur
-     *
-     * @param points Points à ajouter
-     */
-    public void addScore(int points) {
-        this.score += points;
     }
 
     // Getters
@@ -365,5 +322,9 @@ public class Player {
         } else {
             System.out.println("Le joueur " + playerId + " ne peut pas placer de bombe (limite atteinte ou joueur mort)!");
         }
+    }
+
+    public boolean getIsInvincible() {
+        return isInvincible;
     }
 }

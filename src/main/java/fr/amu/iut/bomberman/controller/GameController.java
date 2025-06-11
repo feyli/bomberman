@@ -52,6 +52,8 @@ public class GameController implements GameModel.GameModelListener {
     private Label player2Lives;
     @FXML
     private Label messageLabel;
+    @FXML
+    private Pane gamePane;
 
     private GameModel gameModel;
     private GameRenderer gameRenderer;
