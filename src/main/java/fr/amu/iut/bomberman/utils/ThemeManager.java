@@ -25,7 +25,7 @@ public class ThemeManager {
      */
     private ThemeManager() {
         themeProperties = new Properties();
-        currentTheme = "classic";
+        currentTheme = "clair";
     }
 
     /**
@@ -100,20 +100,6 @@ public class ThemeManager {
     }
 
     /**
-     * Obtient la liste des thèmes disponibles
-     *
-     * @return Liste des noms de thèmes
-     */
-    public List<String> getAvailableThemes() {
-        List<String> themes = new ArrayList<>();
-        themes.add("classic");
-        themes.add("modern");
-        themes.add("retro");
-        themes.add("dark");
-        return themes;
-    }
-
-    /**
      * Obtient le nom du thème actuel
      *
      * @return Nom du thème
@@ -123,11 +109,42 @@ public class ThemeManager {
     }
 
     /**
-     * Obtient le chemin CSS du thème actuel
+     * Obtient le chemin du fichier CSS pour le thème actuel
      *
      * @return Chemin du fichier CSS
      */
-    public String getThemeCSS() {
-        return THEMES_PATH + currentTheme + "/style.css";
+    public String getThemeCssPath() {
+        // Essaie d'abord de récupérer un CSS spécifique au thème depuis le fichier properties
+        String cssFile = themeProperties.getProperty("css.file");
+
+        // Si un CSS spécifique est défini dans le fichier properties du thème
+        if (cssFile != null && !cssFile.isEmpty()) {
+            return cssFile;
+        }
+
+        // Sinon, essaie un fichier CSS nommé d'après le thème actuel
+        String themeCssPath = "/css/" + currentTheme + ".css";
+        if (getClass().getResource(themeCssPath) != null) {
+            return themeCssPath;
+        }
+
+        // Par défaut, retourne le CSS principal
+        return "/css/main.css";
+    }
+
+    /**
+     * Obtient une liste des thèmes disponibles
+     *
+     * @return Liste des noms de thèmes disponibles
+     */
+    public List<String> getAvailableThemes() {
+        List<String> themes = new ArrayList<>();
+
+        // Ajouter les thèmes disponibles
+        themes.add("clair");
+        themes.add("obscur");
+        // Vous pouvez ajouter d'autres thèmes ici
+
+        return themes;
     }
 }
