@@ -54,6 +54,8 @@ public class GameController implements GameModel.GameModelListener {
     private Label roundLabel;
     @FXML
     private Label messageLabel;
+    @FXML
+    private Label gameOverLabel;
 
     private GameModel gameModel;
     private GameRenderer gameRenderer;
@@ -105,9 +107,13 @@ public class GameController implements GameModel.GameModelListener {
         // Initialiser l'interface
         updateUI();
 
-        // Cacher le message par défaut
+        // Cacher les messages par défaut
         if (messageLabel != null) {
             messageLabel.setVisible(false);
+        }
+
+        if (gameOverLabel != null) {
+            gameOverLabel.setVisible(false);
         }
     }
 
@@ -507,6 +513,9 @@ public class GameController implements GameModel.GameModelListener {
      */
     private void showMessage(String message) {
         if (messageLabel != null) {
+            // Cacher tout message existant d'abord
+            hideMessage();
+            // Puis afficher le nouveau message
             messageLabel.setText(message);
             messageLabel.setVisible(true);
         }
@@ -518,6 +527,25 @@ public class GameController implements GameModel.GameModelListener {
     private void hideMessage() {
         if (messageLabel != null) {
             messageLabel.setVisible(false);
+        }
+    }
+
+    /**
+     * Affiche un message de Game Over à l'écran (label du haut)
+     */
+    private void showGameOverMessage(String message) {
+        if (gameOverLabel != null) {
+            gameOverLabel.setText(message);
+            gameOverLabel.setVisible(true);
+        }
+    }
+
+    /**
+     * Cache le message de Game Over
+     */
+    private void hideGameOverMessage() {
+        if (gameOverLabel != null) {
+            gameOverLabel.setVisible(false);
         }
     }
 
@@ -582,6 +610,13 @@ public class GameController implements GameModel.GameModelListener {
 
     @Override
     public void onRoundEnded(Player winner) {
+        // Si le jeu est terminé (un joueur a atteint le score nécessaire pour gagner),
+        // ne pas afficher le message de fin de round pour éviter la superposition
+        if (gameModel.getGameState() == GameModel.GameState.GAME_OVER) {
+            // Ne rien faire, la fin de partie sera gérée par onGameEnded
+            return;
+        }
+
         if (winner != null) {
             showMessage(winner.getName() + " gagne le round!");
         } else {
@@ -607,8 +642,16 @@ public class GameController implements GameModel.GameModelListener {
 
     @Override
     public void onGameEnded(Player winner) {
+        // N'afficher que le nom du gagnant, sans "Game Over" supplémentaire
         showMessage(winner.getName() + " gagne la partie!");
-        SoundManager.getInstance().playSound("victory");
+
+        // Cacher l'autre label pour éviter toute confusion
+        hideGameOverMessage();
+
+        // Arrêter toute musique en cours pour éviter la superposition
+        SoundManager.getInstance().stopMusic();
+        // Jouer le son de fin de partie
+        SoundManager.getInstance().playSound("round_end");  // Ce son est en réalité "game_over.wav" d'après le code
 
         if (gameLoop != null) {
             gameLoop.stop();

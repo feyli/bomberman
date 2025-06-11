@@ -69,11 +69,20 @@
             <Canvas fx:id="gameCanvas"
                     focusTraversable="true"/>
 
-            <!-- Message superposé (pause, fin de round, etc.) -->
-            <Label fx:id="messageLabel"
-                   styleClass="game-message"
-                   visible="false"
-                   text="PAUSE"/>
+            <!-- Messages superposés (pause, fin de round, fin de partie, etc.) -->
+            <VBox alignment="CENTER" spacing="30">
+                <!-- Message du haut (utilisé pour la fin de partie) -->
+                <Label fx:id="gameOverLabel"
+                       styleClass="game-message"
+                       visible="false"
+                       text="Game Over"/>
+
+                <!-- Message du bas (utilisé pour les fins de round et autres) -->
+                <Label fx:id="messageLabel"
+                       styleClass="game-message"
+                       visible="false"
+                       text="PAUSE"/>
+            </VBox>
         </StackPane>
     </center>
 
