@@ -1,5 +1,6 @@
 package fr.amu.iut.bomberman;
 
+import fr.amu.iut.bomberman.controller.SettingsController;
 import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.application.Application;
@@ -8,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import java.util.prefs.Preferences;
 
 /**
  * Classe principale de l'application Super Bomberman Clone
@@ -32,7 +34,12 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Initialisation des gestionnaires
         ProfileManager.getInstance().loadProfiles();
-        ThemeManager.getInstance().loadTheme("classic");
+
+        // Charger le thème depuis les préférences utilisateur (obscur par défaut)
+        Preferences preferences = Preferences.userNodeForPackage(SettingsController.class);
+        String savedTheme = preferences.get("theme", "obscur");
+        System.out.println("Chargement du thème depuis les préférences: " + savedTheme);
+        ThemeManager.getInstance().loadTheme(savedTheme);
 
         // Chargement de la vue principale
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainMenu.fxml"));
@@ -40,7 +47,7 @@ public class Main extends Application {
 
         // Configuration de la scène
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-        scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         // Configuration du stage
         primaryStage.setTitle(APP_TITLE);

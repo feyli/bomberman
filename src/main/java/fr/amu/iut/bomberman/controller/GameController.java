@@ -5,6 +5,7 @@ import fr.amu.iut.bomberman.utils.Direction;
 import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -570,7 +571,8 @@ public class GameController implements GameModel.GameModelListener {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            // Utiliser le thème actuel au lieu de /css/main.css
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(scene);

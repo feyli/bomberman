@@ -358,6 +358,7 @@ public class SettingsController {
             if (currentScene != null) {
                 currentScene.getStylesheets().clear();
                 currentScene.getStylesheets().add(getClass().getResource(themeManager.getThemeCssPath()).toExternalForm());
+                currentScene.getRoot().applyCss();
             }
         }
 

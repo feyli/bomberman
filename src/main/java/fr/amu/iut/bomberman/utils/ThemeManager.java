@@ -25,7 +25,7 @@ public class ThemeManager {
      */
     private ThemeManager() {
         themeProperties = new Properties();
-        currentTheme = "clair";
+        currentTheme = "obscur";
     }
 
     /**
@@ -48,14 +48,21 @@ public class ThemeManager {
      */
     public boolean loadTheme(String themeName) {
         try {
+            // Définir directement currentTheme pour s'assurer qu'il est mis à jour
+            currentTheme = themeName;
+
             String themePath = THEMES_PATH + themeName + "/theme.properties";
             InputStream is = getClass().getResourceAsStream(themePath);
 
             if (is != null) {
                 themeProperties.clear();
                 themeProperties.load(is);
-                currentTheme = themeName;
                 is.close();
+                System.out.println("Thème chargé: " + themeName + " - CSS Path: " + getThemeCssPath());
+                return true;
+            } else {
+                // Si properties non trouvé, on garde quand même le thème mis à jour
+                System.out.println("Thème sans properties chargé: " + themeName + " - CSS Path: " + getThemeCssPath());
                 return true;
             }
         } catch (IOException e) {
