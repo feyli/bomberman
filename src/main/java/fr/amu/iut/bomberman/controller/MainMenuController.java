@@ -2,6 +2,7 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -103,8 +104,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) playButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,8 +145,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) profileButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,8 +186,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) playButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -208,9 +212,9 @@ public class MainMenuController {
         alert.setHeaderText("Voulez-vous vraiment quitter ?");
         alert.setContentText("Toute progression non sauvegardée sera perdue.");
 
-        // Appliquer le thème au dialogue
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
         );
 
         alert.showAndWait().ifPresent(response -> {
@@ -234,9 +238,9 @@ public class MainMenuController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-        // Appliquer le thème au dialogue
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
         );
 
         alert.showAndWait();

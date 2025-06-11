@@ -5,6 +5,7 @@ import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -295,9 +296,9 @@ public class PlayerSelectionController {
         dialog.setTitle("Nouveau Profil");
         dialog.setHeaderText("Créer un nouveau profil de joueur");
 
-        // Appliquer le style
+        // Appliquer le style avec le thème actuel
         dialog.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         // Boutons
@@ -417,7 +418,7 @@ public class PlayerSelectionController {
 
             // Créer la scène
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             // Changer de scène
             Stage stage = (Stage) startButton.getScene().getWindow();
@@ -466,7 +467,7 @@ public class PlayerSelectionController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
@@ -511,9 +512,9 @@ public class PlayerSelectionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-        // Appliquer le style
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         alert.showAndWait();

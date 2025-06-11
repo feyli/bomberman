@@ -1,0 +1,302 @@
+/*
+ * Feuille de style thème clair - Super Bomberman Clone
+ * Style inspiré de Super Bomberman SNES avec palette claire
+ */
+
+/* Variables de couleurs */
+.root {
+    -fx-primary-color: #4285F4;        /* Bleu au lieu d'orange */
+    -fx-secondary-color: #FBBC05;      /* Jaune plus doux */
+    -fx-danger-color: #EA4335;         /* Rouge plus clair */
+    -fx-success-color: #34A853;        /* Vert plus vif */
+    -fx-background-dark: #F5F5F5;      /* Fond très clair */
+    -fx-background-light: #FFFFFF;     /* Fond blanc */
+    -fx-text-color: #202124;           /* Texte foncé */
+    -fx-text-secondary: #5F6368;       /* Texte secondaire gris */
+}
+
+/* Style global */
+* {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+}
+
+/* Conteneurs principaux */
+.menu-container {
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF, #F5F5F5);
+    -fx-background-image: url("/images/backgrounds/menu_bg.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-pref-width: 1024px;
+    -fx-pref-height: 768px;
+}
+
+.game-container {
+    -fx-background-color: -fx-background-dark;
+}
+
+.selection-container, .settings-container, .profile-manager-container {
+    -fx-background-color: -fx-background-dark;
+}
+
+/* Labels */
+.title-label {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #202124;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 8, 0, 1, 1);
+}
+
+.subtitle-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 6, 0, 1, 1);
+}
+
+/* Amélioration de la lisibilité des textes dans les menus */
+.menu-text {
+    -fx-text-fill: #202124;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 1, 0, 1, 1);
+}
+
+.menu-label {
+    -fx-text-fill: #202124;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 1, 0, 1, 1);
+}
+
+/* Pour les boutons radio et checkbox */
+.radio-button, .check-box {
+    -fx-text-fill: #202124;
+}
+
+.label {
+    -fx-text-fill: #202124;
+}
+
+/* Version et autres labels */
+.version-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+/* Boutons du menu principal */
+.menu-button {
+    -fx-background-color: #4285F4;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -fx-secondary-color;
+    -fx-border-width: 3;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 2, 2);
+}
+
+.menu-button:hover {
+    -fx-background-color: #FBBC05;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.menu-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 2, 0, 1, 1);
+}
+
+/* Boutons standards */
+.primary-button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: derive(-fx-primary-color, 20%);
+}
+
+.secondary-button {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: derive(-fx-primary-color, 80%);
+    -fx-text-fill: -fx-primary-color;
+}
+
+.danger-button {
+    -fx-background-color: -fx-danger-color;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+
+.danger-button:hover {
+    -fx-background-color: derive(-fx-danger-color, 20%);
+}
+
+/* Interface de jeu */
+.game-info-bar {
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF, #EEEEEE);
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 0 0 3 0;
+}
+
+.player-info {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.player-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.player-stat {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-text-color;
+}
+
+.timer-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(66, 133, 244, 0.4), 5, 0, 0, 0);
+}
+
+.round-label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-secondary-color;
+}
+
+.game-area {
+    -fx-background-color: #E8E8E8;
+}
+
+.game-message {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 10, 0, 2, 2);
+}
+
+.control-bar {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 3 0 0 0;
+}
+
+.controls-hint {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-text-secondary;
+}
+
+/* Sélection des joueurs */
+.player-selection-box {
+    -fx-background-color: rgba(66, 133, 244, 0.1);
+    -fx-background-radius: 15;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 20;
+    -fx-min-width: 250;
+}
+
+.player-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.vs-label {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-danger-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(234, 67, 53, 0.4), 8, 0, 0, 0);
+}
+
+.player-avatar {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 1, 1);
+}
+
+/* ComboBox et autres contrôles */
+.combo-box {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-text-color;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: derive(-fx-primary-color, 80%);
+    -fx-text-fill: -fx-primary-color;
+}
+
+/* Slider */
+.slider {
+    -fx-control-inner-background: #E8E8E8;
+}
+
+.slider .track {
+    -fx-background-color: #E8E8E8;
+    -fx-background-radius: 5;
+}
+
+.slider .thumb {
+    -fx-background-color: -fx-primary-color;
+    -fx-background-radius: 50;
+}
+
+/* TabPane */
+.tab-pane {
+    -fx-background-color: -fx-background-dark;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: -fx-background-light;
+}
+
+.tab-pane .tab {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: -fx-primary-color;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: -fx-text-color;
+}
