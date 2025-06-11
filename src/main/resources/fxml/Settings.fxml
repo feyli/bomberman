@@ -114,7 +114,7 @@
 
         <!-- Onglet Contrôles -->
         <Tab text="Contrôles" closable="false">
-            <ScrollPane fitToWidth="true">
+            <ScrollPane fitToWidth="true" style="-fx-background: -fx-background-dark; -fx-background-color: -fx-background-dark;">
                 <VBox spacing="15" alignment="CENTER">
                     <padding>
                         <Insets/>

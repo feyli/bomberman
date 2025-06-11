@@ -3,11 +3,13 @@ package fr.amu.iut.bomberman.controller;
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ThemeManager;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 
 /**
@@ -173,25 +176,34 @@ public class SettingsController {
         currentKeyButton = button;
         button.setText("...");
 
-        // Capturer la prochaine touche
-        button.getScene().setOnKeyPressed(event -> {
+        AtomicReference<EventHandler<KeyEvent>> keyEventHandler = new AtomicReference<>();
+
+        // Créer le filtre d'événement que nous pourrons supprimer plus tard
+        keyEventHandler.set(keyEvent -> {
             if (currentKeyButton == button) {
-                KeyCode keyCode = event.getCode();
+                KeyCode keyCode = keyEvent.getCode();
 
                 // Vérifier que la touche n'est pas déjà utilisée
                 if (!isKeyUsed(keyCode, key)) {
                     keyBindings.put(key, keyCode);
                     button.setText(getKeyName(keyCode));
                 } else {
-                    showWarning(
-                    );
+                    showWarning();
                     button.setText(getKeyName(keyBindings.get(key)));
                 }
 
                 currentKeyButton = null;
-                button.getScene().setOnKeyPressed(null);
+
+                // Supprimer le filtre après utilisation
+                button.getScene().removeEventFilter(KeyEvent.KEY_PRESSED, keyEventHandler.get());
+
+                // Consommer l'événement pour éviter qu'il ne soit traité par d'autres éléments
+                keyEvent.consume();
             }
         });
+
+        // Ajouter le filtre pour capturer toutes les touches, y compris les flèches
+        button.getScene().addEventFilter(KeyEvent.KEY_PRESSED, keyEventHandler.get());
     }
 
     /**
@@ -410,4 +422,3 @@ public class SettingsController {
         alert.showAndWait();
     }
 }
-

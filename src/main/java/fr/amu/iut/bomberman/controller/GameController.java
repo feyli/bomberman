@@ -2,8 +2,9 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.*;
 import fr.amu.iut.bomberman.utils.FullScreenManager;
-import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -12,75 +13,78 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
- * Contrôleur principal du jeu
- * Gère la boucle de jeu, les entrées et la logique
+ * Contrôleur pour le jeu Bomberman
+ * Gère la logique du jeu et les interactions utilisateur
  *
  * @author Super Bomberman Team
  * @version 1.0
  */
 public class GameController implements GameModel.GameModelListener {
 
+    // Interface FXML
+    @FXML
+    private BorderPane gameRoot;
     @FXML
     private Canvas gameCanvas;
-    @FXML
-    private Pane gamePane;
-    @FXML
-    private Label player1Name;
-    @FXML
-    private Label player1Lives;
-    @FXML
-    private Label player1Score;
-    @FXML
-    private Label player2Name;
-    @FXML
-    private Label player2Lives;
-    @FXML
-    private Label player2Score;
     @FXML
     private Label timerLabel;
     @FXML
     private Label roundLabel;
     @FXML
+    private Label player1NameLabel;
+    @FXML
+    private Label player1ScoreLabel;
+    @FXML
+    private Label player1LivesLabel;
+    @FXML
+    private Label player2NameLabel;
+    @FXML
+    private Label player2ScoreLabel;
+    @FXML
+    private Label player2LivesLabel;
+    @FXML
+    private VBox messageOverlay;
+    @FXML
     private Label messageLabel;
-
-    private GameModel gameModel;
-    private GameRenderer gameRenderer;
-    private AnimationTimer gameLoop;
+    @FXML
+    private Button messageButton;
+    @FXML
+    private HBox controlBar;
 
     // Gestion des touches
     private final Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     private long lastFrameTime = 0;
     private int frameCount = 0;
 
-    // Configuration des touches
-    private static final Map<KeyCode, Player.Direction> PLAYER1_KEYS = Map.of(
-            KeyCode.Z, Player.Direction.UP,
-            KeyCode.S, Player.Direction.DOWN,
-            KeyCode.Q, Player.Direction.LEFT,
-            KeyCode.D, Player.Direction.RIGHT
-    );
+    // Configuration dynamique des touches
+    private Map<KeyCode, Player.Direction> player1Keys = new HashMap<>();
+    private Map<KeyCode, Player.Direction> player2Keys = new HashMap<>();
+    private KeyCode player1Bomb;
+    private KeyCode player2Bomb;
+    private static final KeyCode PAUSE_KEY = KeyCode.P;  // Garde la touche pause fixe
 
-    private static final Map<KeyCode, Player.Direction> PLAYER2_KEYS = Map.of(
-            KeyCode.UP, Player.Direction.UP,
-            KeyCode.DOWN, Player.Direction.DOWN,
-            KeyCode.LEFT, Player.Direction.LEFT,
-            KeyCode.RIGHT, Player.Direction.RIGHT
-    );
-
-    private static final KeyCode PLAYER1_BOMB = KeyCode.SPACE;
-    private static final KeyCode PLAYER2_BOMB = KeyCode.ENTER;
-    private static final KeyCode PAUSE_KEY = KeyCode.P;
+    // Modèle et rendu
+    private GameModel gameModel;
+    private GameRenderer gameRenderer;
+    private SoundManager soundManager;
+    private ThemeManager themeManager;
+    private AnimationTimer gameLoop;
+    private Preferences preferences;
 
     /**
      * Initialisation du contrôleur
@@ -108,20 +112,23 @@ public class GameController implements GameModel.GameModelListener {
         if (messageLabel != null) {
             messageLabel.setVisible(false);
         }
+
+        // Charger les préférences
+        loadPreferences();
     }
 
     /**
      * Configure le canvas pour qu'il s'adapte à la fenêtre
      */
     private void setupCanvas() {
-        if (gamePane != null && gameCanvas != null) {
+        if (gameRoot != null && gameCanvas != null) {
             // Le canvas prend toute la place disponible
-            gameCanvas.widthProperty().bind(gamePane.widthProperty());
-            gameCanvas.heightProperty().bind(gamePane.heightProperty());
+            gameCanvas.widthProperty().bind(gameRoot.widthProperty());
+            gameCanvas.heightProperty().bind(gameRoot.heightProperty());
 
             // Définir une taille minimale raisonnable
-            gamePane.setMinWidth(720);
-            gamePane.setMinHeight(624);
+            gameRoot.setMinWidth(720);
+            gameRoot.setMinHeight(624);
 
             // Écouter les changements de taille pour redessiner
             gameCanvas.widthProperty().addListener((obs, oldVal, newVal) -> {
@@ -137,8 +144,6 @@ public class GameController implements GameModel.GameModelListener {
             });
         }
     }
-
-
 
     /**
      * Démarre une nouvelle partie avec paramètres personnalisés
@@ -162,12 +167,26 @@ public class GameController implements GameModel.GameModelListener {
         );
 
         // Mettre à jour les noms des joueurs
-        if (player1Name != null) {
-            player1Name.setText(player1Profile.getDisplayName());
+        if (player1NameLabel != null) {
+            player1NameLabel.setText(player1Profile.getDisplayName());
         }
-        if (player2Name != null) {
-            player2Name.setText(player2Profile.getDisplayName());
+        if (player2NameLabel != null) {
+            player2NameLabel.setText(player2Profile.getDisplayName());
         }
+
+        // S'assurer que le canvas a une taille valide
+        if (gameCanvas != null) {
+            if (gameCanvas.getWidth() <= 0 || gameCanvas.getHeight() <= 0) {
+                gameCanvas.setWidth(720);
+                gameCanvas.setHeight(624);
+                System.out.println("Canvas dimensionné explicitement: " + gameCanvas.getWidth() + "x" + gameCanvas.getHeight());
+            } else {
+                System.out.println("Taille actuelle du canvas: " + gameCanvas.getWidth() + "x" + gameCanvas.getHeight());
+            }
+        }
+
+        // Effectuer un rendu initial pour éviter l'écran noir
+        render();
 
         // Démarrer la boucle de jeu
         startGameLoop();
@@ -218,7 +237,7 @@ public class GameController implements GameModel.GameModelListener {
         keysPressed.put(code, true);
 
         // Debug moins verbeux
-        if (code == PAUSE_KEY || code == PLAYER1_BOMB || code == PLAYER2_BOMB) {
+        if (code == PAUSE_KEY || code == player1Bomb || code == player2Bomb) {
             System.out.println("Touche spéciale pressée: " + code);
         }
 
@@ -233,10 +252,10 @@ public class GameController implements GameModel.GameModelListener {
         }
 
         // Bombes
-        if (code == PLAYER1_BOMB) {
+        if (code == player1Bomb) {
             System.out.println("Joueur 1 tente de placer une bombe");
             gameModel.placeBomb(1);
-        } else if (code == PLAYER2_BOMB) {
+        } else if (code == player2Bomb) {
             System.out.println("Joueur 2 tente de placer une bombe");
             gameModel.placeBomb(2);
         }
@@ -308,7 +327,7 @@ public class GameController implements GameModel.GameModelListener {
     private void handlePlayerMovements(double deltaTime) {
         // Joueur 1
         Player.Direction p1Direction = Player.Direction.NONE;
-        for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER1_KEYS.entrySet()) {
+        for (Map.Entry<KeyCode, Player.Direction> entry : player1Keys.entrySet()) {
             if (keysPressed.getOrDefault(entry.getKey(), false)) {
                 p1Direction = entry.getValue();
                 break;
@@ -326,7 +345,7 @@ public class GameController implements GameModel.GameModelListener {
 
         // Joueur 2
         Player.Direction p2Direction = Player.Direction.NONE;
-        for (Map.Entry<KeyCode, Player.Direction> entry : PLAYER2_KEYS.entrySet()) {
+        for (Map.Entry<KeyCode, Player.Direction> entry : player2Keys.entrySet()) {
             if (keysPressed.getOrDefault(entry.getKey(), false)) {
                 p2Direction = entry.getValue();
                 break;
@@ -366,14 +385,14 @@ public class GameController implements GameModel.GameModelListener {
             Player p1 = gameModel.getPlayer1();
             Player p2 = gameModel.getPlayer2();
 
-            if (p1 != null && player1Lives != null && player1Score != null) {
-                player1Lives.setText("Vies: " + p1.getLives());
-                player1Score.setText("Score: " + gameModel.getPlayer1Score());
+            if (p1 != null && player1LivesLabel != null && player1ScoreLabel != null) {
+                player1LivesLabel.setText("Vies: " + p1.getLives());
+                player1ScoreLabel.setText("Score: " + gameModel.getPlayer1Score());
             }
 
-            if (p2 != null && player2Lives != null && player2Score != null) {
-                player2Lives.setText("Vies: " + p2.getLives());
-                player2Score.setText("Score: " + gameModel.getPlayer2Score());
+            if (p2 != null && player2LivesLabel != null && player2ScoreLabel != null) {
+                player2LivesLabel.setText("Vies: " + p2.getLives());
+                player2ScoreLabel.setText("Score: " + gameModel.getPlayer2Score());
             }
 
             // Timer
@@ -578,6 +597,131 @@ public class GameController implements GameModel.GameModelListener {
         }).start();
     }
 
+    /**
+     * Charge les préférences de l'utilisateur pour les touches
+     */
+    private void loadPreferences() {
+        // Charger depuis les préférences de SettingsController
+        preferences = Preferences.userNodeForPackage(SettingsController.class);
+
+        // Initialiser les valeurs par défaut
+        Map<KeyCode, Player.Direction> defaultP1Keys = new HashMap<>();
+        defaultP1Keys.put(KeyCode.Z, Player.Direction.UP);
+        defaultP1Keys.put(KeyCode.S, Player.Direction.DOWN);
+        defaultP1Keys.put(KeyCode.Q, Player.Direction.LEFT);
+        defaultP1Keys.put(KeyCode.D, Player.Direction.RIGHT);
+
+        Map<KeyCode, Player.Direction> defaultP2Keys = new HashMap<>();
+        defaultP2Keys.put(KeyCode.UP, Player.Direction.UP);
+        defaultP2Keys.put(KeyCode.DOWN, Player.Direction.DOWN);
+        defaultP2Keys.put(KeyCode.LEFT, Player.Direction.LEFT);
+        defaultP2Keys.put(KeyCode.RIGHT, Player.Direction.RIGHT);
+
+        KeyCode defaultP1Bomb = KeyCode.SPACE;
+        KeyCode defaultP2Bomb = KeyCode.ENTER;
+
+        // Charger les contrôles personnalisés
+        try {
+            // Directions joueur 1
+            KeyCode p1Up = KeyCode.valueOf(preferences.get("key.p1.up", "Z"));
+            KeyCode p1Down = KeyCode.valueOf(preferences.get("key.p1.down", "S"));
+            KeyCode p1Left = KeyCode.valueOf(preferences.get("key.p1.left", "Q"));
+            KeyCode p1Right = KeyCode.valueOf(preferences.get("key.p1.right", "D"));
+            KeyCode p1BombKey = KeyCode.valueOf(preferences.get("key.p1.bomb", "SPACE"));
+
+            // Directions joueur 2
+            KeyCode p2Up = KeyCode.valueOf(preferences.get("key.p2.up", "UP"));
+            KeyCode p2Down = KeyCode.valueOf(preferences.get("key.p2.down", "DOWN"));
+            KeyCode p2Left = KeyCode.valueOf(preferences.get("key.p2.left", "LEFT"));
+            KeyCode p2Right = KeyCode.valueOf(preferences.get("key.p2.right", "RIGHT"));
+            KeyCode p2BombKey = KeyCode.valueOf(preferences.get("key.p2.bomb", "ENTER"));
+
+            // Créer les maps de touches
+            player1Keys = new HashMap<>();
+            player1Keys.put(p1Up, Player.Direction.UP);
+            player1Keys.put(p1Down, Player.Direction.DOWN);
+            player1Keys.put(p1Left, Player.Direction.LEFT);
+            player1Keys.put(p1Right, Player.Direction.RIGHT);
+
+            player2Keys = new HashMap<>();
+            player2Keys.put(p2Up, Player.Direction.UP);
+            player2Keys.put(p2Down, Player.Direction.DOWN);
+            player2Keys.put(p2Left, Player.Direction.LEFT);
+            player2Keys.put(p2Right, Player.Direction.RIGHT);
+
+            // Définir les touches de bombe
+            player1Bomb = p1BombKey;
+            player2Bomb = p2BombKey;
+
+            System.out.println("Touches personnalisées chargées avec succès");
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des touches personnalisées: " + e.getMessage());
+            System.out.println("Utilisation des touches par défaut");
+
+            // Utiliser les valeurs par défaut en cas d'erreur
+            player1Keys = defaultP1Keys;
+            player2Keys = defaultP2Keys;
+            player1Bomb = defaultP1Bomb;
+            player2Bomb = defaultP2Bomb;
+        }
+
+        System.out.println("Contrôles chargés: ");
+        System.out.println("Joueur 1 - Mouvements: " + player1Keys.keySet() + ", Bombe: " + player1Bomb);
+        System.out.println("Joueur 2 - Mouvements: " + player2Keys.keySet() + ", Bombe: " + player2Bomb);
+    }
+
+    /**
+     * Analyse une chaîne de caractères pour en faire des bindings de touches
+     */
+    private Map<KeyCode, Player.Direction> parseKeyBindings(String keyBindings) {
+        Map<KeyCode, Player.Direction> keysMap = new HashMap<>();
+        String[] bindings = keyBindings.split(";");
+        for (String binding : bindings) {
+            String[] parts = binding.split(",");
+            if (parts.length == 2) {
+                try {
+                    KeyCode key = KeyCode.valueOf(parts[0]);
+                    Player.Direction direction = Player.Direction.valueOf(parts[1]);
+                    keysMap.put(key, direction);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de l'analyse des bindings de touches: " + e.getMessage());
+                }
+            }
+        }
+        return keysMap;
+    }
+
+    /**
+     * Sauvegarde les préférences de l'utilisateur pour les touches
+     */
+    private void savePreferences() {
+        try {
+            preferences = Preferences.userNodeForPackage(getClass());
+
+            // Sauvegarder les touches du joueur 1
+            preferences.put("player1Keys", serializeKeyBindings(player1Keys));
+            // Sauvegarder les touches du joueur 2
+            preferences.put("player2Keys", serializeKeyBindings(player2Keys));
+            // Sauvegarder les touches de bombe
+            preferences.put("player1Bomb", player1Bomb.name());
+            preferences.put("player2Bomb", player2Bomb.name());
+
+            preferences.flush();
+            System.out.println("Préférences sauvegardées");
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la sauvegarde des préférences: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Sérialise les bindings de touches en une chaîne de caractères
+     */
+    private String serializeKeyBindings(Map<KeyCode, Player.Direction> keysMap) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<KeyCode, Player.Direction> entry : keysMap.entrySet()) {
+            sb.append(entry.getKey().name()).append(",").append(entry.getValue().name()).append(";");
+        }
+        return sb.toString();
+    }
+
 }
-
-

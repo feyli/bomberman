@@ -286,13 +286,17 @@
 
 .tab-pane .tab {
     -fx-background-color: -fx-background-light;
-    -fx-text-fill: -fx-text-color;
+    -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
 .tab-pane .tab:selected {
     -fx-background-color: -fx-primary-color;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: white;
 }
 
 /* ListView */
