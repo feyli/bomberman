@@ -5,16 +5,14 @@ import javafx.application.Platform;
 
 import java.util.List;
 import java.util.Random;
-
-// Constantes pour le déplacement du bot
-
+import java.util.ArrayList;
 
 /**
- * Intelligence artificielle simple pour un joueur bot
- * Ce bot place des bombes pour casser des blocs et évite les dangers
+ * Intelligence artificielle équilibrée pour un joueur bot
+ * Ce bot place des bombes pour casser des blocs et évite les dangers de manière intelligente
  *
  * @author Super Bomberman Team
- * @version 1.0
+ * @version 2.1
  */
 public class BotPlayer {
     private final PlayerProfile botProfile;
@@ -25,124 +23,39 @@ public class BotPlayer {
     private Thread botThread;
 
     // Délais pour les actions du bot (en ms)
-    private static final int DECISION_DELAY = 600; // délai ralenti pour que le bot ne se déplace pas trop vite
-    private static final int BOMB_COOLDOWN = 2000; // délai entre les bombs
+    private static final int DECISION_DELAY = 800; // Plus lent pour éviter les va-et-vient
+    private static final int BOMB_COOLDOWN = 1500; // Réduit pour placer plus de bombes
     private long lastBombTime = 0;
-    private static final double BOT_DELTA_TIME = 0.05; // Ajusté pour un mouvement comparable aux joueurs
-    private Direction currentDirection = Direction.NONE; // Direction actuelle du bot
+    private Direction currentDirection = Direction.NONE;
+
+    // Variables pour éviter les bombes placées par le bot
+    private List<BombPosition> botPlacedBombs = new ArrayList<>();
+    private static final int BOMB_AVOIDANCE_DURATION = 3500; // 3.5 secondes d'évitement
+
+    // Classe interne pour stocker les positions des bombes du bot
+    private static class BombPosition {
+        int x, y;
+        long placementTime;
+
+        BombPosition(int x, int y, long time) {
+            this.x = x;
+            this.y = y;
+            this.placementTime = time;
+        }
+
+        boolean isExpired(long currentTime) {
+            return currentTime - placementTime > BOMB_AVOIDANCE_DURATION;
+        }
+    }
 
     /**
      * Crée un nouvel assistant de bot
-     *
-     * @param player Le joueur contrôlé par le bot
-     * @param gameBoard Le plateau de jeu
      */
     public BotPlayer(Player player, GameBoard gameBoard) {
         this.botProfile = new PlayerProfile("Bot", "Bomberman", "BOT");
         this.botControlledPlayer = player;
         this.gameBoard = gameBoard;
-
-        // S'assurer que le bot n'est pas invincible en permanence
-        // L'invincibilité temporaire initiale est gérée par la classe Player, mais
-        // nous nous assurons qu'elle n'est pas maintenue indéfiniment pour le bot
-        System.out.println("Bot créé - vérifier que l'invincibilité n'est pas permanente");
-    }
-
-    /**
-     * Détermine la meilleure direction pour s'éloigner d'une position donnée
-     */
-    private Direction getBestDirectionAwayFromPosition(int x, int y) {
-        double botX = botControlledPlayer.getX();
-        double botY = botControlledPlayer.getY();
-
-        // Calculer les vecteurs directionnels (s'éloigner de la position x,y)
-        double dx = botX - x;
-        double dy = botY - y;
-
-        // Déterminer les meilleures directions en fonction des vecteurs
-        Direction horizontalDirection = (dx > 0) ? Direction.RIGHT : Direction.LEFT;
-        Direction verticalDirection = (dy > 0) ? Direction.DOWN : Direction.UP;
-
-        // Priorité à la direction qui a la plus grande distance à parcourir
-        Direction preferredDirection = (Math.abs(dx) > Math.abs(dy)) ? horizontalDirection : verticalDirection;
-        Direction alternateDirection = (Math.abs(dx) > Math.abs(dy)) ? verticalDirection : horizontalDirection;
-
-        // Essayer d'abord la direction préférée
-        if (canMoveInDirection(preferredDirection)) {
-            return preferredDirection;
-        }
-
-        // Sinon essayer la direction alternative
-        if (canMoveInDirection(alternateDirection)) {
-            return alternateDirection;
-        }
-
-        // Si aucune des directions principales ne fonctionne, essayer toutes les autres
-        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-        for (Direction dir : directions) {
-            if (canMoveInDirection(dir)) {
-                return dir;
-            }
-        }
-
-        // Aucune direction possible
-        return Direction.NONE;
-    }
-
-    /**
-     * Vérifie si le bot peut se déplacer dans une direction donnée
-     */
-    private boolean canMoveInDirection(Direction direction) {
-        double currentX = botControlledPlayer.getX();
-        double currentY = botControlledPlayer.getY();
-        double moveDistance = botControlledPlayer.getSpeed() * BOT_DELTA_TIME;
-
-        // Calculer la nouvelle position
-        double newX = currentX;
-        double newY = currentY;
-
-        switch (direction) {
-            case UP -> newY -= moveDistance;
-            case DOWN -> newY += moveDistance;
-            case LEFT -> newX -= moveDistance;
-            case RIGHT -> newX += moveDistance;
-            case NONE -> { return false; }
-        }
-
-        return isValidPosition(newX, newY);
-    }
-
-    /**
-     * Vérifie si une position est valide (pas de collision avec les murs ou les bombes)
-     */
-    private boolean isValidPosition(double x, double y) {
-        // Vérifier les limites du plateau
-        if (x < 0 || x >= GameBoard.GRID_WIDTH || y < 0 || y >= GameBoard.GRID_HEIGHT) {
-            return false;
-        }
-
-        // Convertir en coordonnées de grille
-        int gridX = (int) Math.floor(x);
-        int gridY = (int) Math.floor(y);
-
-        // Vérifier si la case est un mur, un mur cassable ou une bombe
-        GameBoard.TileType tile = gameBoard.getTile(gridX, gridY);
-        return tile != GameBoard.TileType.WALL &&
-                tile != GameBoard.TileType.BREAKABLE_WALL &&
-                tile != GameBoard.TileType.BOMB;  // Empêche de traverser les bombes
-    }
-
-    /**
-     * Mélange un tableau d'éléments (algorithme de Fisher-Yates)
-     */
-    private void shuffleArray(Direction[] array) {
-        for (int i = array.length - 1; i > 0; i--) {
-            int index = random.nextInt(i + 1);
-            // Échanger les éléments
-            Direction temp = array[index];
-            array[index] = array[i];
-            array[i] = temp;
-        }
+        System.out.println("Bot créé avec stratégie équilibrée");
     }
 
     /**
@@ -153,19 +66,15 @@ public class BotPlayer {
 
         isActive = true;
         System.out.println("Bot activé - Joueur contrôlé: " + botControlledPlayer.getName());
-        System.out.println("Position initiale du bot: (" + botControlledPlayer.getX() + ", " + botControlledPlayer.getY() + ")");
 
         botThread = new Thread(this::runBotLogic);
         botThread.setDaemon(true);
         botThread.setName("Bot-Thread");
         botThread.start();
 
-        System.out.println("Thread du bot démarré: " + botThread.getName() + " (daemon: " + botThread.isDaemon() + ")");
-
-        // Première décision immédiate pour tester
         Platform.runLater(() -> {
-            System.out.println("Test initial du bot - Déplacement aléatoire");
-            moveRandomly();
+            System.out.println("Bot démarré");
+            makeDecision();
         });
     }
 
@@ -174,12 +83,10 @@ public class BotPlayer {
      */
     public void deactivate() {
         if (!isActive) return;
-
         System.out.println("Désactivation du bot...");
         isActive = false;
         if (botThread != null) {
             botThread.interrupt();
-            System.out.println("Thread du bot interrompu");
         }
     }
 
@@ -189,7 +96,6 @@ public class BotPlayer {
     private void runBotLogic() {
         while (isActive && !Thread.currentThread().isInterrupted()) {
             try {
-                // Prendre une décision seulement si le joueur est vivant
                 if (botControlledPlayer.isAlive()) {
                     Platform.runLater(this::makeDecision);
                 }
@@ -202,269 +108,59 @@ public class BotPlayer {
     }
 
     /**
-     * Prend une décision sur l'action à effectuer
+     * Prend UNE SEULE décision par appel
      */
     private void makeDecision() {
-        // Vérifier si le joueur existe et est en vie
         if (botControlledPlayer == null || !botControlledPlayer.isAlive()) {
-            System.out.println("Bot ne peut pas prendre de décision: joueur null ou mort");
             return;
         }
 
-        // PREMIÈRE PRIORITÉ: Essayer de placer une bombe
-        if (forceBombPlacement()) {
-            return; // Si une bombe a été placée, s'arrêter là
+        // Nettoyer les anciennes bombes expirées
+        cleanExpiredBombs();
+
+        int botX = (int) Math.floor(botControlledPlayer.getX());
+        int botY = (int) Math.floor(botControlledPlayer.getY());
+
+        // PRIORITÉ 1: Fuir si on est exactement sur une bombe ou trop proche
+        if (isInImmediateDanger(botX, botY)) {
+            System.out.println("BOT: DANGER IMMÉDIAT - Fuite !");
+            escapeFromDanger();
+            return; // Une seule action par tour
         }
 
-        // Si on ne peut pas placer de bombe (cooldown), se déplacer
-        moveRandomly();
-    }
-
-    /**
-     * Force le bot à placer une bombe si possible
-     * @return true si une bombe a été placée, false sinon
-     */
-    private boolean forceBombPlacement() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastBombTime > BOMB_COOLDOWN && botControlledPlayer.canPlaceBomb()) {
-            // Au lieu d'appeler botControlledPlayer.placeBomb(), on utilise notre méthode spéciale
-            forcePlaceBombOnBoard();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Force la création d'une bombe directement sur le plateau de jeu
-     */
-    private void forcePlaceBombOnBoard() {
-        int gridX = (int) Math.floor(botControlledPlayer.getX());
-        int gridY = (int) Math.floor(botControlledPlayer.getY());
-
-        System.out.println("BOT: Tentative de placement de bombe à la position (" + gridX + ", " + gridY + ")");
-
-        // Vérifie si la position est libre (pas déjà une bombe)
-        if (gameBoard.getTile(gridX, gridY) != GameBoard.TileType.BOMB) {
-            // Crée une nouvelle bombe et la place sur le plateau
-            // Passe l'ID du joueur au lieu de l'objet Player
-            Bomb bomb = new Bomb(gridX, gridY, botControlledPlayer.getFirePower(), botControlledPlayer.getPlayerId());
-            gameBoard.addBomb(bomb);
-            botControlledPlayer.incrementBombsPlaced();
-
-            System.out.println("BOT: BOMBE PLACÉE avec succès à (" + gridX + ", " + gridY + ")");
-            lastBombTime = System.currentTimeMillis();
-
-            // S'éloigner de la bombe immédiatement
-            moveAwayFromBomb();
-        } else {
-            System.out.println("BOT: Impossible de placer une bombe - position déjà occupée!");
-            moveRandomly(); // Se déplacer ailleurs
-        }
-    }
-
-    /**
-     * Déplace le bot aléatoirement d'une case dans la matrice
-     */
-    private void moveRandomly() {
-        // Mélanger les directions pour essayer dans un ordre aléatoire
-        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-        shuffleArray(directions);
-
-        // Essayer chaque direction jusqu'à en trouver une valide
-        for (Direction direction : directions) {
-            if (moveOneGridCell(direction)) {
-                System.out.println("Bot se déplace aléatoirement - Direction: " + direction);
-                return; // Sortir après un seul déplacement
-            }
+        // PRIORITÉ 2: Placer une bombe si c'est stratégique ET qu'on peut s'échapper
+        if (shouldPlaceBombHere(botX, botY)) {
+            System.out.println("BOT: Placement de bombe stratégique");
+            placeBombAndEscape();
+            return; // Une seule action par tour
         }
 
-        System.out.println("Bot ne peut pas se déplacer - toutes les directions sont bloquées");
+        // PRIORITÉ 3: Se déplacer vers un objectif
+        System.out.println("BOT: Recherche d'objectif");
+        moveTowardsBreakableWall();
     }
 
     /**
-     * S'éloigne de la bombe que le bot vient de placer
+     * Vérifie si le bot est en danger immédiat (sur une bombe ou très proche)
      */
-    private void moveAwayFromBomb() {
-        // Position actuelle du bot dans la grille
-        int currentGridX = (int) Math.floor(botControlledPlayer.getX());
-        int currentGridY = (int) Math.floor(botControlledPlayer.getY());
-
-        // Trouver la meilleure direction pour s'éloigner
-        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-
-        // Essayer les directions dans un ordre qui maximise l'éloignement
-        for (Direction direction : directions) {
-            int newGridX = currentGridX;
-            int newGridY = currentGridY;
-
-            switch (direction) {
-                case UP -> newGridY = currentGridY - 1;
-                case DOWN -> newGridY = currentGridY + 1;
-                case LEFT -> newGridX = currentGridX - 1;
-                case RIGHT -> newGridX = currentGridX + 1;
-                default -> {}
-            }
-
-            if (isValidGridPosition(newGridX, newGridY)) {
-                teleportToGridPosition(newGridX, newGridY);
-                System.out.println("Bot s'éloigne de la bombe - Direction: " + direction);
-                return;
-            }
-        }
-
-        System.out.println("Bot ne peut pas s'éloigner de la bombe - toutes les directions sont bloquées");
-    }
-
-    /**
-     * Déplace le bot vers un bloc cassable
-     */
-    private void moveTowardsBreakableBlock() {
-        // Ici, nous simplifions et nous déplaçons simplement dans une direction aléatoire
-        // Une implémentation plus avancée rechercherait le chemin vers le bloc cassable le plus proche
-        moveRandomly();
-    }
-
-    /**
-     * Fait éviter les dangers au bot
-     */
-    private void avoidDanger() {
-        // Implémentation simplifiée - se déplacer aléatoirement pour l'instant
-        // Une implémentation plus avancée détecterait les bombes et s'en éloignerait
-        moveRandomly();
-    }
-
-    /**
-     * Choisit une direction aléatoire dans laquelle le bot peut se déplacer
-     */
-    private void chooseRandomDirection() {
-        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
-        shuffleArray(directions);
-
-        for (Direction dir : directions) {
-            if (canMoveInDirection(dir)) {
-                currentDirection = dir;
-                System.out.println("Bot choisit une nouvelle direction aléatoire: " + dir);
-                return;
-            }
-        }
-
-        // Si aucune direction n'est valide, rester immobile
-        currentDirection = Direction.NONE;
-    }
-
-    /**
-     * Téléporte le bot directement à une position de la grille
-     * @param gridX Coordonnée X dans la grille
-     * @param gridY Coordonnée Y dans la grille
-     */
-    private void teleportToGridPosition(int gridX, int gridY) {
-        // Obtenir la position actuelle
-        double currentX = botControlledPlayer.getX();
-        double currentY = botControlledPlayer.getY();
-
-        // Calculer la position cible (centre de la case)
-        double targetX = gridX + 0.5;
-        double targetY = gridY + 0.5;
-
-        // Simuler un mouvement progressif pour déclencher les collisions
-        // en faisant plusieurs petits pas entre la position actuelle et la cible
-        double steps = 5;  // Nombre de pas intermédiaires
-
-        for (int i = 1; i <= steps; i++) {
-            double ratio = i / steps;
-            double intermediateX = currentX + (targetX - currentX) * ratio;
-            double intermediateY = currentY + (targetY - currentY) * ratio;
-
-            // Mettre à jour la position du joueur
-            botControlledPlayer.setPosition(intermediateX, intermediateY);
-
-            // Petite pause pour que le moteur de jeu ait le temps de traiter les collisions
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        // S'assurer que la position finale est exactement celle demandée
-        botControlledPlayer.setPosition(targetX, targetY);
-        System.out.println("Bot déplacé à la case (" + gridX + ", " + gridY + ")");
-    }
-
-    /**
-     * Déplace le bot d'une case dans la direction donnée (par téléportation)
-     * @param direction La direction dans laquelle se déplacer
-     * @return true si le déplacement a réussi, false sinon
-     */
-    private boolean moveOneGridCell(Direction direction) {
-        // Position actuelle du bot dans la grille
-        int currentGridX = (int) Math.floor(botControlledPlayer.getX());
-        int currentGridY = (int) Math.floor(botControlledPlayer.getY());
-
-        // Calcule la nouvelle position dans la grille
-        int newGridX = currentGridX;
-        int newGridY = currentGridY;
-
-        switch (direction) {
-            case UP -> newGridY = currentGridY - 1;
-            case DOWN -> newGridY = currentGridY + 1;
-            case LEFT -> newGridX = currentGridX - 1;
-            case RIGHT -> newGridX = currentGridX + 1;
-            case NONE -> { return false; }
-        }
-
-        // Vérifie si la nouvelle position est valide
-        if (isValidGridPosition(newGridX, newGridY)) {
-            teleportToGridPosition(newGridX, newGridY);
+    private boolean isInImmediateDanger(int botX, int botY) {
+        // Vérifier si on est exactement sur une bombe
+        if (gameBoard.getTile(botX, botY) == GameBoard.TileType.BOMB) {
             return true;
         }
 
-        return false;
-    }
+        // Vérifier les bombes adjacentes (rayon de 1 case seulement pour l'urgence)
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue;
+                int checkX = botX + dx;
+                int checkY = botY + dy;
 
-    /**
-     * Vérifie si une position de la grille est valide (pas de mur ni de bombe)
-     * @param gridX Coordonnée X dans la grille
-     * @param gridY Coordonnée Y dans la grille
-     * @return true si la position est valide, false sinon
-     */
-    private boolean isValidGridPosition(int gridX, int gridY) {
-        // Vérifier les limites du plateau
-        if (gridX < 0 || gridX >= GameBoard.GRID_WIDTH || gridY < 0 || gridY >= GameBoard.GRID_HEIGHT) {
-            return false;
-        }
-
-        // Vérifier si la case est un mur, un mur cassable ou une bombe
-        GameBoard.TileType tile = gameBoard.getTile(gridX, gridY);
-        return tile != GameBoard.TileType.WALL &&
-                tile != GameBoard.TileType.BREAKABLE_WALL &&
-                tile != GameBoard.TileType.BOMB; // Empêche de traverser les bombes
-    }
-
-    /**
-     * Vérifie s'il y a un mur cassable à proximité du bot
-     * @param gridX Coordonnée X dans la grille
-     * @param gridY Coordonnée Y dans la grille
-     * @return true si un mur cassable est adjacent à la position donnée
-     */
-    private boolean isBreakableWallNearby(int gridX, int gridY) {
-        // Vérifier les 4 directions adjacentes
-        int[][] adjacentCells = {
-                {gridX - 1, gridY}, // Gauche
-                {gridX + 1, gridY}, // Droite
-                {gridX, gridY - 1}, // Haut
-                {gridX, gridY + 1}  // Bas
-        };
-
-        for (int[] cell : adjacentCells) {
-            int x = cell[0];
-            int y = cell[1];
-
-            // Vérifier si les coordonnées sont dans les limites
-            if (x >= 0 && x < GameBoard.GRID_WIDTH && y >= 0 && y < GameBoard.GRID_HEIGHT) {
-                // Vérifier si la case contient un mur cassable
-                if (gameBoard.getTile(x, y) == GameBoard.TileType.BREAKABLE_WALL) {
-                    return true;
+                if (checkX >= 0 && checkX < GameBoard.GRID_WIDTH &&
+                        checkY >= 0 && checkY < GameBoard.GRID_HEIGHT) {
+                    if (gameBoard.getTile(checkX, checkY) == GameBoard.TileType.BOMB) {
+                        return true;
+                    }
                 }
             }
         }
@@ -473,9 +169,306 @@ public class BotPlayer {
     }
 
     /**
+     * S'échappe du danger en trouvant la première direction sûre
+     */
+    private void escapeFromDanger() {
+        int botX = (int) Math.floor(botControlledPlayer.getX());
+        int botY = (int) Math.floor(botControlledPlayer.getY());
+
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        shuffleArray(directions); // Randomiser pour éviter les patterns
+
+        for (Direction dir : directions) {
+            int newX = botX;
+            int newY = botY;
+
+            switch (dir) {
+                case UP -> newY--;
+                case DOWN -> newY++;
+                case LEFT -> newX--;
+                case RIGHT -> newX++;
+            }
+
+            if (isSafePosition(newX, newY)) {
+                moveToPosition(newX, newY);
+                System.out.println("BOT: Fuite réussie vers " + dir);
+                return;
+            }
+        }
+
+        System.out.println("BOT: Aucune échappatoire trouvée !");
+    }
+
+    /**
+     * Vérifie si le bot devrait placer une bombe à sa position actuelle
+     */
+    private boolean shouldPlaceBombHere(int x, int y) {
+        // Vérifier le cooldown et la capacité
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastBombTime < BOMB_COOLDOWN || !botControlledPlayer.canPlaceBomb()) {
+            return false;
+        }
+
+        // Ne pas placer si il y a déjà une bombe ici
+        if (gameBoard.getTile(x, y) == GameBoard.TileType.BOMB) {
+            return false;
+        }
+
+        // Vérifier s'il y a des murs cassables dans le rayon d'action
+        int firepower = botControlledPlayer.getFirePower();
+        boolean hasTarget = false;
+
+        // Vérifier les 4 directions
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        for (Direction dir : directions) {
+            for (int i = 1; i <= firepower; i++) {
+                int checkX = x;
+                int checkY = y;
+
+                switch (dir) {
+                    case UP -> checkY = y - i;
+                    case DOWN -> checkY = y + i;
+                    case LEFT -> checkX = x - i;
+                    case RIGHT -> checkX = x + i;
+                }
+
+                if (checkX < 0 || checkX >= GameBoard.GRID_WIDTH ||
+                        checkY < 0 || checkY >= GameBoard.GRID_HEIGHT) {
+                    break;
+                }
+
+                GameBoard.TileType tile = gameBoard.getTile(checkX, checkY);
+                if (tile == GameBoard.TileType.BREAKABLE_WALL) {
+                    hasTarget = true;
+                    break;
+                }
+                if (tile == GameBoard.TileType.WALL) {
+                    break; // Les murs solides arrêtent l'explosion
+                }
+            }
+            if (hasTarget) break;
+        }
+
+        // Placer la bombe seulement s'il y a une cible ET qu'on peut s'échapper
+        return hasTarget && canEscapeFromPosition(x, y);
+    }
+
+    /**
+     * Vérifie si le bot peut s'échapper de sa position actuelle
+     */
+    private boolean canEscapeFromPosition(int bombX, int bombY) {
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+
+        for (Direction dir : directions) {
+            int escapeX = bombX;
+            int escapeY = bombY;
+
+            switch (dir) {
+                case UP -> escapeY--;
+                case DOWN -> escapeY++;
+                case LEFT -> escapeX--;
+                case RIGHT -> escapeX++;
+            }
+
+            if (isSafePosition(escapeX, escapeY)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Place une bombe et s'échappe immédiatement
+     */
+    private void placeBombAndEscape() {
+        int gridX = (int) Math.floor(botControlledPlayer.getX());
+        int gridY = (int) Math.floor(botControlledPlayer.getY());
+
+        // Placer la bombe
+        Bomb bomb = new Bomb(gridX, gridY, botControlledPlayer.getFirePower(), botControlledPlayer.getPlayerId());
+        gameBoard.addBomb(bomb);
+        botControlledPlayer.incrementBombsPlaced();
+
+        // Enregistrer cette bombe pour l'éviter
+        botPlacedBombs.add(new BombPosition(gridX, gridY, System.currentTimeMillis()));
+
+        System.out.println("BOT: BOMBE placée à (" + gridX + ", " + gridY + ")");
+        lastBombTime = System.currentTimeMillis();
+
+        // S'échapper dans la direction la plus sûre
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        shuffleArray(directions);
+
+        for (Direction dir : directions) {
+            int escapeX = gridX;
+            int escapeY = gridY;
+
+            switch (dir) {
+                case UP -> escapeY--;
+                case DOWN -> escapeY++;
+                case LEFT -> escapeX--;
+                case RIGHT -> escapeX++;
+            }
+
+            if (isSafePosition(escapeX, escapeY)) {
+                moveToPosition(escapeX, escapeY);
+                System.out.println("BOT: Évasion vers " + dir);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Se déplace vers le mur cassable le plus proche
+     */
+    private void moveTowardsBreakableWall() {
+        int botX = (int) Math.floor(botControlledPlayer.getX());
+        int botY = (int) Math.floor(botControlledPlayer.getY());
+
+        // Trouver le mur cassable le plus proche
+        int closestX = -1, closestY = -1;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (int x = 0; x < GameBoard.GRID_WIDTH; x++) {
+            for (int y = 0; y < GameBoard.GRID_HEIGHT; y++) {
+                if (gameBoard.getTile(x, y) == GameBoard.TileType.BREAKABLE_WALL) {
+                    int distance = Math.abs(x - botX) + Math.abs(y - botY);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestX = x;
+                        closestY = y;
+                    }
+                }
+            }
+        }
+
+        if (closestX != -1) {
+            // Se déplacer vers le mur cassable
+            Direction bestDir = getBestDirectionTo(botX, botY, closestX, closestY);
+            if (bestDir != Direction.NONE) {
+                int newX = botX, newY = botY;
+                switch (bestDir) {
+                    case UP -> newY--;
+                    case DOWN -> newY++;
+                    case LEFT -> newX--;
+                    case RIGHT -> newX++;
+                }
+
+                if (isSafePosition(newX, newY)) {
+                    moveToPosition(newX, newY);
+                    System.out.println("BOT: Avance vers mur cassable (" + closestX + "," + closestY + ") - " + bestDir);
+                    return;
+                }
+            }
+        }
+
+        // Si pas de mur ou chemin bloqué, mouvement aléatoire
+        moveRandomlySafe();
+    }
+
+    /**
+     * Trouve la meilleure direction pour aller vers une cible
+     */
+    private Direction getBestDirectionTo(int fromX, int fromY, int toX, int toY) {
+        int dx = toX - fromX;
+        int dy = toY - fromY;
+
+        // Prioriser la direction avec la plus grande distance
+        if (Math.abs(dx) > Math.abs(dy)) {
+            return dx > 0 ? Direction.RIGHT : Direction.LEFT;
+        } else {
+            return dy > 0 ? Direction.DOWN : Direction.UP;
+        }
+    }
+
+    /**
+     * Mouvement aléatoire sécurisé
+     */
+    private void moveRandomlySafe() {
+        int botX = (int) Math.floor(botControlledPlayer.getX());
+        int botY = (int) Math.floor(botControlledPlayer.getY());
+
+        Direction[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
+        shuffleArray(directions);
+
+        for (Direction dir : directions) {
+            int newX = botX, newY = botY;
+            switch (dir) {
+                case UP -> newY--;
+                case DOWN -> newY++;
+                case LEFT -> newX--;
+                case RIGHT -> newX++;
+            }
+
+            if (isSafePosition(newX, newY)) {
+                moveToPosition(newX, newY);
+                System.out.println("BOT: Mouvement aléatoire sécurisé - " + dir);
+                return;
+            }
+        }
+
+        System.out.println("BOT: Aucun mouvement possible");
+    }
+
+    /**
+     * Vérifie si une position est sûre (pas de bombe, pas d'obstacle)
+     */
+    private boolean isSafePosition(int x, int y) {
+        // Vérifier les limites
+        if (x < 0 || x >= GameBoard.GRID_WIDTH || y < 0 || y >= GameBoard.GRID_HEIGHT) {
+            return false;
+        }
+
+        // Vérifier les obstacles physiques
+        GameBoard.TileType tile = gameBoard.getTile(x, y);
+        if (tile == GameBoard.TileType.WALL ||
+                tile == GameBoard.TileType.BREAKABLE_WALL ||
+                tile == GameBoard.TileType.BOMB) {
+            return false;
+        }
+
+        // Éviter les bombes placées par le bot récemment
+        for (BombPosition bomb : botPlacedBombs) {
+            if (bomb.x == x && bomb.y == y) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Déplace le bot à une position spécifique
+     */
+    private void moveToPosition(int gridX, int gridY) {
+        double targetX = gridX + 0.5;
+        double targetY = gridY + 0.5;
+        botControlledPlayer.setPosition(targetX, targetY);
+    }
+
+    /**
+     * Nettoie les bombes expirées de la liste
+     */
+    private void cleanExpiredBombs() {
+        long currentTime = System.currentTimeMillis();
+        botPlacedBombs.removeIf(bomb -> bomb.isExpired(currentTime));
+    }
+
+    /**
+     * Mélange un tableau (algorithme de Fisher-Yates)
+     */
+    private void shuffleArray(Direction[] array) {
+        for (int i = array.length - 1; i > 0; i--) {
+            int index = random.nextInt(i + 1);
+            Direction temp = array[index];
+            array[index] = array[i];
+            array[i] = temp;
+        }
+    }
+
+    /**
      * Retourne le profil du bot
-     *
-     * @return Le profil du bot
      */
     public PlayerProfile getProfile() {
         return botProfile;
