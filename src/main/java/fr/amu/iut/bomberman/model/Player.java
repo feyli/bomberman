@@ -17,6 +17,7 @@ public class Player {
     private boolean alive;
     private Direction currentDirection;
     private Direction lastValidDirection; // Dernière direction valide pour le placement des bombes
+    private String avatarPath; // Chemin vers l'avatar du joueur
 
     // Capacités du joueur
     private int maxBombs;
@@ -306,6 +307,10 @@ public class Player {
         return speed;
     }
 
+    public String getAvatarPath() {
+        return avatarPath;
+    }
+
     // Setters
     public void setName(String name) {
         this.name = name;
@@ -313,6 +318,10 @@ public class Player {
 
     public void setAlive(boolean alive) {
         this.alive = alive;
+    }
+
+    public void setAvatarPath(String avatarPath) {
+        this.avatarPath = avatarPath;
     }
 
     /**

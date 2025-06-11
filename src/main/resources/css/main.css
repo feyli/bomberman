@@ -23,7 +23,7 @@
 /* Conteneurs principaux */
 .menu-container {
     -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
-    -fx-background-image: url("/images/backgrounds/menu_bg.jpg");
+    -fx-background-image: url("/images/backgrounds/obscur_bg.jpg");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
     -fx-background-size: cover;

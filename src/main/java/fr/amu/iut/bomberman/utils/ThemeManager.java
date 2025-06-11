@@ -140,6 +140,32 @@ public class ThemeManager {
     }
 
     /**
+     * Obtient le chemin de l'image d'arrière-plan pour le thème actuel
+     *
+     * @return Chemin de l'image d'arrière-plan
+     */
+    public String getBackgroundImagePath() {
+        // Essaie d'abord de récupérer une image spécifique depuis le fichier properties
+        String backgroundImage = themeProperties.getProperty("background.image");
+
+        // Si une image spécifique est définie dans le fichier properties
+        if (backgroundImage != null && !backgroundImage.isEmpty()) {
+            if (getClass().getResource(backgroundImage) != null) {
+                return backgroundImage;
+            }
+        }
+
+        // Sinon, essaie une image nommée d'après le thème actuel
+        String themeBackgroundPath = "/images/backgrounds/" + currentTheme + "_bg.jpg";
+        if (getClass().getResource(themeBackgroundPath) != null) {
+            return themeBackgroundPath;
+        }
+
+        // Si l'image pour le thème spécifique n'existe pas, utilise l'image par défaut
+        return "/images/backgrounds/obscur_bg.jpg";
+    }
+
+    /**
      * Obtient une liste des thèmes disponibles
      *
      * @return Liste des noms de thèmes disponibles

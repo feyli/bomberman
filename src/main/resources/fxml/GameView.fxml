@@ -23,7 +23,7 @@
             <!-- Infos Joueur 1 -->
             <HBox fx:id="player1Info" alignment="CENTER_LEFT" spacing="10" styleClass="player-info">
                 <!-- Image avec gestion d'erreur améliorée -->
-                <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
+                <ImageView fx:id="player1Avatar" fitWidth="40" fitHeight="40" preserveRatio="true">
                     <image>
                         <Image url="@../images/player1_icon.png" backgroundLoading="true"/>
                     </image>
@@ -53,7 +53,7 @@
                     </HBox>
                 </VBox>
                 <!-- Image avec gestion d'erreur améliorée -->
-                <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
+                <ImageView fx:id="player2Avatar" fitWidth="40" fitHeight="40" preserveRatio="true">
                     <image>
                         <Image url="@../images/player2_icon.png" backgroundLoading="true"/>
                     </image>
