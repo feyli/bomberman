@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * Contrôleur pour la gestion des profils de joueurs
@@ -81,7 +82,7 @@ public class ProfileManagerController {
      */
     private void setupListView() {
         // Affichage personnalisé des profils
-        profileListView.setCellFactory(listView -> new ListCell<PlayerProfile>() {
+        profileListView.setCellFactory(listView -> new ListCell<>() {
             @Override
             protected void updateItem(PlayerProfile profile, boolean empty) {
                 super.updateItem(profile, empty);
@@ -134,7 +135,7 @@ public class ProfileManagerController {
         } else {
             // Afficher les détails
             try {
-                Image avatar = new Image(getClass().getResourceAsStream(profile.getAvatarPath()));
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
                 avatarImageView.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut
@@ -235,7 +236,7 @@ public class ProfileManagerController {
 
         // Boutons
         ButtonType saveButton = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType cancelButton = new ButtonType("Retour", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
         // Formulaire
@@ -272,9 +273,9 @@ public class ProfileManagerController {
         selectedAvatarPath[0] = profile != null ? profile.getAvatarPath() : "/images/avatars/default.png";
 
         try {
-            selectedAvatarView.setImage(new Image(getClass().getResourceAsStream(selectedAvatarPath[0])));
+            selectedAvatarView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(selectedAvatarPath[0]))));
         } catch (Exception e) {
-            selectedAvatarView.setImage(new Image(getClass().getResourceAsStream("/images/avatars/default.png")));
+            selectedAvatarView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png"))));
         }
 
         avatarContainer.getChildren().add(selectedAvatarView);
@@ -342,7 +343,7 @@ public class ProfileManagerController {
 
             for (String avatarFile : avatarFiles) {
                 try {
-                    Image avatarImage = new Image(getClass().getResourceAsStream(avatarFile));
+                    Image avatarImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarFile)));
                     ImageView avatarView = new ImageView(avatarImage);
                     avatarView.setFitWidth(64);
                     avatarView.setFitHeight(64);
@@ -386,24 +387,20 @@ public class ProfileManagerController {
             // Traiter le résultat
             avatarDialog.showAndWait().ifPresent(avatarPath -> {
                 selectedAvatarPath[0] = avatarPath;
-                selectedAvatarView.setImage(new Image(getClass().getResourceAsStream(avatarPath)));
+                selectedAvatarView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath))));
             });
         });
 
         // Validation
         dialog.getDialogPane().lookupButton(saveButton).setDisable(true);
 
-        firstNameField.textProperty().addListener((obs, oldText, newText) -> {
-            dialog.getDialogPane().lookupButton(saveButton).setDisable(
-                    newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty()
-            );
-        });
+        firstNameField.textProperty().addListener((obs, oldText, newText) -> dialog.getDialogPane().lookupButton(saveButton).setDisable(
+                newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty()
+        ));
 
-        lastNameField.textProperty().addListener((obs, oldText, newText) -> {
-            dialog.getDialogPane().lookupButton(saveButton).setDisable(
-                    newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty()
-            );
-        });
+        lastNameField.textProperty().addListener((obs, oldText, newText) -> dialog.getDialogPane().lookupButton(saveButton).setDisable(
+                newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty()
+        ));
 
         // Convertisseur de résultat
         dialog.setResultConverter(dialogButton -> {
@@ -476,7 +473,7 @@ public class ProfileManagerController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             Stage stage = (Stage) profileListView.getScene().getWindow();
             stage.setScene(scene);
