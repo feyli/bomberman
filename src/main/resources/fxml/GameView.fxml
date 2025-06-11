@@ -31,8 +31,8 @@
                 <VBox spacing="2">
                     <Label fx:id="player1Name" text="Joueur 1" styleClass="player-name"/>
                     <HBox spacing="15">
-                        <Label fx:id="player1Lives" text="Vies: 3" styleClass="player-stat"/>
-                        <Label fx:id="player1Score" text="Score: 0" styleClass="player-stat"/>
+                        <Label fx:id="player1Lives" text="Vies : 3" styleClass="player-stat"/>
+                        <Label fx:id="player1Score" text="Score : 0" styleClass="player-stat"/>
                     </HBox>
                 </VBox>
             </HBox>
@@ -48,8 +48,8 @@
                 <VBox spacing="2" alignment="TOP_RIGHT">
                     <Label fx:id="player2Name" text="Joueur 2" styleClass="player-name"/>
                     <HBox spacing="15">
-                        <Label fx:id="player2Lives" text="Vies: 3" styleClass="player-stat"/>
-                        <Label fx:id="player2Score" text="Score: 0" styleClass="player-stat"/>
+                        <Label fx:id="player2Lives" text="Vies : 3" styleClass="player-stat"/>
+                        <Label fx:id="player2Score" text="Score : 0" styleClass="player-stat"/>
                     </HBox>
                 </VBox>
                 <!-- Image avec gestion d'erreur améliorée -->

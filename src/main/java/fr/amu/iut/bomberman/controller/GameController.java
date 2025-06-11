@@ -46,17 +46,17 @@ public class GameController implements GameModel.GameModelListener {
     @FXML
     private Label roundLabel;
     @FXML
-    private Label player1NameLabel;
+    private Label player1Name;
     @FXML
-    private Label player1ScoreLabel;
+    private Label player1Score;
     @FXML
-    private Label player1LivesLabel;
+    private Label player1Lives;
     @FXML
-    private Label player2NameLabel;
+    private Label player2Name;
     @FXML
-    private Label player2ScoreLabel;
+    private Label player2Score;
     @FXML
-    private Label player2LivesLabel;
+    private Label player2Lives;
     @FXML
     private VBox messageOverlay;
     @FXML
@@ -167,11 +167,11 @@ public class GameController implements GameModel.GameModelListener {
         );
 
         // Mettre à jour les noms des joueurs
-        if (player1NameLabel != null) {
-            player1NameLabel.setText(player1Profile.getDisplayName());
+        if (player1Name != null) {
+            player1Name.setText(player1Profile.getDisplayName());
         }
-        if (player2NameLabel != null) {
-            player2NameLabel.setText(player2Profile.getDisplayName());
+        if (player2Name != null) {
+            player2Name.setText(player2Profile.getDisplayName());
         }
 
         // S'assurer que le canvas a une taille valide
@@ -385,14 +385,14 @@ public class GameController implements GameModel.GameModelListener {
             Player p1 = gameModel.getPlayer1();
             Player p2 = gameModel.getPlayer2();
 
-            if (p1 != null && player1LivesLabel != null && player1ScoreLabel != null) {
-                player1LivesLabel.setText("Vies : " + p1.getLives());
-                player1ScoreLabel.setText("Score : " + gameModel.getPlayer1Score());
+            if (p1 != null && player1Lives != null && player1Score != null) {
+                player1Lives.setText("Vies : " + p1.getLives());
+                player1Score.setText("Score : " + gameModel.getPlayer1Score());
             }
 
-            if (p2 != null && player2LivesLabel != null && player2ScoreLabel != null) {
-                player2LivesLabel.setText("Vies : " + p2.getLives());
-                player2ScoreLabel.setText("Score : " + gameModel.getPlayer2Score());
+            if (p2 != null && player2Lives != null && player2Score != null) {
+                player2Lives.setText("Vies : " + p2.getLives());
+                player2Score.setText("Score : " + gameModel.getPlayer2Score());
             }
 
             // Timer
