@@ -31,6 +31,14 @@ import java.util.Objects;
  */
 public class GameController implements GameModel.GameModelListener {
 
+    // Configuration des touches
+    private static final Map<KeyCode, Direction> PLAYER1_KEYS = Map.of(KeyCode.Z, Direction.UP, KeyCode.S, Direction.DOWN, KeyCode.Q, Direction.LEFT, KeyCode.D, Direction.RIGHT);
+    private static final Map<KeyCode, Direction> PLAYER2_KEYS = Map.of(KeyCode.UP, Direction.UP, KeyCode.DOWN, Direction.DOWN, KeyCode.LEFT, Direction.LEFT, KeyCode.RIGHT, Direction.RIGHT);
+    private static final KeyCode PLAYER1_BOMB = KeyCode.SPACE;
+    private static final KeyCode PLAYER2_BOMB = KeyCode.ENTER;
+    private static final KeyCode PAUSE_KEY = KeyCode.P;
+    // Gestion des touches
+    private final Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     @FXML
     private Canvas gameCanvas;
     @FXML
@@ -44,11 +52,15 @@ public class GameController implements GameModel.GameModelListener {
     @FXML
     private Label player1Lives;
     @FXML
+    private Label player1Invincible; // Nouvel indicateur d'invincibilité pour le joueur 1
+    @FXML
     private Label player2Name;
     @FXML
     private Label player2Score;
     @FXML
     private Label player2Lives;
+    @FXML
+    private Label player2Invincible; // Nouvel indicateur d'invincibilité pour le joueur 2
     @FXML
     private Label messageLabel;
     @FXML
@@ -59,34 +71,13 @@ public class GameController implements GameModel.GameModelListener {
     private ImageView player2Avatar;  // Référence à l'ImageView du joueur 2
     @FXML
     private Pane gamePane;
-
     private GameModel gameModel;
     private GameRenderer gameRenderer;
     private AnimationTimer gameLoop;
-
-    // Gestion des touches
-    private final Map<KeyCode, Boolean> keysPressed = new HashMap<>();
     private long lastFrameTime = 0;
     private int frameCount = 0;
-
-    // Configuration des touches
-    private static final Map<KeyCode, Direction> PLAYER1_KEYS = Map.of(
-            KeyCode.Z, Direction.UP,
-            KeyCode.S, Direction.DOWN,
-            KeyCode.Q, Direction.LEFT,
-            KeyCode.D, Direction.RIGHT
-    );
-
-    private static final Map<KeyCode, Direction> PLAYER2_KEYS = Map.of(
-            KeyCode.UP, Direction.UP,
-            KeyCode.DOWN, Direction.DOWN,
-            KeyCode.LEFT, Direction.LEFT,
-            KeyCode.RIGHT, Direction.RIGHT
-    );
-
-    private static final KeyCode PLAYER1_BOMB = KeyCode.SPACE;
-    private static final KeyCode PLAYER2_BOMB = KeyCode.ENTER;
-    private static final KeyCode PAUSE_KEY = KeyCode.P;
+    // Bot qui contrôle le joueur 2
+    private BotPlayer botPlayer;
 
     /**
      * Initialisation du contrôleur
@@ -148,7 +139,6 @@ public class GameController implements GameModel.GameModelListener {
         }
     }
 
-
     /**
      * Démarre une nouvelle partie avec paramètres personnalisés
      *
@@ -158,17 +148,10 @@ public class GameController implements GameModel.GameModelListener {
      * @param timeLimit      Limite de temps par round en secondes
      */
     public void startGame(PlayerProfile player1Profile, PlayerProfile player2Profile, int roundsToWin, int timeLimit) {
-        System.out.println("Démarrage du jeu entre " + player1Profile.getDisplayName() +
-                " et " + player2Profile.getDisplayName() +
-                " - " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
+        System.out.println("Démarrage du jeu entre " + player1Profile.getDisplayName() + " et " + player2Profile.getDisplayName() + " - " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
 
         // Démarrer le jeu avec les paramètres personnalisés
-        gameModel.startNewGame(
-                player1Profile.getDisplayName(),
-                player2Profile.getDisplayName(),
-                roundsToWin,
-                timeLimit
-        );
+        gameModel.startNewGame(player1Profile.getDisplayName(), player2Profile.getDisplayName(), roundsToWin, timeLimit);
 
         // Définir les avatars personnalisés des joueurs
         String player1AvatarPath = player1Profile.getAvatarPath();
@@ -215,17 +198,11 @@ public class GameController implements GameModel.GameModelListener {
      * @param timeLimit     Limite de temps par round en secondes
      */
     public void startGameWithBot(PlayerProfile playerProfile, String botDifficulty, int roundsToWin, int timeLimit) {
-        System.out.println("Démarrage du jeu contre bot: " + playerProfile.getDisplayName() +
-                " contre BOT (difficulté: " + botDifficulty + ") - " +
-                roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
+        System.out.println("Démarrage du jeu contre bot: " + playerProfile.getDisplayName() + " contre BOT (difficulté: " + botDifficulty + ") - " + roundsToWin + " rounds à gagner, " + timeLimit + " secondes par round");
 
         // Démarrer le jeu avec les paramètres personnalisés
-        gameModel.startNewGame(
-                playerProfile.getDisplayName(),
-                "BOT", // Nom du bot
-                roundsToWin,
-                timeLimit
-        );
+        gameModel.startNewGame(playerProfile.getDisplayName(), "BOT", // Nom du bot
+                roundsToWin, timeLimit);
 
         // Définir l'avatar personnalisé du joueur
         String playerAvatarPath = playerProfile.getAvatarPath();
@@ -262,9 +239,6 @@ public class GameController implements GameModel.GameModelListener {
             gameCanvas.requestFocus();
         }
     }
-
-    // Bot qui contrôle le joueur 2
-    private BotPlayer botPlayer;
 
     /**
      * Initialise le bot avec la difficulté spécifiée
@@ -464,9 +438,7 @@ public class GameController implements GameModel.GameModelListener {
             gameModel.movePlayer(1, p1Direction, deltaTime);
             // Debug réduit - seulement tous les 30 frames
             if (frameCount % 30 == 0) {
-                System.out.println("Joueur 1 - Direction: " + p1Direction +
-                        ", Position: (" + gameModel.getPlayer1().getX() +
-                        ", " + gameModel.getPlayer1().getY() + ")");
+                System.out.println("Joueur 1 - Direction: " + p1Direction + ", Position: (" + gameModel.getPlayer1().getX() + ", " + gameModel.getPlayer1().getY() + ")");
             }
         }
 
@@ -482,9 +454,7 @@ public class GameController implements GameModel.GameModelListener {
             gameModel.movePlayer(2, p2Direction, deltaTime);
             // Debug réduit - seulement tous les 30 frames
             if (frameCount % 30 == 0) {
-                System.out.println("Joueur 2 - Direction: " + p2Direction +
-                        ", Position: (" + gameModel.getPlayer2().getX() +
-                        ", " + gameModel.getPlayer2().getY() + ")");
+                System.out.println("Joueur 2 - Direction: " + p2Direction + ", Position: (" + gameModel.getPlayer2().getX() + ", " + gameModel.getPlayer2().getY() + ")");
             }
         }
 
@@ -537,6 +507,9 @@ public class GameController implements GameModel.GameModelListener {
 
             // Mettre à jour les avatars des joueurs
             updatePlayerAvatars();
+
+            // Mettre à jour les indicateurs d'invincibilité
+            updateInvincibilityIndicators();
         } catch (Exception e) {
             System.err.println("Erreur lors de la mise à jour de l'UI: " + e.getMessage());
         }
@@ -577,6 +550,28 @@ public class GameController implements GameModel.GameModelListener {
     }
 
     /**
+     * Met à jour les indicateurs d'invincibilité des joueurs
+     */
+    private void updateInvincibilityIndicators() {
+        try {
+            Player p1 = gameModel.getPlayer1();
+            Player p2 = gameModel.getPlayer2();
+
+            // Joueur 1
+            if (p1 != null && player1Invincible != null) {
+                player1Invincible.setVisible(p1.getIsInvincible());
+            }
+
+            // Joueur 2
+            if (p2 != null && player2Invincible != null) {
+                player2Invincible.setVisible(p2.getIsInvincible());
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la mise à jour des indicateurs d'invincibilité: " + e.getMessage());
+        }
+    }
+
+    /**
      * Affiche un message à l'écran
      */
     private void showMessage(String message) {
@@ -595,16 +590,6 @@ public class GameController implements GameModel.GameModelListener {
     private void hideMessage() {
         if (messageLabel != null) {
             messageLabel.setVisible(false);
-        }
-    }
-
-    /**
-     * Affiche un message de Game Over à l'écran (label du haut)
-     */
-    private void showGameOverMessage(String message) {
-        if (gameOverLabel != null) {
-            gameOverLabel.setText(message);
-            gameOverLabel.setVisible(true);
         }
     }
 
@@ -728,32 +713,67 @@ public class GameController implements GameModel.GameModelListener {
 
         System.out.println("Partie terminée - Gagnant: " + winner.getName());
 
-        // Mettre à jour les statistiques du gagnant via ProfileManager
-        // Vérification si le profil existe avant la mise à jour
-        // Ajout de messages de débogage pour vérifier les étapes
-        System.out.println("Débogage: Nom du gagnant: " + winner.getName());
+        // Identifier les deux joueurs
+        Player player1 = gameModel.getPlayer1();
+        Player player2 = gameModel.getPlayer2();
 
-        // Recherche du profil par pseudo (nickname) pour le gagnant
-        PlayerProfile winnerProfile = ProfileManager.getInstance().getProfileByNickname(winner.getName());
-        if (winnerProfile != null) {
-            winnerProfile.updateStats(true, winner.getScore()); // Mise à jour des stats avec victoire
-            ProfileManager.getInstance().updateProfile(winnerProfile);
-            System.out.println("Statistiques du gagnant " + winner.getName() + " mises à jour.");
+        // Déterminer si l'un des joueurs est un bot
+        boolean isPlayer1Bot = player1.getName().equalsIgnoreCase("BOT");
+        boolean isPlayer2Bot = player2.getName().equalsIgnoreCase("BOT");
+        boolean isBotGame = isPlayer1Bot || isPlayer2Bot;
+
+        // Gérer différemment les parties avec un bot
+        ProfileManager profileManager = ProfileManager.getInstance();
+        boolean profilesUpdated = false;
+
+        // Cas spécial: Un joueur humain contre un bot
+        if (isBotGame) {
+            // Trouver le joueur humain (celui qui n'est pas un bot)
+            Player humanPlayer = isPlayer1Bot ? player2 : player1;
+            boolean humanWon = (humanPlayer == winner);
+
+            // Mettre à jour les statistiques du joueur humain
+            PlayerProfile humanProfile = profileManager.getProfileByNickname(humanPlayer.getName());
+            if (humanProfile != null) {
+                humanProfile.updateStats(humanWon, humanPlayer.getScore());
+                profilesUpdated = true;
+                System.out.println("Statistiques de " + humanPlayer.getName() + " mises à jour. Parties jouées: " + humanProfile.getGamesPlayed() + ", Victoires: " + humanProfile.getGamesWon());
+            } else {
+                System.err.println("Profil introuvable pour le joueur: " + humanPlayer.getName());
+            }
         } else {
-            System.err.println("Profil introuvable pour le joueur gagnant: " + winner.getName());
+            // Partie normale entre deux joueurs humains - mettre à jour les deux profils
+            // Mettre à jour les statistiques du joueur 1
+            PlayerProfile profile1 = profileManager.getProfileByNickname(player1.getName());
+            if (profile1 != null) {
+                boolean isWinner = (player1 == winner);
+                profile1.updateStats(isWinner, player1.getScore());
+                profilesUpdated = true;
+                System.out.println("Statistiques de " + player1.getName() + " mises à jour. Parties jouées: " + profile1.getGamesPlayed());
+            } else {
+                System.err.println("Profil introuvable pour le joueur: " + player1.getName());
+            }
+
+            // Mettre à jour les statistiques du joueur 2
+            PlayerProfile profile2 = profileManager.getProfileByNickname(player2.getName());
+            if (profile2 != null) {
+                boolean isWinner = (player2 == winner);
+                profile2.updateStats(isWinner, player2.getScore());
+                profilesUpdated = true;
+                System.out.println("Statistiques de " + player2.getName() + " mises à jour. Parties jouées: " + profile2.getGamesPlayed());
+            } else {
+                System.err.println("Profil introuvable pour le joueur: " + player2.getName());
+            }
         }
 
-        // Identifier le joueur perdant (l'autre joueur)
-        Player loser = (winner == gameModel.getPlayer1()) ? gameModel.getPlayer2() : gameModel.getPlayer1();
-
-        // Mettre à jour les statistiques du perdant
-        PlayerProfile loserProfile = ProfileManager.getInstance().getProfileByNickname(loser.getName());
-        if (loserProfile != null) {
-            loserProfile.updateStats(false, loser.getScore()); // Mise à jour des stats sans victoire
-            ProfileManager.getInstance().updateProfile(loserProfile);
-            System.out.println("Statistiques du perdant " + loser.getName() + " mises à jour.");
-        } else {
-            System.err.println("Profil introuvable pour le joueur perdant: " + loser.getName());
+        // Assurer que les profils sont explicitement sauvegardés après toutes les mises à jour
+        if (profilesUpdated) {
+            boolean saved = profileManager.saveProfiles();
+            if (saved) {
+                System.out.println("Tous les profils ont été sauvegardés avec succès");
+            } else {
+                System.err.println("Erreur lors de la sauvegarde des profils");
+            }
         }
 
         // Retourner au menu après 5 secondes

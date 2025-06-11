@@ -22,7 +22,7 @@
 
 /* Conteneurs principaux */
 .menu-container {
-    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a2a);
     -fx-background-image: url("/images/backgrounds/obscur_bg.jpg");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
@@ -199,8 +199,23 @@
 .game-message {
     -fx-font-size: 48px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-secondary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 20, 0, 5, 5);
+    -fx-text-fill: -fx-text-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 8, 0, 2, 2);
+}
+
+/* Indicateur d'invincibilité */
+.invincible-indicator {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700; /* Gold color for better visibility */
+    -fx-effect: dropshadow(gaussian, #FFA500, 15, 0.7, 0, 0); /* Glow effect */
+    -fx-padding: 0 0 0 5;
+    -fx-background-color: rgba(255, 165, 0, 0.2); /* Semi-transparent background */
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #FF8C00; /* Dark orange border */
+    -fx-border-width: 1.5;
+    -fx-padding: 2 6;
 }
 
 .control-bar {

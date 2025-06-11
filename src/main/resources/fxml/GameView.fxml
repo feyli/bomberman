@@ -33,6 +33,7 @@
                     <HBox spacing="15">
                         <Label fx:id="player1Lives" text="Vies : 3" styleClass="player-stat"/>
                         <Label fx:id="player1Score" text="Score : 0" styleClass="player-stat"/>
+                        <Label fx:id="player1Invincible" text="🛡️" styleClass="invincible-indicator" visible="false"/>
                     </HBox>
                 </VBox>
             </HBox>
@@ -50,6 +51,7 @@
                     <HBox spacing="15">
                         <Label fx:id="player2Lives" text="Vies : 3" styleClass="player-stat"/>
                         <Label fx:id="player2Score" text="Score : 0" styleClass="player-stat"/>
+                        <Label fx:id="player2Invincible" text="🛡️" styleClass="invincible-indicator" visible="false"/>
                     </HBox>
                 </VBox>
                 <!-- Image avec gestion d'erreur améliorée -->

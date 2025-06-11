@@ -8,7 +8,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -40,7 +39,7 @@ public class MainMenuController {
     private ImageView backgroundImage; // Référence à l'image d'arrière-plan
 
     // Gestionnaire de thème
-    private ThemeManager themeManager = ThemeManager.getInstance();
+    private final ThemeManager themeManager = ThemeManager.getInstance();
 
     /**
      * Initialisation du contrôleur
@@ -139,7 +138,7 @@ public class MainMenuController {
 
             // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
             SceneManager.getInstance().changeScene(stage, root,
-                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
+                    Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +179,7 @@ public class MainMenuController {
 
             // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
             SceneManager.getInstance().changeScene(stage, root,
-                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
+                    Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -221,7 +220,7 @@ public class MainMenuController {
 
             // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
             SceneManager.getInstance().changeScene(stage, root,
-                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
+                    Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -247,7 +246,7 @@ public class MainMenuController {
 
         // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         alert.showAndWait().ifPresent(response -> {
@@ -273,7 +272,7 @@ public class MainMenuController {
 
         // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         alert.showAndWait();
