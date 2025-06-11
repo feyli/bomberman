@@ -15,6 +15,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
@@ -57,6 +59,10 @@ public class GameController implements GameModel.GameModelListener {
     private Label messageLabel;
     @FXML
     private Label gameOverLabel;
+    @FXML
+    private ImageView player1Avatar;  // Référence à l'ImageView du joueur 1
+    @FXML
+    private ImageView player2Avatar;  // Référence à l'ImageView du joueur 2
 
     private GameModel gameModel;
     private GameRenderer gameRenderer;
@@ -169,6 +175,22 @@ public class GameController implements GameModel.GameModelListener {
                 timeLimit
         );
 
+        // Définir les avatars personnalisés des joueurs
+        String player1AvatarPath = player1Profile.getAvatarPath();
+        String player2AvatarPath = player2Profile.getAvatarPath();
+
+        System.out.println("Avatar joueur 1: " + player1AvatarPath);
+        System.out.println("Avatar joueur 2: " + player2AvatarPath);
+
+        // Transmettre les chemins d'avatar au renderer ou au modèle de joueur
+        if (gameModel.getPlayer1() != null) {
+            gameModel.getPlayer1().setAvatarPath(player1AvatarPath);
+        }
+
+        if (gameModel.getPlayer2() != null) {
+            gameModel.getPlayer2().setAvatarPath(player2AvatarPath);
+        }
+
         // Mettre à jour les noms des joueurs
         if (player1Name != null) {
             player1Name.setText(player1Profile.getDisplayName());
@@ -209,6 +231,19 @@ public class GameController implements GameModel.GameModelListener {
                 roundsToWin,
                 timeLimit
         );
+
+        // Définir l'avatar personnalisé du joueur
+        String playerAvatarPath = playerProfile.getAvatarPath();
+        System.out.println("Avatar joueur: " + playerAvatarPath);
+
+        if (gameModel.getPlayer1() != null) {
+            gameModel.getPlayer1().setAvatarPath(playerAvatarPath);
+        }
+
+        // Pour le bot, on peut utiliser un avatar spécifique ou celui par défaut
+        if (gameModel.getPlayer2() != null) {
+            gameModel.getPlayer2().setAvatarPath("/images/avatars/default.png");
+        }
 
         // Mettre à jour les noms des joueurs dans l'interface
         if (player1Name != null) {
@@ -504,8 +539,45 @@ public class GameController implements GameModel.GameModelListener {
             if (roundLabel != null) {
                 roundLabel.setText("Round " + gameModel.getCurrentRound());
             }
+
+            // Mettre à jour les avatars des joueurs
+            updatePlayerAvatars();
         } catch (Exception e) {
             System.err.println("Erreur lors de la mise à jour de l'UI: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Met à jour les images des avatars des joueurs
+     */
+    private void updatePlayerAvatars() {
+        try {
+            Player p1 = gameModel.getPlayer1();
+            Player p2 = gameModel.getPlayer2();
+
+            // Joueur 1
+            if (p1 != null && player1Avatar != null) {
+                String avatarPath = p1.getAvatarPath();
+                if (avatarPath != null && !avatarPath.isEmpty()) {
+                    player1Avatar.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath))));
+                } else {
+                    // Chemin d'avatar par défaut si aucun avatar personnalisé
+                    player1Avatar.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png"))));
+                }
+            }
+
+            // Joueur 2
+            if (p2 != null && player2Avatar != null) {
+                String avatarPath = p2.getAvatarPath();
+                if (avatarPath != null && !avatarPath.isEmpty()) {
+                    player2Avatar.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath))));
+                } else {
+                    // Chemin d'avatar par défaut si aucun avatar personnalisé
+                    player2Avatar.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png"))));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la mise à jour des avatars: " + e.getMessage());
         }
     }
 

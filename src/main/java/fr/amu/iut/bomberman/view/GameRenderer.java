@@ -72,10 +72,10 @@ public class GameRenderer {
 
         // Joueurs
         for (int i = 1; i <= 2; i++) {
-            loadImageSafe("player" + i + "_down", "/images/players/player" + 1 + "_downward.gif");
-            loadImageSafe("player" + i + "_up", "/images/players/player" + 1 + "_upward.gif");
-            loadImageSafe("player" + i + "_left", "/images/players/player" + 1 + "_left.gif");
-            loadImageSafe("player" + i + "_right", "/images/players/player" + 1 + "_right.gif");
+            loadImageSafe("player" + i + "_down", "/images/players/player" + i + "_downward.gif");
+            loadImageSafe("player" + i + "_up", "/images/players/player" + i + "_upward.gif");
+            loadImageSafe("player" + i + "_left", "/images/players/player" + i + "_left.gif");
+            loadImageSafe("player" + i + "_right", "/images/players/player" + i + "_right.gif");
         }
 
         // Bombes
@@ -483,3 +483,4 @@ public class GameRenderer {
         gc.setGlobalAlpha(1.0);
     }
 }
+
