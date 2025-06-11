@@ -1,11 +1,7 @@
 package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.*;
-import fr.amu.iut.bomberman.utils.Direction;
-import fr.amu.iut.bomberman.utils.FullScreenManager;
-import fr.amu.iut.bomberman.utils.SoundManager;
-import fr.amu.iut.bomberman.utils.ProfileManager;
-import fr.amu.iut.bomberman.utils.ThemeManager;
+import fr.amu.iut.bomberman.utils.*;
 import fr.amu.iut.bomberman.view.GameRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -151,7 +147,6 @@ public class GameController implements GameModel.GameModelListener {
             });
         }
     }
-
 
 
     /**
