@@ -60,7 +60,7 @@ public class SoundManager {
         loadSoundSafe("game_start", "/sounds/effects/game_start.wav");
         loadSoundSafe("bomb_place", "/sounds/effects/bomb_place.wav");
         loadSoundSafe("bomb_explode", "/sounds/effects/bomb_explode.aiff");
-        loadSoundSafe("player_hit", "/sounds/effects/player_hit.wav");
+        loadSoundSafe("player_hit", "/sounds/effects/player_hit.mp3");
         loadSoundSafe("powerup_collect", "/sounds/effects/powerup_pickup.wav");
         loadSoundSafe("wall_break", "/sounds/effects/wall_break.wav");
         loadSoundSafe("round_end", "/sounds/effects/game_over.wav");
