@@ -26,9 +26,10 @@ import java.util.prefs.Preferences;
 /**
  * Contrôleur pour la sélection des joueurs
  * Permet de choisir les profils avant de commencer une partie
+ * Version modifiée : Sans choix de difficulté du bot (niveau Normal par défaut)
  *
  * @author Super Bomberman Team
- * @version 1.0
+ * @version 1.1
  */
 public class PlayerSelectionController {
 
@@ -47,16 +48,16 @@ public class PlayerSelectionController {
     @FXML
     private Button startButton;
 
-    // Champs pour le mode bot
+    // Champs pour le mode bot (difficulté supprimée)
     @FXML
     private CheckBox botModeCheckbox;
-    @FXML
-    private ComboBox<String> botDifficultyCombo;
-    @FXML
-    private Label botDifficultyLabel;
+    // SUPPRIMÉ : ComboBox botDifficultyCombo et Label botDifficultyLabel
 
     private boolean botModeEnabled = false;
     private final PlayerProfile botProfile = new PlayerProfile("Bot", "Bomberman", "BOT");
+
+    // Niveau de difficulté fixe du bot
+    private static final String BOT_DIFFICULTY = "Normal";
 
     private ProfileManager profileManager;
     private ObservableList<PlayerProfile> profiles;
@@ -66,7 +67,7 @@ public class PlayerSelectionController {
      */
     @FXML
     public void initialize() {
-        System.out.println("PlayerSelectionController initialisé");
+        System.out.println("PlayerSelectionController initialisé (sans choix de difficulté bot)");
 
         profileManager = ProfileManager.getInstance();
         loadProfiles();
@@ -77,8 +78,7 @@ public class PlayerSelectionController {
         // Configuration de la ComboBox de temps
         setupTimeComboBox();
 
-        // Configuration de la difficulté du bot
-        setupBotDifficultyCombo();
+        // SUPPRIMÉ : setupBotDifficultyCombo()
 
         // Listeners pour activer/désactiver le bouton Start
         player1ComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -158,35 +158,24 @@ public class PlayerSelectionController {
     }
 
     /**
-     * Configure la ComboBox de difficulté du bot
-     */
-    private void setupBotDifficultyCombo() {
-        if (botDifficultyCombo != null) {
-            botDifficultyCombo.setItems(FXCollections.observableArrayList(
-                    "Facile", "Normal", "Difficile"
-            ));
-            botDifficultyCombo.setValue("Normal");
-        }
-    }
-
-    /**
      * Gère l'activation/désactivation du mode bot
+     * Version simplifiée sans choix de difficulté
      */
     @FXML
     private void handleBotModeToggle() {
         botModeEnabled = botModeCheckbox.isSelected();
 
-        // Afficher/masquer les options de difficulté du bot
-        botDifficultyLabel.setVisible(botModeEnabled);
-        botDifficultyCombo.setVisible(botModeEnabled);
+        // SUPPRIMÉ : Affichage/masquage des options de difficulté du bot
 
         // Si mode bot activé, configurer automatiquement le joueur 2 comme bot
         if (botModeEnabled) {
             player2ComboBox.setDisable(true);
             updatePlayer2Display(botProfile);
+            System.out.println("Mode bot activé - Difficulté: " + BOT_DIFFICULTY + " (par défaut)");
         } else {
             player2ComboBox.setDisable(false);
             updatePlayer2Display(player2ComboBox.getValue());
+            System.out.println("Mode bot désactivé");
         }
 
         // Vérifier l'état du bouton Start
@@ -373,6 +362,7 @@ public class PlayerSelectionController {
 
     /**
      * Gère le clic sur "Commencer"
+     * Version modifiée : Utilise toujours "Normal" comme difficulté du bot
      */
     @FXML
     private void handleStartGame() {
@@ -407,10 +397,10 @@ public class PlayerSelectionController {
             // Obtenir le contrôleur et démarrer le jeu
             GameController gameController = loader.getController();
 
-            // Si mode bot activé, utiliser la difficulté sélectionnée
+            // Si mode bot activé, utiliser la difficulté par défaut "Normal"
             if (botModeEnabled) {
-                String difficulty = botDifficultyCombo.getValue();
-                gameController.startGameWithBot(profile1, difficulty, rounds, timeInSeconds);
+                System.out.println("Démarrage du jeu contre bot - Difficulté: " + BOT_DIFFICULTY);
+                gameController.startGameWithBot(profile1, BOT_DIFFICULTY, rounds, timeInSeconds);
             } else {
                 gameController.startGame(profile1, profile2, rounds, timeInSeconds);
             }
@@ -535,4 +525,3 @@ public class PlayerSelectionController {
         }
     }
 }
-
