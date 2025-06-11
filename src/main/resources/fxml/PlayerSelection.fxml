@@ -90,18 +90,14 @@
                       value="3:00"/>
         </HBox>
 
-        <!-- Option de jeu contre Bot -->
+        <!-- Option de jeu contre Bot SIMPLIFIÉE -->
         <HBox alignment="CENTER" spacing="20" styleClass="bot-option">
             <CheckBox fx:id="botModeCheckbox"
-                      text="Jouer contre Bot"
+                      text="Jouer contre Bot (Niveau Normal)"
                       onAction="#handleBotModeToggle"
                       styleClass="bot-checkbox"/>
 
-            <Label text="Difficulté Bot:" fx:id="botDifficultyLabel" visible="false"/>
-            <ComboBox fx:id="botDifficultyCombo"
-                      prefWidth="100"
-                      value="Normal"
-                      visible="false"/>
+            <!-- SUPPRIMÉ : Label et ComboBox pour la difficulté du bot -->
         </HBox>
     </VBox>
 
