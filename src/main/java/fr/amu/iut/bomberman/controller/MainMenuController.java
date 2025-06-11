@@ -25,7 +25,7 @@ import java.util.Objects;
  * Contrôleur du menu principal
  * Gère la navigation et les actions du menu
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class MainMenuController {

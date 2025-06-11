@@ -13,7 +13,7 @@ import java.util.List;
  * Modèle principal du jeu Bomberman
  * Gère l'état global du jeu et la logique
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class GameModel {

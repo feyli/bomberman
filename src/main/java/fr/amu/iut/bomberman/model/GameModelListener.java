@@ -3,7 +3,7 @@ package fr.amu.iut.bomberman.model;
 /**
  * Interface pour les écouteurs d'événements du modèle de jeu
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public interface GameModelListener {

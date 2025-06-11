@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Intelligence artificielle équilibrée pour un joueur bot
  * Ce bot place des bombes pour casser des blocs et évite les dangers de manière intelligente
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 2.1
  */
 public class BotPlayer {

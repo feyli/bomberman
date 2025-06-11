@@ -10,7 +10,7 @@ import java.util.Properties;
  * Gestionnaire de thèmes pour l'application
  * Permet de charger et changer les thèmes graphiques
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class ThemeManager {

@@ -10,7 +10,7 @@ import java.util.List;
  * Gestionnaire des profils de joueurs
  * Gère la sauvegarde et le chargement des profils
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class ProfileManager {

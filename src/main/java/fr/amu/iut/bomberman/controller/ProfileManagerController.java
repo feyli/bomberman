@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
  * Contrôleur pour la gestion des profils de joueurs
  * Permet de créer, modifier et supprimer des profils
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class ProfileManagerController {
