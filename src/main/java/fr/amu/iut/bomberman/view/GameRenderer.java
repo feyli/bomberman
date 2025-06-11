@@ -70,6 +70,9 @@ public class GameRenderer {
         loadImageSafe("wall", "/images/tiles/wall.png");
         loadImageSafe("breakable", "/images/tiles/breakable.png");
 
+        // Charger l'arrière-plan du jeu basé sur le thème actuel
+        loadImageSafe("background", themeManager.getBackgroundImagePath());
+
         // Joueurs
         for (int i = 1; i <= 2; i++) {
             loadImageSafe("player" + i + "_down", "/images/players/player" + i + "_downward.gif");
@@ -136,6 +139,9 @@ public class GameRenderer {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
+        // Dessiner l'arrière-plan
+        renderBackground();
+
         // Dessiner le plateau
         renderBoard(gameModel.getGameBoard());
 
@@ -157,6 +163,17 @@ public class GameRenderer {
         // Debug: afficher la grille (optionnel)
         if (false) { // Mettre à true pour debug
             renderDebugGrid();
+        }
+    }
+
+    /**
+     * Dessine l'arrière-plan du jeu
+     */
+    private void renderBackground() {
+        Image backgroundImage = imageCache.get("background");
+        if (backgroundImage != null) {
+            // Dessiner l'image d'arrière-plan en l'adaptant aux dimensions du canvas
+            gc.drawImage(backgroundImage, 0, 0, canvas.getWidth(), canvas.getHeight());
         }
     }
 
