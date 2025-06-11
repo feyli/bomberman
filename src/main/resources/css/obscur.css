@@ -1,0 +1,102 @@
+/*
+ * Feuille de style du thème obscur - Super Bomberman Clone
+ * Style sombre avec accents bleus
+ */
+
+/* Variables de couleurs */
+.root {
+    -fx-primary-color: #3498db;
+    -fx-secondary-color: #2980b9;
+    -fx-danger-color: #e74c3c;
+    -fx-success-color: #2ecc71;
+    -fx-background-dark: #121212;
+    -fx-background-light: #1f1f1f;
+    -fx-text-color: #ecf0f1;
+    -fx-text-secondary: #bdc3c7;
+}
+
+/* Style global */
+* {
+    -fx-font-family: "Consolas", "Monaco", monospace;
+}
+
+/* Conteneurs principaux */
+.menu-container {
+    -fx-background-color: linear-gradient(to bottom, #121212, #0a0a0a);
+    -fx-background-image: url("/images/backgrounds/menu_bg.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-pref-width: 1024px;
+    -fx-pref-height: 768px;
+}
+
+/* Boutons */
+.button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: derive(-fx-primary-color, 20%);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 1);
+}
+
+/* Labels */
+.title-label {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 2);
+}
+
+.subtitle-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-color;
+}
+
+/* TableView */
+.table-view {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-text-color;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-background-dark;
+    -fx-text-fill: -fx-text-color;
+}
+
+/* ScrollPane et ListViews */
+.scroll-pane, .list-view {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #444;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #444;
+}
+
+/* Autres éléments d'interface */
+.slider .track {
+    -fx-background-color: #444;
+}
+
+.slider .thumb {
+    -fx-background-color: -fx-primary-color;
+}
+
+/* Zone de statut */
+.status-bar {
+    -fx-background-color: -fx-background-dark;
+    -fx-border-color: #444;
+}

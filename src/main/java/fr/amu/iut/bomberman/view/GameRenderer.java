@@ -96,9 +96,10 @@ public class GameRenderer {
         loadImageSafe("powerup_bomb", "/images/powerups/bomb_up.png");
         loadImageSafe("powerup_fire", "/images/powerups/fire_up.png");
         loadImageSafe("powerup_speed", "/images/powerups/speed_up.png");
-        loadImageSafe("powerup_life", "/images/powerups/extra_life.png");
-        loadImageSafe("powerup_life", "/images/powerups/extra_life.png");
-        loadImageSafe("powerup_life", "/images/powerups/extra_life.png");
+        loadImageSafe("powerup_life", "/images/powerups/life.png");
+        loadImageSafe("powerup_kick", "/images/powerups/kick.png");
+        loadImageSafe("powerup_remote", "/images/powerups/remote.png");
+
 
         System.out.println("Images chargées. Utilisation de couleurs de remplacement pour les sprites manquants.");
     }

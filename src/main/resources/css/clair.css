@@ -1,0 +1,110 @@
+/*
+ * Feuille de style du thème clair - Super Bomberman Clone
+ * Style lumineux avec couleurs vives
+ */
+
+/* Variables de couleurs */
+.root {
+    -fx-primary-color: #FF6B00;
+    -fx-secondary-color: #FFD700;
+    -fx-danger-color: #DC143C;
+    -fx-success-color: #32CD32;
+    -fx-background-dark: #f0f0f0;
+    -fx-background-light: #ffffff;
+    -fx-text-color: #303030;
+    -fx-text-secondary: #606060;
+}
+
+/* Style global */
+* {
+    -fx-font-family: "Arial Black", "Arial", sans-serif;
+}
+
+/* Conteneurs principaux */
+.menu-container {
+    -fx-background-color: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+    -fx-background-image: url("/images/backgrounds/menu_bg.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover;
+    -fx-pref-width: 1024px;
+    -fx-pref-height: 768px;
+}
+
+.game-container {
+    -fx-background-color: -fx-background-light;
+}
+
+.selection-container, .settings-container, .profile-manager-container {
+    -fx-background-color: -fx-background-light;
+}
+
+/* Labels */
+.title-label {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #303030;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 8, 0, 1, 1);
+}
+
+.subtitle-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-color;
+}
+
+/* Boutons */
+.button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: derive(-fx-primary-color, 20%);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 1);
+}
+
+/* TableView */
+.table-view {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #cccccc;
+}
+
+.table-view .column-header {
+    -fx-background-color: #eeeeee;
+    -fx-text-fill: -fx-text-color;
+}
+
+/* ScrollPane et ListViews */
+.scroll-pane, .list-view {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #cccccc;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #cccccc;
+}
+
+/* Autres éléments d'interface */
+.slider .track {
+    -fx-background-color: #dddddd;
+}
+
+.slider .thumb {
+    -fx-background-color: -fx-primary-color;
+}
+
+/* Zone de statut */
+.status-bar {
+    -fx-background-color: -fx-background-light;
+    -fx-border-color: #cccccc;
+}
