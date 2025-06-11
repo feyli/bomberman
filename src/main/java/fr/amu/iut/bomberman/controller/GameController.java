@@ -386,13 +386,13 @@ public class GameController implements GameModel.GameModelListener {
             Player p2 = gameModel.getPlayer2();
 
             if (p1 != null && player1LivesLabel != null && player1ScoreLabel != null) {
-                player1LivesLabel.setText("Vies: " + p1.getLives());
-                player1ScoreLabel.setText("Score: " + gameModel.getPlayer1Score());
+                player1LivesLabel.setText("Vies : " + p1.getLives());
+                player1ScoreLabel.setText("Score : " + gameModel.getPlayer1Score());
             }
 
             if (p2 != null && player2LivesLabel != null && player2ScoreLabel != null) {
-                player2LivesLabel.setText("Vies: " + p2.getLives());
-                player2ScoreLabel.setText("Score: " + gameModel.getPlayer2Score());
+                player2LivesLabel.setText("Vies : " + p2.getLives());
+                player2ScoreLabel.setText("Score : " + gameModel.getPlayer2Score());
             }
 
             // Timer
