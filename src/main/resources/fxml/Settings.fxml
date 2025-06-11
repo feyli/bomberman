@@ -21,7 +21,7 @@
     <TabPane fx:id="settingsTabPane" prefWidth="600" prefHeight="400">
 
         <!-- Onglet Audio -->
-        <Tab text="Audio" closable="false" >
+        <Tab text="Audio" closable="false">
             <VBox spacing="20" alignment="CENTER">
                 <padding>
                     <Insets/>
@@ -29,7 +29,7 @@
 
                 <GridPane hgap="20" vgap="15" alignment="CENTER">
                     <!-- Volume des effets -->
-                    <Label text="Volume des effets:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <Label text="Volume des effets:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                     <Slider fx:id="soundVolumeSlider"
                             GridPane.columnIndex="1"
                             GridPane.rowIndex="0"
@@ -109,10 +109,6 @@
 
                 <CheckBox fx:id="fullscreenCheckBox"
                           text="Mode plein écran"/>
-
-                <CheckBox fx:id="vsyncCheckBox"
-                          text="Synchronisation verticale"
-                          selected="true"/>
             </VBox>
         </Tab>
 

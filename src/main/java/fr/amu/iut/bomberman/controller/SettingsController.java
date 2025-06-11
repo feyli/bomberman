@@ -6,7 +6,6 @@ import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -48,8 +47,6 @@ public class SettingsController {
     private HBox themePreviewBox;
     @FXML
     private CheckBox fullscreenCheckBox;
-    @FXML
-    private CheckBox vsyncCheckBox;
 
     // Onglet Contrôles
     @FXML
@@ -119,9 +116,7 @@ public class SettingsController {
         themeComboBox.setValue(currentTheme);
 
         boolean fullscreen = preferences.getBoolean("fullscreen", false);
-        boolean vsync = preferences.getBoolean("vsync", true);
         fullscreenCheckBox.setSelected(fullscreen);
-        vsyncCheckBox.setSelected(vsync);
 
         // Contrôles
         loadKeyBindings();
@@ -348,9 +343,7 @@ public class SettingsController {
         }
 
         boolean fullscreen = fullscreenCheckBox.isSelected();
-        boolean vsync = vsyncCheckBox.isSelected();
         preferences.putBoolean("fullscreen", fullscreen);
-        preferences.putBoolean("vsync", vsync);
 
         // Appliquer le plein écran
         Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
@@ -375,7 +368,7 @@ public class SettingsController {
 
             Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
             // Utiliser SceneManager pour préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            SceneManager.getInstance().changeScene(stage, root, Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
 
         } catch (IOException e) {
             showError("Impossible de retourner au menu: " + e.getMessage());
