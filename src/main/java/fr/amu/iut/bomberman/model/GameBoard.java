@@ -19,7 +19,6 @@ public class GameBoard {
 
     public static final int GRID_WIDTH = 15;
     public static final int GRID_HEIGHT = 13;
-    public static final int TILE_SIZE = 48;
 
     // Types de tuiles
     public enum TileType {
@@ -31,11 +30,11 @@ public class GameBoard {
         POWER_UP
     }
 
-    private TileType[][] grid;
-    private List<Bomb> bombs;
-    private List<PowerUp> powerUps;
-    private List<Explosion> explosions;
-    private Random random;
+    private final TileType[][] grid;
+    private final List<Bomb> bombs;
+    private final List<PowerUp> powerUps;
+    private final List<Explosion> explosions;
+    private final Random random;
 
     // Observable pour les changements
     private final ObjectProperty<TileType[][]> gridProperty;
@@ -154,11 +153,7 @@ public class GameBoard {
         }
 
         // Zone joueur 2 (coin bas-droit) - 3x3 autour de (13,11)
-        if (x >= 11 && x <= 13 && y >= 9 && y <= 11) {
-            return true;
-        }
-
-        return false;
+        return x >= 11 && x <= 13 && y >= 9 && y <= 11;
     }
 
     /**
@@ -166,18 +161,18 @@ public class GameBoard {
      */
     private void clearStartingAreas() {
         // Zone Joueur 1 - autour de (1,1)
-        clearArea(1, 1, 2);
+        clearArea(1, 1);
 
         // Zone Joueur 2 - autour de (13,11)
-        clearArea(13, 11, 2);
+        clearArea(13, 11);
     }
 
     /**
      * Nettoie une zone autour d'une position
      */
-    private void clearArea(int centerX, int centerY, int radius) {
-        for (int x = Math.max(1, centerX - radius); x <= Math.min(GRID_WIDTH - 2, centerX + radius); x++) {
-            for (int y = Math.max(1, centerY - radius); y <= Math.min(GRID_HEIGHT - 2, centerY + radius); y++) {
+    private void clearArea(int centerX, int centerY) {
+        for (int x = Math.max(1, centerX - 2); x <= Math.min(GRID_WIDTH - 2, centerX + 2); x++) {
+            for (int y = Math.max(1, centerY - 2); y <= Math.min(GRID_HEIGHT - 2, centerY + 2); y++) {
                 // Ne pas toucher aux murs indestructibles du pattern damier
                 if (!(x % 2 == 0 && y % 2 == 0)) {
                     grid[x][y] = TileType.EMPTY;
@@ -192,13 +187,6 @@ public class GameBoard {
     public void addBomb(Bomb bomb) {
         bombs.add(bomb);
         System.out.println("Bombe ajoutée à (" + bomb.getX() + ", " + bomb.getY() + ")");
-    }
-
-    /**
-     * Supprime une bombe du plateau
-     */
-    public void removeBomb(Bomb bomb) {
-        bombs.remove(bomb);
     }
 
     /**
@@ -335,32 +323,6 @@ public class GameBoard {
     }
 
     /**
-     * Ajoute un power-up spécifique
-     */
-    public void addPowerUp(PowerUp powerUp) {
-        powerUps.add(powerUp);
-    }
-
-    /**
-     * Supprime un power-up
-     */
-    public void removePowerUp(PowerUp powerUp) {
-        powerUps.remove(powerUp);
-    }
-
-    /**
-     * Vérifie s'il y a un power-up à une position donnée
-     */
-    public PowerUp getPowerUpAt(int x, int y) {
-        for (PowerUp powerUp : powerUps) {
-            if (powerUp.getX() == x && powerUp.getY() == y) {
-                return powerUp;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Met à jour le plateau (explosions, bombes, etc.)
      *
      * @param deltaTime Temps écoulé
@@ -419,18 +381,6 @@ public class GameBoard {
         if (!isValidPosition(x, y)) return false;
         TileType tile = grid[x][y];
         return tile == TileType.EMPTY || tile == TileType.POWER_UP;
-    }
-
-    /**
-     * Vérifie si une position contient une bombe
-     */
-    public boolean hasBomb(int x, int y) {
-        for (Bomb bomb : bombs) {
-            if (bomb.getX() == x && bomb.getY() == y) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -498,15 +448,6 @@ public class GameBoard {
             grid[x][y] = type;
             updateGridProperty();
         }
-    }
-
-    // Getters
-    public TileType[][] getGrid() {
-        return grid;
-    }
-
-    public ObjectProperty<TileType[][]> gridProperty() {
-        return gridProperty;
     }
 
     public List<Bomb> getBombs() {

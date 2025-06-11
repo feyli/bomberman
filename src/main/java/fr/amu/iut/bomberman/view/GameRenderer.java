@@ -12,6 +12,7 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Classe responsable du rendu graphique du jeu
@@ -26,8 +27,8 @@ public class GameRenderer {
     private final GraphicsContext gc;
 
     // Cache des images
-    private Map<String, Image> imageCache;
-    private ThemeManager themeManager;
+    private final Map<String, Image> imageCache;
+    private final ThemeManager themeManager;
 
     // Dimensions de rendu
     private double tileSize;
@@ -40,8 +41,6 @@ public class GameRenderer {
     private static final Color BREAKABLE_COLOR = Color.rgb(139, 69, 19);
     private static final Color PLAYER1_COLOR = Color.BLUE;
     private static final Color PLAYER2_COLOR = Color.RED;
-    private static final Color BOMB_COLOR = Color.rgb(255, 140, 0);
-    private static final Color EXPLOSION_COLOR = Color.YELLOW;
     private static final Color POWERUP_COLOR = Color.LIMEGREEN;
 
     // Compteur pour l'animation
@@ -113,7 +112,7 @@ public class GameRenderer {
     private void loadImageSafe(String key, String path) {
         try {
             if (getClass().getResource(path) != null) {
-                Image image = new Image(getClass().getResourceAsStream(path));
+                Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
                 imageCache.put(key, image);
                 System.out.println("Image chargée: " + key);
             } else {
@@ -160,10 +159,7 @@ public class GameRenderer {
         // Dessiner l'interface de jeu
         renderGameUI(gameModel);
 
-        // Debug: afficher la grille (optionnel)
-        if (false) { // Mettre à true pour debug
-            renderDebugGrid();
-        }
+        // renderDebugGrid(); // uncomment to debug
     }
 
     /**
@@ -235,7 +231,6 @@ public class GameRenderer {
 
             // Animation pulse
             double scale = 1.0 + Math.sin(animationTimer * 3) * 0.1;
-            double sizeOffset = (1 - scale) * tileSize / 2;
 
             String imageKey = getPowerUpImageKey(powerUp.getType());
 
@@ -291,7 +286,7 @@ public class GameRenderer {
 
             // Couleur qui varie selon l'intensité
             double intensity = explosion.getIntensity();
-            Color explosionColor = Color.color(1.0, 1.0 * intensity, 0.0, 0.8 * intensity);
+            Color explosionColor = Color.color(1.0, intensity, 0.0, 0.8 * intensity);
 
             String imageKey = getExplosionImageKey(explosion.getType());
 
@@ -464,40 +459,5 @@ public class GameRenderer {
         };
     }
 
-    /**
-     * Dessine la grille de debug
-     */
-    private void renderDebugGrid() {
-        gc.setStroke(Color.WHITE);
-        gc.setLineWidth(0.5);
-        gc.setGlobalAlpha(0.3);
-
-        // Lignes verticales
-        for (int x = 0; x <= GameBoard.GRID_WIDTH; x++) {
-            double drawX = offsetX + x * tileSize;
-            gc.strokeLine(drawX, offsetY, drawX, offsetY + GameBoard.GRID_HEIGHT * tileSize);
-        }
-
-        // Lignes horizontales
-        for (int y = 0; y <= GameBoard.GRID_HEIGHT; y++) {
-            double drawY = offsetY + y * tileSize;
-            gc.strokeLine(offsetX, drawY, offsetX + GameBoard.GRID_WIDTH * tileSize, drawY);
-        }
-
-        // Numéros de grille
-        gc.setFill(Color.WHITE);
-        gc.setFont(new Font("Arial", 10));
-        gc.setTextAlign(TextAlignment.CENTER);
-
-        for (int x = 0; x < GameBoard.GRID_WIDTH; x++) {
-            for (int y = 0; y < GameBoard.GRID_HEIGHT; y++) {
-                double drawX = offsetX + (x + 0.5) * tileSize;
-                double drawY = offsetY + (y + 0.5) * tileSize;
-                gc.fillText(x + "," + y, drawX, drawY);
-            }
-        }
-
-        gc.setGlobalAlpha(1.0);
-    }
 }
 

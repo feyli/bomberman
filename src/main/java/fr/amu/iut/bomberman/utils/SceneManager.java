@@ -14,13 +14,11 @@ import javafx.stage.Stage;
 public class SceneManager {
 
     private static SceneManager instance;
-    private final SettingsManager settingsManager;
 
     /**
      * Constructeur privé (Singleton)
      */
     private SceneManager() {
-        settingsManager = SettingsManager.getInstance();
     }
 
     /**
@@ -39,8 +37,8 @@ public class SceneManager {
      * Change la scène en préservant le mode plein écran et autres paramètres
      *
      * @param stage Stage actuel
-     * @param root Noeud racine de la nouvelle scène
-     * @param css Chemin vers la feuille de style CSS (peut être null)
+     * @param root  Noeud racine de la nouvelle scène
+     * @param css   Chemin vers la feuille de style CSS (peut être null)
      */
     public void changeScene(Stage stage, Parent root, String css) {
         // Récupérer l'état actuel du plein écran avant de changer de scène

@@ -19,7 +19,7 @@ public class Bomb {
     private boolean forceExplode;
 
     // Joueurs qui peuvent traverser cette bombe
-    private Set<Integer> canTraverse;
+    private final Set<Integer> canTraverse;
 
     public static final double EXPLOSION_TIME = 3.0; // 3 secondes
 
@@ -107,7 +107,4 @@ public class Bomb {
         return ownerId;
     }
 
-    public double getTimeRemaining() {
-        return timeRemaining;
-    }
 }

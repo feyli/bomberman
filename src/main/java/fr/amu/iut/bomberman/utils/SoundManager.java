@@ -5,6 +5,7 @@ import javafx.scene.media.MediaPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Gestionnaire des sons et musiques du jeu
@@ -16,7 +17,7 @@ import java.util.Map;
 public class SoundManager {
 
     private static SoundManager instance;
-    private Map<String, MediaPlayer> soundCache;
+    private final Map<String, MediaPlayer> soundCache;
     private MediaPlayer currentMusic;
     private double soundVolume = 0.7;
     private double musicVolume = 0.5;
@@ -82,7 +83,7 @@ public class SoundManager {
         try {
             // Vérifier que le fichier existe
             if (getClass().getResource(path) != null) {
-                Media media = new Media(getClass().getResource(path).toExternalForm());
+                Media media = new Media(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
                 MediaPlayer player = new MediaPlayer(media);
                 soundCache.put(name, player);
                 System.out.println("Son chargé: " + name + " -> " + path);
@@ -93,16 +94,6 @@ public class SoundManager {
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement du son " + name + ": " + e.getMessage());
         }
-    }
-
-    /**
-     * Charge un son dans le cache (méthode originale conservée pour compatibilité)
-     *
-     * @param name Nom du son
-     * @param path Chemin du fichier
-     */
-    private void loadSound(String name, String path) {
-        loadSoundSafe(name, path);
     }
 
     /**
@@ -166,32 +157,6 @@ public class SoundManager {
             }
         } catch (Exception e) {
             System.err.println("Erreur lors de l'arrêt de la musique: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Met la musique en pause
-     */
-    public void pauseMusic() {
-        try {
-            if (currentMusic != null) {
-                currentMusic.pause();
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la mise en pause de la musique: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Reprend la musique
-     */
-    public void resumeMusic() {
-        try {
-            if (currentMusic != null && musicEnabled) {
-                currentMusic.play();
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la reprise de la musique: " + e.getMessage());
         }
     }
 
@@ -274,15 +239,4 @@ public class SoundManager {
 
     // Getters
 
-    public double getSoundVolume() {
-        return soundVolume;
-    }
-
-    public double getMusicVolume() {
-        return musicVolume;
-    }
-
-    public boolean isSoundEnabled() {
-        return soundEnabled;
-    }
 }

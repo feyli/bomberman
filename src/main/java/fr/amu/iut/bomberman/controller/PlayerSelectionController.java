@@ -3,7 +3,6 @@ package fr.amu.iut.bomberman.controller;
 import fr.amu.iut.bomberman.model.PlayerProfile;
 import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
-import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.application.Platform;
@@ -22,7 +21,6 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.prefs.Preferences;
 
 /**
  * Contrôleur pour la sélection des joueurs
@@ -326,13 +324,9 @@ public class PlayerSelectionController {
         Button createBtn = (Button) dialog.getDialogPane().lookupButton(createButton);
         createBtn.setDisable(true);
 
-        firstNameField.textProperty().addListener((obs, oldText, newText) -> {
-            createBtn.setDisable(newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty());
-        });
+        firstNameField.textProperty().addListener((obs, oldText, newText) -> createBtn.setDisable(newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty()));
 
-        lastNameField.textProperty().addListener((obs, oldText, newText) -> {
-            createBtn.setDisable(newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty());
-        });
+        lastNameField.textProperty().addListener((obs, oldText, newText) -> createBtn.setDisable(newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty()));
 
         // Convertisseur de résultat
         dialog.setResultConverter(dialogButton -> {

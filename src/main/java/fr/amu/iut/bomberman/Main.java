@@ -9,6 +9,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
@@ -47,7 +49,7 @@ public class Main extends Application {
 
         // Configuration de la scène
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-        scene.getStylesheets().add(getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
         // Configuration du stage
         primaryStage.setTitle(APP_TITLE);
@@ -63,7 +65,7 @@ public class Main extends Application {
 
         // Icône de l'application
         try {
-            primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
+            primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/icon.png"))));
         } catch (Exception e) {
             System.err.println("Impossible de charger l'icône : " + e.getMessage());
         }

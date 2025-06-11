@@ -17,8 +17,7 @@ public class ThemeManager {
 
     private static ThemeManager instance;
     private String currentTheme;
-    private Properties themeProperties;
-    private final String THEMES_PATH = "/themes/";
+    private final Properties themeProperties;
 
     /**
      * Constructeur privé (Singleton)
@@ -44,13 +43,13 @@ public class ThemeManager {
      * Charge un thème
      *
      * @param themeName Nom du thème à charger
-     * @return true si le chargement a réussi
      */
-    public boolean loadTheme(String themeName) {
+    public void loadTheme(String themeName) {
         try {
             // Définir directement currentTheme pour s'assurer qu'il est mis à jour
             currentTheme = themeName;
 
+            String THEMES_PATH = "/themes/";
             String themePath = THEMES_PATH + themeName + "/theme.properties";
             InputStream is = getClass().getResourceAsStream(themePath);
 
@@ -59,51 +58,13 @@ public class ThemeManager {
                 themeProperties.load(is);
                 is.close();
                 System.out.println("Thème chargé: " + themeName + " - CSS Path: " + getThemeCssPath());
-                return true;
             } else {
                 // Si properties non trouvé, on garde quand même le thème mis à jour
                 System.out.println("Thème sans properties chargé: " + themeName + " - CSS Path: " + getThemeCssPath());
-                return true;
             }
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement du thème: " + e.getMessage());
         }
-        return false;
-    }
-
-    /**
-     * Obtient le chemin d'une image du thème actuel
-     *
-     * @param imageName Nom de l'image
-     * @return Chemin complet de l'image
-     */
-    public String getImagePath(String imageName) {
-        String customPath = themeProperties.getProperty(imageName);
-        if (customPath != null) {
-            return THEMES_PATH + currentTheme + "/" + customPath;
-        }
-        // Chemin par défaut
-        return "/images/" + imageName;
-    }
-
-    /**
-     * Obtient une couleur du thème
-     *
-     * @param colorKey Clé de la couleur
-     * @return Code couleur hexadécimal
-     */
-    public String getColor(String colorKey) {
-        return themeProperties.getProperty("color." + colorKey, "#000000");
-    }
-
-    /**
-     * Obtient une police du thème
-     *
-     * @param fontKey Clé de la police
-     * @return Nom de la police
-     */
-    public String getFont(String fontKey) {
-        return themeProperties.getProperty("font." + fontKey, "Arial");
     }
 
     /**

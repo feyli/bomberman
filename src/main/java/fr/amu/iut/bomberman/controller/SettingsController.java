@@ -357,7 +357,7 @@ public class SettingsController {
             javafx.scene.Scene currentScene = soundVolumeSlider.getScene();
             if (currentScene != null) {
                 currentScene.getStylesheets().clear();
-                currentScene.getStylesheets().add(getClass().getResource(themeManager.getThemeCssPath()).toExternalForm());
+                currentScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(themeManager.getThemeCssPath())).toExternalForm());
                 currentScene.getRoot().applyCss();
             }
         }
@@ -389,7 +389,7 @@ public class SettingsController {
             Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
             // Utiliser SceneManager pour préserver le mode plein écran et utiliser le thème actuel
             SceneManager.getInstance().changeScene(stage, root,
-                Objects.requireNonNull(getClass().getResource(themeManager.getThemeCssPath())).toExternalForm());
+                    Objects.requireNonNull(getClass().getResource(themeManager.getThemeCssPath())).toExternalForm());
 
         } catch (IOException e) {
             showError("Impossible de retourner au menu: " + e.getMessage());

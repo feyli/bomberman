@@ -130,7 +130,7 @@ public class SettingsManager {
     /**
      * Définit un paramètre booléen
      *
-     * @param key Clé du paramètre
+     * @param key   Clé du paramètre
      * @param value Valeur booléenne
      */
     public void setBooleanSetting(String key, boolean value) {
@@ -154,18 +154,6 @@ public class SettingsManager {
     }
 
     /**
-     * Définit un paramètre entier
-     *
-     * @param key Clé du paramètre
-     * @param value Valeur entière
-     */
-    public void setIntSetting(String key, int value) {
-        properties.setProperty(key, String.valueOf(value));
-        settingsCache.put(key, value);
-        saveSettings();
-    }
-
-    /**
      * Obtient un paramètre décimal
      *
      * @param key Clé du paramètre
@@ -182,7 +170,7 @@ public class SettingsManager {
     /**
      * Définit un paramètre décimal
      *
-     * @param key Clé du paramètre
+     * @param key   Clé du paramètre
      * @param value Valeur décimale
      */
     public void setDoubleSetting(String key, double value) {
@@ -191,44 +179,4 @@ public class SettingsManager {
         saveSettings();
     }
 
-    /**
-     * Obtient un paramètre chaîne de caractères
-     *
-     * @param key Clé du paramètre
-     * @return Valeur chaîne du paramètre
-     */
-    public String getStringSetting(String key) {
-        return properties.getProperty(key, "");
-    }
-
-    /**
-     * Définit un paramètre chaîne de caractères
-     *
-     * @param key Clé du paramètre
-     * @param value Valeur chaîne
-     */
-    public void setStringSetting(String key, String value) {
-        properties.setProperty(key, value);
-        settingsCache.put(key, value);
-        saveSettings();
-    }
-
-    /**
-     * Obtient directement un paramètre depuis le cache
-     *
-     * @param key Clé du paramètre
-     * @return Valeur du paramètre (peut être null)
-     */
-    public Object getCachedSetting(String key) {
-        return settingsCache.get(key);
-    }
-
-    /**
-     * Réinitialise tous les paramètres aux valeurs par défaut
-     */
-    public void resetToDefaults() {
-        setDefaultSettings();
-        updateCache();
-        saveSettings();
-    }
 }

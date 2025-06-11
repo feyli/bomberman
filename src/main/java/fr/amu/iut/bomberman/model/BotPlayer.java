@@ -3,13 +3,13 @@ package fr.amu.iut.bomberman.model;
 import fr.amu.iut.bomberman.utils.Direction;
 import javafx.application.Platform;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.ArrayList;
 
 /**
  * Intelligence artificielle équilibrée pour un joueur bot Bomberman
- *
+ * <p>
  * FONCTIONNALITÉS PRINCIPALES :
  * - Détection intelligente des zones dangereuses (toutes les bombes + puissance variable)
  * - Placement stratégique de bombes avec vérification d'évasion
@@ -27,8 +27,6 @@ public class BotPlayer {
     private static final int BOMB_AVOIDANCE_DURATION = 3500; // Durée d'évitement des bombes du bot (ms)
     private static final int MAX_RECENT_ACTIONS = 5;      // Nombre d'actions mémorisées pour éviter les boucles
 
-    // ================ COMPOSANTS PRINCIPAUX ================
-    private final PlayerProfile botProfile;               // Profil du bot
     private final GameBoard gameBoard;                    // Plateau de jeu
     private final Player botControlledPlayer;             // Joueur contrôlé par le bot
     private final Random random = new Random();           // Générateur de nombres aléatoires
@@ -39,8 +37,8 @@ public class BotPlayer {
     private long lastBombTime = 0;                        // Timestamp de la dernière bombe placée
 
     // ================ MÉMOIRE DU BOT ================
-    private List<BombPosition> botPlacedBombs = new ArrayList<>();  // Bombes placées par le bot
-    private List<String> recentActions = new ArrayList<>();         // Actions récentes pour éviter les boucles
+    private final List<BombPosition> botPlacedBombs = new ArrayList<>();  // Bombes placées par le bot
+    private final List<String> recentActions = new ArrayList<>();         // Actions récentes pour éviter les boucles
 
     /**
      * Classe interne : Position d'une bombe avec sa puissance d'explosion
@@ -58,23 +56,25 @@ public class BotPlayer {
             this.firepower = firepower;              // Puissance d'explosion
         }
 
-        /** Vérifie si la bombe a expiré et peut être oubliée */
+        /**
+         * Vérifie si la bombe a expiré et peut être oubliée
+         */
         boolean isExpired(long currentTime) {
             // Calcule si le temps d'évitement est dépassé
             return currentTime - placementTime > BOMB_AVOIDANCE_DURATION;
         }
 
-        /** Vérifie si une position est dans la zone d'explosion de cette bombe */
+        /**
+         * Vérifie si une position est dans la zone d'explosion de cette bombe
+         */
         boolean isInExplosionZone(int checkX, int checkY) {
             // Explosion horizontale (même ligne Y)
             if (checkY == y && Math.abs(checkX - x) <= firepower) {
                 return true;                         // Position dans la zone horizontale
             }
             // Explosion verticale (même colonne X)
-            if (checkX == x && Math.abs(checkY - y) <= firepower) {
-                return true;                         // Position dans la zone verticale
-            }
-            return false;                            // Position hors de portée
+            return checkX == x && Math.abs(checkY - y) <= firepower;                         // Position dans la zone verticale
+// Position hors de portée
         }
     }
 
@@ -85,7 +85,8 @@ public class BotPlayer {
      */
     public BotPlayer(Player player, GameBoard gameBoard) {
         // Initialiser le profil du bot
-        this.botProfile = new PlayerProfile("Bot", "Bomberman", "BOT");
+        // ================ COMPOSANTS PRINCIPAUX ================
+        // Profil du bot
         this.botControlledPlayer = player;           // Sauvegarder le joueur à contrôler
         this.gameBoard = gameBoard;                  // Sauvegarder la référence du plateau
         System.out.println("Bot créé avec stratégie équilibrée intelligente");
@@ -148,7 +149,7 @@ public class BotPlayer {
 
     /**
      * CŒUR DE L'IA : Prend une décision selon les priorités
-     *
+     * <p>
      * PRIORITÉS (dans l'ordre) :
      * 1. SURVIE : Fuir si en danger
      * 2. ATTAQUE : Placer bombe si stratégique
@@ -775,10 +776,4 @@ public class BotPlayer {
         }
     }
 
-    /**
-     * ACCESSEUR : Retourne le profil du bot
-     */
-    public PlayerProfile getProfile() {
-        return botProfile;                       // Retourner le profil du bot
-    }
 }

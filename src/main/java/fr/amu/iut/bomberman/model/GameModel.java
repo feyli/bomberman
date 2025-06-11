@@ -64,10 +64,10 @@ public class GameModel {
     /**
      * Initialise une nouvelle partie avec paramètres personnalisés
      *
-     * @param player1Name  Nom du joueur 1
-     * @param player2Name  Nom du joueur 2
-     * @param roundsToWin  Nombre de rounds à gagner pour remporter la partie
-     * @param timeLimit    Temps limite par round en secondes
+     * @param player1Name Nom du joueur 1
+     * @param player2Name Nom du joueur 2
+     * @param roundsToWin Nombre de rounds à gagner pour remporter la partie
+     * @param timeLimit   Temps limite par round en secondes
      */
     public void startNewGame(String player1Name, String player2Name, int roundsToWin, int timeLimit) {
         // Enregistrer les paramètres de jeu
@@ -203,9 +203,10 @@ public class GameModel {
 
     /**
      * Vérifie la collision d'un joueur avec des explosions
-     * @param player Le joueur à vérifier
-     * @param resetX Position X de réinitialisation
-     * @param resetY Position Y de réinitialisation
+     *
+     * @param player     Le joueur à vérifier
+     * @param resetX     Position X de réinitialisation
+     * @param resetY     Position Y de réinitialisation
      * @param hitboxSize Taille de la hitbox (en pourcentage de la taille d'une case)
      */
     private void checkPlayerExplosionCollision(Player player, double resetX, double resetY, double hitboxSize) {
@@ -262,7 +263,8 @@ public class GameModel {
 
     /**
      * Vérifie si un joueur collecte un power-up
-     * @param player Le joueur à vérifier
+     *
+     * @param player     Le joueur à vérifier
      * @param hitboxSize La taille de la hitbox (en pourcentage de case)
      */
     private void checkPlayerPowerUpCollection(Player player, double hitboxSize) {
@@ -577,8 +579,8 @@ public class GameModel {
      * Vérifie s'il existe un chemin d'échappement pour un joueur si une bombe est placée à la position spécifiée
      *
      * @param player Le joueur qui place la bombe
-     * @param bombX Position X de la bombe
-     * @param bombY Position Y de la bombe
+     * @param bombX  Position X de la bombe
+     * @param bombY  Position Y de la bombe
      * @return true si le joueur peut s'échapper après avoir placé une bombe
      */
     private boolean hasEscapeRoute(Player player, int bombX, int bombY) {
@@ -633,7 +635,6 @@ public class GameModel {
         listeners.add(listener);
         System.out.println("Listener ajouté - Total listeners: " + listeners.size());
     }
-
 
 
     /**

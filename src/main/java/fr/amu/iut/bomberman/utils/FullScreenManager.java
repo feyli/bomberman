@@ -1,6 +1,7 @@
 package fr.amu.iut.bomberman.utils;
 
 import javafx.stage.Stage;
+
 import java.util.prefs.Preferences;
 
 /**

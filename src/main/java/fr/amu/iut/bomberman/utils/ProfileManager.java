@@ -16,7 +16,7 @@ import java.util.List;
 public class ProfileManager {
 
     private static ProfileManager instance;
-    private List<PlayerProfile> profiles;
+    private final List<PlayerProfile> profiles;
     private final String PROFILES_FILE = "profiles.dat";
     private final String PROFILES_DIR = System.getProperty("user.home") + "/.bomberman/";
 
@@ -58,17 +58,15 @@ public class ProfileManager {
 
     /**
      * Charge les profils depuis le fichier
-     *
-     * @return true si le chargement a réussi
      */
     @SuppressWarnings("unchecked")
-    public boolean loadProfiles() {
+    public void loadProfiles() {
         File file = new File(PROFILES_DIR + PROFILES_FILE);
 
         if (!file.exists()) {
             System.out.println("Aucun fichier de profils existant, création des profils par défaut");
             createDefaultProfiles();
-            return true;
+            return;
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -76,12 +74,10 @@ public class ProfileManager {
             profiles.clear();
             profiles.addAll(loadedProfiles);
             System.out.println("Profils chargés avec succès: " + profiles.size() + " profil(s)");
-            return true;
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des profils: " + e.getMessage());
             e.printStackTrace();
             createDefaultProfiles();
-            return false;
         }
     }
 
@@ -143,15 +139,13 @@ public class ProfileManager {
      * Supprime un profil
      *
      * @param profile Profil à supprimer
-     * @return true si la suppression a réussi
      */
-    public boolean removeProfile(PlayerProfile profile) {
+    public void removeProfile(PlayerProfile profile) {
         boolean removed = profiles.remove(profile);
         if (removed) {
             saveProfiles();
             System.out.println("Profil supprimé: " + profile.getDisplayName());
         }
-        return removed;
     }
 
     /**
@@ -163,36 +157,6 @@ public class ProfileManager {
         // Le profil est déjà modifié par référence
         saveProfiles();
         System.out.println("Profil mis à jour: " + profile.getDisplayName());
-    }
-
-    /**
-     * Met à jour le score d'un joueur
-     *
-     * @param playerId Identifiant du joueur
-     * @param score Score à ajouter
-     */
-    public void updatePlayerScore(String playerId, int score) {
-        for (PlayerProfile profile : profiles) {
-            if (profile.getId().equals(playerId)) {
-                profile.updateStats(true, score); // Met à jour les stats avec victoire et score
-                saveProfiles(); // Sauvegarde les modifications
-                return;
-            }
-        }
-        System.err.println("Profil introuvable pour l'ID: " + playerId);
-    }
-
-    /**
-     * Obtient un profil par son ID
-     *
-     * @param id ID du profil
-     * @return Profil trouvé ou null
-     */
-    public PlayerProfile getProfileById(String id) {
-        return profiles.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElse(null);
     }
 
     /**
@@ -215,38 +179,6 @@ public class ProfileManager {
      */
     public List<PlayerProfile> getAllProfiles() {
         return new ArrayList<>(profiles);
-    }
-
-    /**
-     * Recherche des profils par nom
-     *
-     * @param searchTerm Terme de recherche
-     * @return Liste des profils correspondants
-     */
-    public List<PlayerProfile> searchProfiles(String searchTerm) {
-        if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return getAllProfiles();
-        }
-
-        String term = searchTerm.toLowerCase();
-        return profiles.stream()
-                .filter(p -> p.getFirstName().toLowerCase().contains(term) ||
-                        p.getLastName().toLowerCase().contains(term) ||
-                        p.getNickname().toLowerCase().contains(term))
-                .toList();
-    }
-
-    /**
-     * Obtient les profils triés par nombre de victoires
-     *
-     * @param limit Nombre maximum de profils à retourner
-     * @return Liste des meilleurs profils
-     */
-    public List<PlayerProfile> getTopProfiles(int limit) {
-        return profiles.stream()
-                .sorted((p1, p2) -> Integer.compare(p2.getGamesWon(), p1.getGamesWon()))
-                .limit(limit)
-                .toList();
     }
 
     /**
@@ -289,7 +221,8 @@ public class ProfileManager {
     public boolean importStatistics(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             // Ignorer l'en-tête
-            String line = reader.readLine();
+            reader.readLine();
+            String line;
 
             // Lire les lignes de données
             while ((line = reader.readLine()) != null) {
@@ -340,7 +273,7 @@ public class ProfileManager {
                                     // Mettre à jour pour les parties gagnées
                                     for (int i = 0; i < newGamesWon; i++) {
                                         existingProfile.updateStats(true,
-                                            newGamesPlayed > 0 ? newTotalScore / newGamesPlayed : 0);
+                                                newGamesPlayed > 0 ? newTotalScore / newGamesPlayed : 0);
                                     }
 
                                     // Et pour les parties perdues
@@ -358,7 +291,7 @@ public class ProfileManager {
                                 // Mettre à jour les statistiques
                                 for (int i = 0; i < gamesWon; i++) {
                                     newProfile.updateStats(true,
-                                        gamesPlayed > 0 ? totalScore / gamesPlayed : 0);
+                                            gamesPlayed > 0 ? totalScore / gamesPlayed : 0);
                                 }
 
                                 for (int i = 0; i < gamesPlayed - gamesWon; i++) {
@@ -391,19 +324,4 @@ public class ProfileManager {
         }
     }
 
-    /**
-     * Recharge les profils depuis le fichier
-     */
-    public void reloadProfiles() {
-        loadProfiles();
-    }
-
-    /**
-     * Obtient le nombre de profils
-     *
-     * @return Nombre de profils
-     */
-    public int getProfileCount() {
-        return profiles.size();
-    }
 }
