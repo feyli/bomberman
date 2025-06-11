@@ -26,12 +26,14 @@ public class Player {
 
     // Invincibilité
     private boolean isInvincible; // Invincibilité activée de manière éphémère
+    private Thread invincibilityThread; // Pour suivre le thread d'invincibilité
 
     // Constantes
     private static final int DEFAULT_LIVES = 3;
     private static final int DEFAULT_MAX_BOMBS = 1;
     private static final int DEFAULT_FIRE_POWER = 1;
     private static final double DEFAULT_SPEED = 3.5; // Augmenté pour un meilleur gameplay
+    private static final int INVINCIBILITY_DURATION = 2000; // Réduit à 2 secondes
 
     // Score du joueur
     private int score;
@@ -64,6 +66,10 @@ public class Player {
      * Remet le joueur à sa position initiale pour un nouveau round
      */
     public void reset(double newX, double newY) {
+        reset(newX, newY, false); // Réinitialise les vies par défaut
+    }
+
+    public void reset(double newX, double newY, boolean resetLives) {
         this.x = newX;
         this.y = newY;
         this.alive = true;
@@ -71,6 +77,13 @@ public class Player {
         this.lastValidDirection = Direction.DOWN;
         this.bombsPlaced = 0;
         // Les capacités (maxBombs, firePower, speed) sont conservées entre les rounds
+        if (resetLives) this.lives = DEFAULT_LIVES; // Réinitialise les vies si le paramètre est vrai
+        this.isInvincible = false; // Désactive l'invincibilité lors de la réinitialisation
+
+        // Interrompre le thread d'invincibilité s'il existe
+        if (invincibilityThread != null && invincibilityThread.isAlive()) {
+            invincibilityThread.interrupt();
+        }
 
         System.out.println("Joueur " + playerId + " réinitialisé à (" + x + ", " + y + ")");
     }
@@ -224,16 +237,36 @@ public class Player {
         System.out.println("Joueur " + playerId + " est temporairement invincible!");
         this.isInvincible = true;
 
-        // Désactiver l'invincibilité après 3 secondes
-        new Thread(() -> {
+        // Si un thread d'invincibilité existe, l'interrompre
+        if (invincibilityThread != null && invincibilityThread.isAlive()) {
+            invincibilityThread.interrupt();
+        }
+
+        // Créer un nouveau thread pour gérer l'invincibilité
+        invincibilityThread = new Thread(() -> {
             try {
-                Thread.sleep(3000); // 3 secondes d'invincibilité
+                Thread.sleep(INVINCIBILITY_DURATION); // Durée d'invincibilité
                 this.isInvincible = false;
                 System.out.println("Joueur " + playerId + " n'est plus invincible!");
             } catch (InterruptedException e) {
-                System.out.println("Erreur lors de la désactivation de l'invincibilité du joueur " + playerId + ": " + e.getMessage());
+                // Le thread a été interrompu, donc on désactive l'invincibilité
+                this.isInvincible = false;
+                System.out.println("Invincibilité du joueur " + playerId + " interrompue.");
             }
-        }).start();
+        });
+        invincibilityThread.start();
+    }
+
+    /**
+     * Désactive l'invincibilité du joueur
+     */
+    public void disableInvincibility() {
+        // Interrompre le thread d'invincibilité s'il existe
+        if (invincibilityThread != null && invincibilityThread.isAlive()) {
+            invincibilityThread.interrupt();
+        }
+        this.isInvincible = false;
+        System.out.println("Joueur " + playerId + " n'est plus invincible (invincibilité désactivée manuellement)!");
     }
 
     /**

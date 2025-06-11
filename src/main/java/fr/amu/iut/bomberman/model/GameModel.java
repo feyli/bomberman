@@ -107,8 +107,8 @@ public class GameModel {
         gameBoard.reset();
 
         // Réinitialiser les joueurs aux bonnes positions
-        player1.reset(1.5, 1.5);
-        player2.reset(13.5, 11.5);  // CORRECTION ICI
+        player1.reset(1.5, 1.5, true);
+        player2.reset(13.5, 11.5, true);  // CORRECTION ICI
 
         System.out.println("=== NOUVEAU ROUND ===");
         System.out.println("Round " + currentRound.get() + " démarré");
@@ -185,11 +185,6 @@ public class GameModel {
 
             accumulatedTime -= 1.0; // Réduire l'accumulateur
         }
-
-        // Afficher en format minutes:secondes pour le débogage
-        int currentTime = timeRemaining.get();
-        int minutes = currentTime / 60;
-        int seconds = currentTime % 60;
     }
 
     /**

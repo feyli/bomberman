@@ -35,23 +35,21 @@ public class GameController implements GameModel.GameModelListener {
     @FXML
     private Canvas gameCanvas;
     @FXML
-    private Pane gamePane;
-    @FXML
-    private Label player1Name;
-    @FXML
-    private Label player1Lives;
-    @FXML
-    private Label player1Score;
-    @FXML
-    private Label player2Name;
-    @FXML
-    private Label player2Lives;
-    @FXML
-    private Label player2Score;
-    @FXML
     private Label timerLabel;
     @FXML
     private Label roundLabel;
+    @FXML
+    private Label player1Name;
+    @FXML
+    private Label player1Score;
+    @FXML
+    private Label player1Lives;
+    @FXML
+    private Label player2Name;
+    @FXML
+    private Label player2Score;
+    @FXML
+    private Label player2Lives;
     @FXML
     private Label messageLabel;
 
@@ -476,13 +474,13 @@ public class GameController implements GameModel.GameModelListener {
             Player p2 = gameModel.getPlayer2();
 
             if (p1 != null && player1Lives != null && player1Score != null) {
-                player1Lives.setText("Vies: " + p1.getLives());
-                player1Score.setText("Score: " + gameModel.getPlayer1Score());
+                player1Lives.setText("Vies : " + p1.getLives());
+                player1Score.setText("Score : " + gameModel.getPlayer1Score());
             }
 
             if (p2 != null && player2Lives != null && player2Score != null) {
-                player2Lives.setText("Vies: " + p2.getLives());
-                player2Score.setText("Score: " + gameModel.getPlayer2Score());
+                player2Lives.setText("Vies : " + p2.getLives());
+                player2Score.setText("Score : " + gameModel.getPlayer2Score());
             }
 
             // Timer
