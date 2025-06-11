@@ -1,5 +1,7 @@
 package fr.amu.iut.bomberman.model;
 
+import fr.amu.iut.bomberman.utils.Direction;
+
 /**
  * Représente un joueur dans le jeu Bomberman
  *
@@ -7,10 +9,6 @@ package fr.amu.iut.bomberman.model;
  * @version 1.0
  */
 public class Player {
-
-    public enum Direction {
-        UP, DOWN, LEFT, RIGHT, NONE
-    }
 
     private final int playerId;
     private String name;
@@ -93,6 +91,8 @@ public class Player {
             case LEFT -> x -= moveDistance;
             case RIGHT -> x += moveDistance;
         }
+        // Suppression de l'appel récursif qui causait le StackOverflowError
+        // move(direction, 1.0);  // Cette ligne crée une récursion infinie!
     }
 
     /**
@@ -313,5 +313,24 @@ public class Player {
 
     public void setAlive(boolean alive) {
         this.alive = alive;
+    }
+
+    /**
+     * Vérifie si le joueur peut placer une bombe
+     */
+    public boolean canPlaceBomb() {
+        return alive && bombsPlaced < maxBombs;
+    }
+
+    /**
+     * Place une bombe et met à jour le compteur de bombes placées
+     */
+    public void placeBomb() {
+        if (canPlaceBomb()) {
+            incrementBombsPlaced();
+            System.out.println("Bombe placée par le joueur " + playerId + "! Total bombes placées: " + bombsPlaced);
+        } else {
+            System.out.println("Le joueur " + playerId + " ne peut pas placer de bombe (limite atteinte ou joueur mort)!");
+        }
     }
 }

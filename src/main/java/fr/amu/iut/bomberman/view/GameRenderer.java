@@ -1,6 +1,7 @@
 package fr.amu.iut.bomberman.view;
 
 import fr.amu.iut.bomberman.model.*;
+import fr.amu.iut.bomberman.utils.Direction;
 import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -346,7 +347,7 @@ public class GameRenderer {
 
         // Animation de marche
         double walkOffset = 0;
-        if (player.getCurrentDirection() != Player.Direction.NONE) {
+        if (player.getCurrentDirection() != Direction.NONE) {
             walkOffset = Math.sin(animationTimer * 10) * 2;
         }
 

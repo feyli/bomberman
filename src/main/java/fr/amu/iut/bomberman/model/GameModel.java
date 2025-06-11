@@ -1,5 +1,6 @@
 package fr.amu.iut.bomberman.model;
 
+import fr.amu.iut.bomberman.utils.Direction;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -195,22 +196,57 @@ public class GameModel {
      * Vérifie les collisions avec les explosions
      */
     private void checkExplosionCollisions() {
+        // Définition de la hitbox : tolérance en pourcentage pour considérer qu'un joueur est sur une case
+        double hitboxSize = 0.7; // 70% de la taille d'une case pour la détection de collision
+
         // Vérifier pour le joueur 1
-        int p1X = (int) Math.round(player1.getX());
-        int p1Y = (int) Math.round(player1.getY());
-        if (gameBoard.hasExplosion(p1X, p1Y) && player1.isAlive()) {
-            player1.reset(1.5, 1.5); // Réinitialiser la position du joueur 1
-            player1.loseLife();
-            notifyPlayerHit(player1);
-        }
+        checkPlayerExplosionCollision(player1, 1.5, 1.5, hitboxSize);
 
         // Vérifier pour le joueur 2
-        int p2X = (int) Math.round(player2.getX());
-        int p2Y = (int) Math.round(player2.getY());
-        if (gameBoard.hasExplosion(p2X, p2Y) && player2.isAlive()) {
-            player2.reset(13.5, 11.5); // Réinitialiser la position du joueur 2
-            player2.loseLife();
-            notifyPlayerHit(player2);
+        checkPlayerExplosionCollision(player2, 13.5, 11.5, hitboxSize);
+    }
+
+    /**
+     * Vérifie la collision d'un joueur avec des explosions
+     * @param player Le joueur à vérifier
+     * @param resetX Position X de réinitialisation
+     * @param resetY Position Y de réinitialisation
+     * @param hitboxSize Taille de la hitbox (en pourcentage de la taille d'une case)
+     */
+    private void checkPlayerExplosionCollision(Player player, double resetX, double resetY, double hitboxSize) {
+        if (!player.isAlive()) return;
+
+        double playerX = player.getX();
+        double playerY = player.getY();
+
+        // Vérifier les cases autour du joueur avec une tolérance
+        for (int offsetX = -1; offsetX <= 1; offsetX++) {
+            for (int offsetY = -1; offsetY <= 1; offsetY++) {
+                // Calculer la position de la grille à vérifier
+                int gridX = (int) Math.floor(playerX + offsetX * hitboxSize);
+                int gridY = (int) Math.floor(playerY + offsetY * hitboxSize);
+
+                // Vérifier si cette case est dans les limites de la grille
+                if (gridX >= 0 && gridX < GameBoard.GRID_WIDTH &&
+                        gridY >= 0 && gridY < GameBoard.GRID_HEIGHT) {
+
+                    // Si une explosion est présente à cette position
+                    if (gameBoard.hasExplosion(gridX, gridY)) {
+                        // Calculer la distance entre le centre du joueur et le centre de cette case
+                        double centerX = gridX + 0.5;
+                        double centerY = gridY + 0.5;
+                        double distance = Math.sqrt(Math.pow(playerX - centerX, 2) + Math.pow(playerY - centerY, 2));
+
+                        // Si le joueur est assez proche du centre de l'explosion
+                        if (distance < hitboxSize) {
+                            player.reset(resetX, resetY); // Réinitialiser la position
+                            player.loseLife();
+                            notifyPlayerHit(player);
+                            return; // Sortir après avoir touché le joueur une fois
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -218,22 +254,57 @@ public class GameModel {
      * Vérifie la collecte de power-ups
      */
     private void checkPowerUpCollection() {
-        // Joueur 1
-        int p1X = (int) Math.round(player1.getX());
-        int p1Y = (int) Math.round(player1.getY());
-        PowerUp powerUp1 = gameBoard.collectPowerUp(p1X, p1Y);
-        if (powerUp1 != null) {
-            player1.applyPowerUp(powerUp1.getType());
-            notifyPowerUpCollected(player1, powerUp1);
-        }
+        // Définir la taille de la hitbox - cohérence avec la détection des explosions
+        double hitboxSize = 0.7;
 
-        // Joueur 2
-        int p2X = (int) Math.round(player2.getX());
-        int p2Y = (int) Math.round(player2.getY());
-        PowerUp powerUp2 = gameBoard.collectPowerUp(p2X, p2Y);
-        if (powerUp2 != null) {
-            player2.applyPowerUp(powerUp2.getType());
-            notifyPowerUpCollected(player2, powerUp2);
+        // Vérifier pour le joueur 1
+        checkPlayerPowerUpCollection(player1, hitboxSize);
+
+        // Vérifier pour le joueur 2
+        checkPlayerPowerUpCollection(player2, hitboxSize);
+    }
+
+    /**
+     * Vérifie si un joueur collecte un power-up
+     * @param player Le joueur à vérifier
+     * @param hitboxSize La taille de la hitbox (en pourcentage de case)
+     */
+    private void checkPlayerPowerUpCollection(Player player, double hitboxSize) {
+        if (!player.isAlive()) return;
+
+        double playerX = player.getX();
+        double playerY = player.getY();
+
+        // Centre de la case actuelle
+        int centerGridX = (int) Math.floor(playerX);
+        int centerGridY = (int) Math.floor(playerY);
+
+        // Vérifier les cases autour du joueur
+        for (int offsetX = -1; offsetX <= 1; offsetX++) {
+            for (int offsetY = -1; offsetY <= 1; offsetY++) {
+                int gridX = centerGridX + offsetX;
+                int gridY = centerGridY + offsetY;
+
+                // Vérifier si la case est dans les limites de la grille
+                if (gridX >= 0 && gridX < GameBoard.GRID_WIDTH &&
+                        gridY >= 0 && gridY < GameBoard.GRID_HEIGHT) {
+
+                    // Calculer la distance entre le centre du joueur et le centre de cette case
+                    double centerX = gridX + 0.5;
+                    double centerY = gridY + 0.5;
+                    double distance = Math.sqrt(Math.pow(playerX - centerX, 2) + Math.pow(playerY - centerY, 2));
+
+                    // Si le joueur est assez proche d'un power-up
+                    if (distance < hitboxSize) {
+                        PowerUp powerUp = gameBoard.collectPowerUp(gridX, gridY);
+                        if (powerUp != null) {
+                            player.applyPowerUp(powerUp.getType());
+                            notifyPowerUpCollected(player, powerUp);
+                            return; // Ne collecter qu'un power-up à la fois
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -332,7 +403,7 @@ public class GameModel {
      * @param direction Direction du mouvement
      * @param deltaTime Temps écoulé
      */
-    public void movePlayer(int playerId, Player.Direction direction, double deltaTime) {
+    public void movePlayer(int playerId, Direction direction, double deltaTime) {
         if (gameState.get() != GameState.PLAYING) return;
 
         Player player = (playerId == 1) ? player1 : player2;
@@ -517,10 +588,10 @@ public class GameModel {
     private boolean hasEscapeRoute(Player player, int bombX, int bombY) {
         // Directions possibles d'échappement : HAUT, BAS, GAUCHE, DROITE
         int[][] directions = {
-            {0, -1}, // HAUT
-            {0, 1},  // BAS
-            {-1, 0}, // GAUCHE
-            {1, 0}   // DROITE
+                {0, -1}, // HAUT
+                {0, 1},  // BAS
+                {-1, 0}, // GAUCHE
+                {1, 0}   // DROITE
         };
 
         // Vérifier chaque direction adjacente
@@ -710,3 +781,4 @@ public class GameModel {
         }
     }
 }
+

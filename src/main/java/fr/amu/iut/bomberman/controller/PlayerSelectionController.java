@@ -3,6 +3,7 @@ package fr.amu.iut.bomberman.controller;
 import fr.amu.iut.bomberman.model.PlayerProfile;
 import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * Contrôleur pour la sélection des joueurs
@@ -45,6 +47,17 @@ public class PlayerSelectionController {
     @FXML
     private Button startButton;
 
+    // Champs pour le mode bot
+    @FXML
+    private CheckBox botModeCheckbox;
+    @FXML
+    private ComboBox<String> botDifficultyCombo;
+    @FXML
+    private Label botDifficultyLabel;
+
+    private boolean botModeEnabled = false;
+    private final PlayerProfile botProfile = new PlayerProfile("Bot", "Bomberman", "BOT");
+
     private ProfileManager profileManager;
     private ObservableList<PlayerProfile> profiles;
 
@@ -64,6 +77,9 @@ public class PlayerSelectionController {
         // Configuration de la ComboBox de temps
         setupTimeComboBox();
 
+        // Configuration de la difficulté du bot
+        setupBotDifficultyCombo();
+
         // Listeners pour activer/désactiver le bouton Start
         player1ComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             updatePlayer1Display(newVal);
@@ -81,9 +97,6 @@ public class PlayerSelectionController {
                     new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9, 3);
             roundsSpinner.setValueFactory(valueFactory);
         }
-
-        // Check if players are the same on initialization
-        checkStartButtonState();
 
         // Jouer un son d'entrée
         SoundManager.getInstance().playSound("menu_select");
@@ -145,6 +158,45 @@ public class PlayerSelectionController {
     }
 
     /**
+     * Configure la ComboBox de difficulté du bot
+     */
+    private void setupBotDifficultyCombo() {
+        if (botDifficultyCombo != null) {
+            botDifficultyCombo.setItems(FXCollections.observableArrayList(
+                    "Facile", "Normal", "Difficile"
+            ));
+            botDifficultyCombo.setValue("Normal");
+        }
+    }
+
+    /**
+     * Gère l'activation/désactivation du mode bot
+     */
+    @FXML
+    private void handleBotModeToggle() {
+        botModeEnabled = botModeCheckbox.isSelected();
+
+        // Afficher/masquer les options de difficulté du bot
+        botDifficultyLabel.setVisible(botModeEnabled);
+        botDifficultyCombo.setVisible(botModeEnabled);
+
+        // Si mode bot activé, configurer automatiquement le joueur 2 comme bot
+        if (botModeEnabled) {
+            player2ComboBox.setDisable(true);
+            updatePlayer2Display(botProfile);
+        } else {
+            player2ComboBox.setDisable(false);
+            updatePlayer2Display(player2ComboBox.getValue());
+        }
+
+        // Vérifier l'état du bouton Start
+        checkStartButtonState();
+
+        // Jouer un son
+        SoundManager.getInstance().playSound("menu_hover");
+    }
+
+    /**
      * Met à jour l'affichage du joueur 1
      *
      * @param profile Profil sélectionné
@@ -195,9 +247,16 @@ public class PlayerSelectionController {
      */
     private void checkStartButtonState() {
         PlayerProfile p1 = player1ComboBox.getValue();
-        PlayerProfile p2 = player2ComboBox.getValue();
 
-        // Activer seulement si deux profils différents sont sélectionnés
+        // Pour le mode bot, seul le profil du joueur 1 est nécessaire
+        if (botModeEnabled) {
+            boolean canStart = p1 != null;
+            startButton.setDisable(!canStart);
+            return;
+        }
+
+        // Pour le mode normal, il faut deux profils différents
+        PlayerProfile p2 = player2ComboBox.getValue();
         boolean canStart = p1 != null && p2 != null && !p1.equals(p2);
         startButton.setDisable(!canStart);
 
@@ -273,9 +332,13 @@ public class PlayerSelectionController {
         Button createBtn = (Button) dialog.getDialogPane().lookupButton(createButton);
         createBtn.setDisable(true);
 
-        firstNameField.textProperty().addListener((obs, oldText, newText) -> createBtn.setDisable(newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty()));
+        firstNameField.textProperty().addListener((obs, oldText, newText) -> {
+            createBtn.setDisable(newText.trim().isEmpty() || lastNameField.getText().trim().isEmpty());
+        });
 
-        lastNameField.textProperty().addListener((obs, oldText, newText) -> createBtn.setDisable(newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty()));
+        lastNameField.textProperty().addListener((obs, oldText, newText) -> {
+            createBtn.setDisable(newText.trim().isEmpty() || firstNameField.getText().trim().isEmpty());
+        });
 
         // Convertisseur de résultat
         dialog.setResultConverter(dialogButton -> {
@@ -314,14 +377,20 @@ public class PlayerSelectionController {
     @FXML
     private void handleStartGame() {
         // Vérifier les sélections de profils
-        if (player1ComboBox.getValue() == null || player2ComboBox.getValue() == null) {
-            showWarning("Veuillez sélectionner un profil pour chaque joueur.");
+        if (player1ComboBox.getValue() == null) {
+            showWarning("Veuillez sélectionner un profil pour le joueur 1.");
+            return;
+        }
+
+        // En mode normal, vérifier le profil du joueur 2
+        if (!botModeEnabled && player2ComboBox.getValue() == null) {
+            showWarning("Veuillez sélectionner un profil pour le joueur 2.");
             return;
         }
 
         // Récupérer les données de jeu
         PlayerProfile profile1 = player1ComboBox.getValue();
-        PlayerProfile profile2 = player2ComboBox.getValue();
+        PlayerProfile profile2 = botModeEnabled ? botProfile : player2ComboBox.getValue();
         int rounds = roundsSpinner.getValue();
         String timeString = timeComboBox.getValue();
 
@@ -337,7 +406,14 @@ public class PlayerSelectionController {
 
             // Obtenir le contrôleur et démarrer le jeu
             GameController gameController = loader.getController();
-            gameController.startGame(profile1, profile2, rounds, timeInSeconds);
+
+            // Si mode bot activé, utiliser la difficulté sélectionnée
+            if (botModeEnabled) {
+                String difficulty = botDifficultyCombo.getValue();
+                gameController.startGameWithBot(profile1, difficulty, rounds, timeInSeconds);
+            } else {
+                gameController.startGame(profile1, profile2, rounds, timeInSeconds);
+            }
 
             // Créer la scène
             Scene scene = new Scene(root);
@@ -400,55 +476,62 @@ public class PlayerSelectionController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Impossible de retourner au menu: " + e.getMessage());
+            showError("Erreur de navigation: " + e.getMessage());
         }
-    }
-
-    /**
-     * Affiche un avertissement
-     */
-    private void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Sélection invalide");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
-        );
-        alert.showAndWait();
     }
 
     /**
      * Affiche une erreur
      *
-     * @param message Message
+     * @param message Message d'erreur
      */
     private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
+        showAlert(Alert.AlertType.ERROR, "Erreur", message);
+    }
+
+    /**
+     * Affiche un avertissement
+     *
+     * @param message Message d'avertissement
+     */
+    private void showWarning(String message) {
+        showAlert(Alert.AlertType.WARNING, "Attention", message);
+    }
+
+    /**
+     * Affiche une alerte
+     *
+     * @param type    Type d'alerte
+     * @param title   Titre de l'alerte
+     * @param message Message de l'alerte
+     */
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
+        // Appliquer le style
         alert.getDialogPane().getStylesheets().add(
                 Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
         );
+
         alert.showAndWait();
     }
 
     /**
-     * Convertisseur pour afficher les profils dans les ComboBox
+     * Classe utilitaire pour convertir un ProfilePlayer en affichage String
      */
     private static class ProfileStringConverter extends StringConverter<PlayerProfile> {
         @Override
         public String toString(PlayerProfile profile) {
-            if (profile == null) {
-                return "";
-            }
-            return profile.getDisplayName() + " (" + profile.getGamesPlayed() + " parties)";
+            if (profile == null) return "";
+            return profile.getNickname();
         }
 
         @Override
         public PlayerProfile fromString(String string) {
-            return null; // Non utilisé
+            return null; // Non utilisé car nous ne modifions pas les profils ici
         }
     }
 }

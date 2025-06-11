@@ -89,6 +89,20 @@
                       prefWidth="100"
                       value="3:00"/>
         </HBox>
+
+        <!-- Option de jeu contre Bot -->
+        <HBox alignment="CENTER" spacing="20" styleClass="bot-option">
+            <CheckBox fx:id="botModeCheckbox"
+                      text="Jouer contre Bot"
+                      onAction="#handleBotModeToggle"
+                      styleClass="bot-checkbox"/>
+
+            <Label text="Difficulté Bot:" fx:id="botDifficultyLabel" visible="false"/>
+            <ComboBox fx:id="botDifficultyCombo"
+                      prefWidth="100"
+                      value="Normal"
+                      visible="false"/>
+        </HBox>
     </VBox>
 
     <!-- Boutons d'action -->
@@ -102,8 +116,6 @@
                 text="COMMENCER"
                 onAction="#handleStartGame"
                 styleClass="primary-button"
-                prefWidth="200"
-                disable="true"/>
+                prefWidth="150"/>
     </HBox>
-
 </VBox>
