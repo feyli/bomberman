@@ -38,10 +38,14 @@
                             showTickMarks="true"
                             majorTickUnit="25"
                             prefWidth="200"/>
-                    <Label fx:id="soundVolumeLabel"
-                           text="70%"
-                           GridPane.columnIndex="2"
-                           GridPane.rowIndex="0"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label fx:id="soundVolumeLabel" text="70%"/>
+                        <CheckBox fx:id="soundEnabledCheckBox" selected="true">
+                            <tooltip>
+                                <Tooltip text="Activer/Désactiver les effets sonores"/>
+                            </tooltip>
+                        </CheckBox>
+                    </HBox>
 
                     <!-- Volume de la musique -->
                     <Label text="Volume de la musique:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
@@ -53,27 +57,14 @@
                             showTickMarks="true"
                             majorTickUnit="25"
                             prefWidth="200"/>
-                    <Label fx:id="musicVolumeLabel"
-                           text="50%"
-                           GridPane.columnIndex="2"
-                           GridPane.rowIndex="1"/>
-
-                    <Separator GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="3"/>
-
-                    <!-- Activer/Désactiver -->
-                    <CheckBox fx:id="soundEnabledCheckBox"
-                              text="Activer les effets sonores"
-                              selected="true"
-                              GridPane.columnIndex="0"
-                              GridPane.rowIndex="3"
-                              GridPane.columnSpan="2"/>
-
-                    <CheckBox fx:id="musicEnabledCheckBox"
-                              text="Activer la musique"
-                              selected="true"
-                              GridPane.columnIndex="0"
-                              GridPane.rowIndex="4"
-                              GridPane.columnSpan="2"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <Label fx:id="musicVolumeLabel" text="50%"/>
+                        <CheckBox fx:id="musicEnabledCheckBox" selected="true">
+                            <tooltip>
+                                <Tooltip text="Activer/Désactiver la musique"/>
+                            </tooltip>
+                        </CheckBox>
+                    </HBox>
                 </GridPane>
 
                 <Button text="Tester le son"
@@ -173,7 +164,7 @@
 
     <!-- Boutons d'action -->
     <HBox alignment="CENTER" spacing="20">
-        <Button text="Annuler"
+        <Button text="Retour"
                 onAction="#handleCancel"
                 styleClass="secondary-button"
                 prefWidth="150"/>
