@@ -205,11 +205,13 @@ public class PlayerSelectionController {
     private void updatePlayer1Display(PlayerProfile profile) {
         if (profile != null && player1Avatar != null) {
             try {
-                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
+                String avatarPath = profile.getAvatarPath();
+                System.out.println("Chargement de l'avatar joueur 1: " + avatarPath);
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath)));
                 player1Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
-                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath() + " - " + e.getMessage());
                 try {
                     Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player1Avatar.setImage(defaultAvatar);
@@ -228,11 +230,13 @@ public class PlayerSelectionController {
     private void updatePlayer2Display(PlayerProfile profile) {
         if (profile != null && player2Avatar != null) {
             try {
-                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
+                String avatarPath = profile.getAvatarPath();
+                System.out.println("Chargement de l'avatar joueur 2: " + avatarPath);
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath)));
                 player2Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
-                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath() + " - " + e.getMessage());
                 try {
                     Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player2Avatar.setImage(defaultAvatar);
@@ -536,4 +540,3 @@ public class PlayerSelectionController {
         }
     }
 }
-
