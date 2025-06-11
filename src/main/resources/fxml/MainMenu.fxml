@@ -2,75 +2,87 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" spacing="30"
-      xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="fr.amu.iut.bomberman.controller.MainMenuController"
-      styleClass="menu-container">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
-    <padding>
-        <Insets bottom="40" left="40" right="40" top="40"/>
-    </padding>
+<StackPane xmlns="http://javafx.com/javafx/21"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="fr.amu.iut.bomberman.controller.MainMenuController"
+          styleClass="menu-container">
 
-    <!-- Titre du jeu -->
-    <Label text="SUPER BOMBERMAN" styleClass="title-label">
-        <font>
-            <Font name="Arial Black" size="48"/>
-        </font>
-    </Label>
+    <!-- Arrière-plan dynamique qui sera remplacé par le contrôleur -->
+    <ImageView fx:id="backgroundImage" fitWidth="1024" fitHeight="768" preserveRatio="false">
+        <image>
+            <Image url="@../images/backgrounds/obscur_bg.jpg" />
+        </image>
+    </ImageView>
 
-    <!-- Boutons du menu -->
-    <VBox alignment="CENTER" spacing="15" maxWidth="300">
-        <Button fx:id="playButton"
-                text="JOUER"
-                onAction="#handlePlay"
-                prefWidth="250"
-                prefHeight="50"
-                styleClass="menu-button">
+    <VBox alignment="CENTER" spacing="30">
+        <padding>
+            <Insets bottom="40" left="40" right="40" top="40"/>
+        </padding>
+
+        <!-- Titre du jeu -->
+        <Label text="SUPER BOMBERMAN" styleClass="title-label">
             <font>
-                <Font size="18"/>
+                <Font name="Arial Black" size="48"/>
             </font>
-        </Button>
+        </Label>
 
-        <Button fx:id="profileButton"
-                text="PROFILS"
-                onAction="#handleProfiles"
-                prefWidth="250"
-                prefHeight="50"
-                styleClass="menu-button">
-            <font>
-                <Font size="18"/>
-            </font>
-        </Button>
+        <!-- Boutons du menu -->
+        <VBox alignment="CENTER" spacing="15" maxWidth="300">
+            <Button fx:id="playButton"
+                    text="JOUER"
+                    onAction="#handlePlay"
+                    prefWidth="250"
+                    prefHeight="50"
+                    styleClass="menu-button">
+                <font>
+                    <Font size="18"/>
+                </font>
+            </Button>
 
-        <Button text="PARAMÈTRES"
-                onAction="#handleSettings"
-                prefWidth="250"
-                prefHeight="50"
-                styleClass="menu-button">
-            <font>
-                <Font size="18"/>
-            </font>
-        </Button>
+            <Button fx:id="profileButton"
+                    text="PROFILS"
+                    onAction="#handleProfiles"
+                    prefWidth="250"
+                    prefHeight="50"
+                    styleClass="menu-button">
+                <font>
+                    <Font size="18"/>
+                </font>
+            </Button>
 
-        <Button fx:id="quitButton"
-                text="QUITTER"
-                prefWidth="250"
-                prefHeight="50"
-                styleClass="menu-button"
-                onAction="#handleQuit">
+            <Button text="PARAMÈTRES"
+                    onAction="#handleSettings"
+                    prefWidth="250"
+                    prefHeight="50"
+                    styleClass="menu-button">
+                <font>
+                    <Font size="18"/>
+                </font>
+            </Button>
+
+            <Button fx:id="quitButton"
+                    text="QUITTER"
+                    prefWidth="250"
+                    prefHeight="50"
+                    styleClass="menu-button"
+                    onAction="#handleQuit">
+                <font>
+                    <Font size="18"/>
+                </font>
+            </Button>
+        </VBox>
+
+        <!-- Version -->
+        <Label text="Version 1.0" styleClass="version-label">
             <font>
-                <Font size="18"/>
+                <Font size="12"/>
             </font>
-        </Button>
+        </Label>
     </VBox>
-
-    <!-- Version -->
-    <Label text="Version 1.0" styleClass="version-label">
-        <font>
-            <Font size="12"/>
-        </font>
-    </Label>
-</VBox>
+</StackPane>

@@ -2,6 +2,7 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.model.PlayerProfile;
 import fr.amu.iut.bomberman.utils.ProfileManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -475,7 +476,7 @@ public class ProfileManagerController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/main.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
             Stage stage = (Stage) profileListView.getScene().getWindow();
             stage.setScene(scene);
@@ -513,4 +514,3 @@ public class ProfileManagerController {
         alert.showAndWait();
     }
 }
-

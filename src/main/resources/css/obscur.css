@@ -1,18 +1,18 @@
 /*
- * Feuille de style principale - Super Bomberman Clone
- * Style inspiré de Super Bomberman SNES
+ * Feuille de style thème obscur - Super Bomberman Clone
+ * Style inspiré de Super Bomberman SNES avec palette sombre
  */
 
 /* Variables de couleurs */
 .root {
-    -fx-primary-color: #FF6B00;
-    -fx-secondary-color: #FFD700;
-    -fx-danger-color: #DC143C;
-    -fx-success-color: #32CD32;
-    -fx-background-dark: #1a1a1a;
-    -fx-background-light: #2d2d2d;
-    -fx-text-color: #FFFFFF;
-    -fx-text-secondary: #CCCCCC;
+    -fx-primary-color: #FF6B00;        /* Orange vif */
+    -fx-secondary-color: #FFD700;      /* Or */
+    -fx-danger-color: #DC143C;         /* Rouge cramoisi */
+    -fx-success-color: #32CD32;        /* Vert lime */
+    -fx-background-dark: #121212;      /* Fond très sombre - plus sombre que main.css */
+    -fx-background-light: #1F1F1F;     /* Fond sombre - plus sombre que main.css */
+    -fx-text-color: #FFFFFF;           /* Texte blanc */
+    -fx-text-secondary: #AAAAAA;       /* Texte secondaire gris clair */
 }
 
 /* Style global */
@@ -22,7 +22,7 @@
 
 /* Conteneurs principaux */
 .menu-container {
-    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+    -fx-background-color: linear-gradient(to bottom, #222222, #111111);
     -fx-background-image: url("/images/backgrounds/obscur_bg.jpg");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
@@ -44,38 +44,37 @@
     -fx-font-size: 36px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 12, 0, 2, 2);
-
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 14, 0, 2, 2);
 }
 
 .subtitle-label {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-secondary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 8, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 1, 1);
 }
 
 /* Amélioration de la lisibilité des textes dans les menus */
 .menu-text {
     -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 7, 0, 1, 1);
 }
 
 .menu-label {
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 7, 0, 1, 1);
 }
 
 /* Pour les boutons radio et checkbox */
 .radio-button, .check-box {
     -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 5, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
 }
 
 .label {
     -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 5, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 6, 0, 1, 1);
 }
 
 /* Version et autres labels */
@@ -157,13 +156,13 @@
 
 /* Interface de jeu */
 .game-info-bar {
-    -fx-background-color: linear-gradient(to bottom, #333333, #222222);
+    -fx-background-color: linear-gradient(to bottom, #222222, #111111);
     -fx-border-color: -fx-primary-color;
     -fx-border-width: 0 0 3 0;
 }
 
 .player-info {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-color: rgba(0, 0, 0, 0.7);
     -fx-background-radius: 10;
     -fx-padding: 10;
 }
@@ -183,7 +182,7 @@
     -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-primary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(255, 107, 0, 0.8), 10, 0, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 107, 0, 0.8), 12, 0, 0, 0);
 }
 
 .round-label {
@@ -216,7 +215,7 @@
 
 /* Sélection des joueurs */
 .player-selection-box {
-    -fx-background-color: rgba(255, 107, 0, 0.1);
+    -fx-background-color: rgba(255, 107, 0, 0.2);
     -fx-background-radius: 15;
     -fx-border-color: -fx-primary-color;
     -fx-border-width: 2;
@@ -239,7 +238,7 @@
 }
 
 .player-avatar {
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 10, 0, 2, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.7), 12, 0, 2, 2);
 }
 
 /* ComboBox et autres contrôles */
@@ -297,71 +296,4 @@
 
 .tab-pane .tab .tab-label {
     -fx-text-fill: white;
-}
-
-/* ListView */
-.list-view {
-    -fx-background-color: -fx-background-light;
-    -fx-border-color: -fx-primary-color;
-    -fx-border-width: 2;
-}
-
-.list-view .list-cell {
-    -fx-background-color: -fx-background-light;
-    -fx-text-fill: -fx-text-color;
-    -fx-font-size: 14px;
-}
-
-.list-view .list-cell:selected {
-    -fx-background-color: -fx-primary-color;
-}
-
-/* CheckBox */
-.check-box {
-    -fx-text-fill: -fx-text-color;
-    -fx-font-size: 14px;
-}
-
-.check-box .box {
-    -fx-background-color: -fx-background-light;
-    -fx-border-color: -fx-primary-color;
-    -fx-border-width: 2;
-}
-
-.check-box:selected .box {
-    -fx-background-color: -fx-primary-color;
-}
-
-/* Dialog */
-.dialog-pane {
-    -fx-background-color: -fx-background-dark;
-}
-
-.dialog-pane .header-panel {
-    -fx-background-color: -fx-background-light;
-}
-
-.dialog-pane .content {
-    -fx-text-fill: -fx-text-color;
-}
-
-/* Animations */
-@keyframes pulse {
-    0% {
-        -fx-scale-x: 1;
-        -fx-scale-y: 1;
-    }
-    50% {
-        -fx-scale-x: 1.05;
-        -fx-scale-y: 1.05;
-    }
-    100% {
-        -fx-scale-x: 1;
-        -fx-scale-y: 1;
-    }
-}
-
-/* Effets spéciaux */
-.glow-effect {
-    -fx-effect: dropshadow(gaussian, -fx-primary-color, 20, 0.5, 0, 0);
 }

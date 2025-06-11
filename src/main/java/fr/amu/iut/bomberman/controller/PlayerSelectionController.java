@@ -5,6 +5,7 @@ import fr.amu.iut.bomberman.utils.FullScreenManager;
 import fr.amu.iut.bomberman.utils.ProfileManager;
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -204,11 +205,13 @@ public class PlayerSelectionController {
     private void updatePlayer1Display(PlayerProfile profile) {
         if (profile != null && player1Avatar != null) {
             try {
-                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
+                String avatarPath = profile.getAvatarPath();
+                System.out.println("Chargement de l'avatar joueur 1: " + avatarPath);
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath)));
                 player1Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
-                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath() + " - " + e.getMessage());
                 try {
                     Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player1Avatar.setImage(defaultAvatar);
@@ -227,11 +230,13 @@ public class PlayerSelectionController {
     private void updatePlayer2Display(PlayerProfile profile) {
         if (profile != null && player2Avatar != null) {
             try {
-                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(profile.getAvatarPath())));
+                String avatarPath = profile.getAvatarPath();
+                System.out.println("Chargement de l'avatar joueur 2: " + avatarPath);
+                Image avatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream(avatarPath)));
                 player2Avatar.setImage(avatar);
             } catch (Exception e) {
                 // Avatar par défaut en cas d'erreur
-                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath());
+                System.err.println("Impossible de charger l'avatar: " + profile.getAvatarPath() + " - " + e.getMessage());
                 try {
                     Image defaultAvatar = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/avatars/default.png")));
                     player2Avatar.setImage(defaultAvatar);
@@ -295,9 +300,9 @@ public class PlayerSelectionController {
         dialog.setTitle("Nouveau Profil");
         dialog.setHeaderText("Créer un nouveau profil de joueur");
 
-        // Appliquer le style
+        // Appliquer le style avec le thème actuel
         dialog.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         // Boutons
@@ -417,7 +422,7 @@ public class PlayerSelectionController {
 
             // Créer la scène
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             // Changer de scène
             Stage stage = (Stage) startButton.getScene().getWindow();
@@ -466,7 +471,7 @@ public class PlayerSelectionController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm());
 
             Stage stage = (Stage) startButton.getScene().getWindow();
             stage.setScene(scene);
@@ -511,9 +516,9 @@ public class PlayerSelectionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-        // Appliquer le style
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm()
+                Objects.requireNonNull(getClass().getResource(ThemeManager.getInstance().getThemeCssPath())).toExternalForm()
         );
 
         alert.showAndWait();
@@ -535,4 +540,3 @@ public class PlayerSelectionController {
         }
     }
 }
-

@@ -2,6 +2,7 @@ package fr.amu.iut.bomberman.controller;
 
 import fr.amu.iut.bomberman.utils.SceneManager;
 import fr.amu.iut.bomberman.utils.SoundManager;
+import fr.amu.iut.bomberman.utils.ThemeManager;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,11 +12,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * Contrôleur du menu principal
@@ -32,6 +36,11 @@ public class MainMenuController {
     private Button profileButton;
     @FXML
     private Button quitButton;
+    @FXML
+    private ImageView backgroundImage; // Référence à l'image d'arrière-plan
+
+    // Gestionnaire de thème
+    private ThemeManager themeManager = ThemeManager.getInstance();
 
     /**
      * Initialisation du contrôleur
@@ -48,8 +57,33 @@ public class MainMenuController {
             profileButton.setDisable(false);
         }
 
+        // Charger l'arrière-plan basé sur le thème actuel
+        loadBackgroundImage();
+
         // Jouer la musique du menu
         SoundManager.getInstance().playMusic("menu_theme");
+    }
+
+    /**
+     * Charge l'image d'arrière-plan en fonction du thème actuel
+     */
+    private void loadBackgroundImage() {
+        if (backgroundImage != null) {
+            try {
+                String backgroundPath = themeManager.getBackgroundImagePath();
+                System.out.println("Chargement de l'arrière-plan du menu: " + backgroundPath);
+
+                // Charger l'image d'arrière-plan
+                Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(backgroundPath)));
+                backgroundImage.setImage(image);
+
+                // Adapter l'image à la taille de la fenêtre
+                backgroundImage.fitWidthProperty().bind(backgroundImage.getScene().getWindow().widthProperty());
+                backgroundImage.fitHeightProperty().bind(backgroundImage.getScene().getWindow().heightProperty());
+            } catch (Exception e) {
+                System.err.println("Erreur lors du chargement de l'arrière-plan: " + e.getMessage());
+            }
+        }
     }
 
     /**
@@ -103,8 +137,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) playButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,8 +178,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) profileButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,8 +219,9 @@ public class MainMenuController {
             // Obtenir la scène actuelle
             Stage stage = (Stage) playButton.getScene().getWindow();
 
-            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, getClass().getResource("/css/main.css").toExternalForm());
+            // Utiliser SceneManager pour changer de scène et préserver le mode plein écran et le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                    getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -208,9 +245,9 @@ public class MainMenuController {
         alert.setHeaderText("Voulez-vous vraiment quitter ?");
         alert.setContentText("Toute progression non sauvegardée sera perdue.");
 
-        // Appliquer le thème au dialogue
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
         );
 
         alert.showAndWait().ifPresent(response -> {
@@ -234,9 +271,9 @@ public class MainMenuController {
         alert.setHeaderText(null);
         alert.setContentText(message);
 
-        // Appliquer le thème au dialogue
+        // Appliquer le thème actuel au dialogue
         alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/css/main.css").toExternalForm()
+                getClass().getResource(ThemeManager.getInstance().getThemeCssPath()).toExternalForm()
         );
 
         alert.showAndWait();

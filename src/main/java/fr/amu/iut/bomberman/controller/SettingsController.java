@@ -352,6 +352,14 @@ public class SettingsController {
         if (selectedTheme != null && !selectedTheme.equals(themeManager.getCurrentTheme())) {
             themeManager.loadTheme(selectedTheme);
             preferences.put("theme", selectedTheme);
+
+            // Appliquer immédiatement le nouveau CSS à la scène actuelle
+            javafx.scene.Scene currentScene = soundVolumeSlider.getScene();
+            if (currentScene != null) {
+                currentScene.getStylesheets().clear();
+                currentScene.getStylesheets().add(getClass().getResource(themeManager.getThemeCssPath()).toExternalForm());
+                currentScene.getRoot().applyCss();
+            }
         }
 
         boolean fullscreen = fullscreenCheckBox.isSelected();
@@ -379,8 +387,9 @@ public class SettingsController {
             Parent root = loader.load();
 
             Stage stage = (Stage) soundVolumeSlider.getScene().getWindow();
-            // Utiliser SceneManager pour préserver le mode plein écran
-            SceneManager.getInstance().changeScene(stage, root, Objects.requireNonNull(getClass().getResource("/css/main.css")).toExternalForm());
+            // Utiliser SceneManager pour préserver le mode plein écran et utiliser le thème actuel
+            SceneManager.getInstance().changeScene(stage, root,
+                Objects.requireNonNull(getClass().getResource(themeManager.getThemeCssPath())).toExternalForm());
 
         } catch (IOException e) {
             showError("Impossible de retourner au menu: " + e.getMessage());

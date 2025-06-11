@@ -1,18 +1,18 @@
 /*
- * Feuille de style principale - Super Bomberman Clone
- * Style inspiré de Super Bomberman SNES
+ * Feuille de style thème clair - Super Bomberman Clone
+ * Style inspiré de Super Bomberman SNES avec palette claire
  */
 
 /* Variables de couleurs */
 .root {
-    -fx-primary-color: #FF6B00;
-    -fx-secondary-color: #FFD700;
-    -fx-danger-color: #DC143C;
-    -fx-success-color: #32CD32;
-    -fx-background-dark: #1a1a1a;
-    -fx-background-light: #2d2d2d;
-    -fx-text-color: #FFFFFF;
-    -fx-text-secondary: #CCCCCC;
+    -fx-primary-color: #4285F4;        /* Bleu au lieu d'orange */
+    -fx-secondary-color: #FBBC05;      /* Jaune plus doux */
+    -fx-danger-color: #EA4335;         /* Rouge plus clair */
+    -fx-success-color: #34A853;        /* Vert plus vif */
+    -fx-background-dark: #F5F5F5;      /* Fond très clair */
+    -fx-background-light: #FFFFFF;     /* Fond blanc */
+    -fx-text-color: #202124;           /* Texte foncé */
+    -fx-text-secondary: #5F6368;       /* Texte secondaire gris */
 }
 
 /* Style global */
@@ -22,7 +22,7 @@
 
 /* Conteneurs principaux */
 .menu-container {
-    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF, #F5F5F5);
     -fx-background-image: url("/images/backgrounds/obscur_bg.jpg");
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
@@ -43,51 +43,47 @@
 .title-label {
     -fx-font-size: 36px;
     -fx-font-weight: bold;
-    -fx-text-fill: #FFFFFF;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 12, 0, 2, 2);
-
+    -fx-text-fill: #202124;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 8, 0, 1, 1);
 }
 
 .subtitle-label {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-secondary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 8, 0, 1, 1);
+    -fx-text-fill: -fx-primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 6, 0, 1, 1);
 }
 
 /* Amélioration de la lisibilité des textes dans les menus */
 .menu-text {
-    -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+    -fx-text-fill: #202124;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 1, 0, 1, 1);
 }
 
 .menu-label {
-    -fx-text-fill: white;
+    -fx-text-fill: #202124;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 1, 0, 1, 1);
 }
 
 /* Pour les boutons radio et checkbox */
 .radio-button, .check-box {
-    -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 5, 0, 1, 1);
+    -fx-text-fill: #202124;
 }
 
 .label {
-    -fx-text-fill: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.9), 5, 0, 1, 1);
+    -fx-text-fill: #202124;
 }
 
 /* Version et autres labels */
 .version-label {
     -fx-font-size: 12px;
     -fx-text-fill: -fx-text-secondary;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 3, 0, 1, 1);
 }
 
 /* Boutons du menu principal */
 .menu-button {
-    -fx-background-color: linear-gradient(to bottom, -fx-primary-color, #CC5500);
+    -fx-background-color: #4285F4;
     -fx-text-fill: white;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
@@ -96,11 +92,11 @@
     -fx-border-color: -fx-secondary-color;
     -fx-border-width: 3;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0, 2, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 2, 2);
 }
 
 .menu-button:hover {
-    -fx-background-color: linear-gradient(to bottom, -fx-secondary-color, #FFB500);
+    -fx-background-color: #FBBC05;
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
@@ -108,7 +104,7 @@
 .menu-button:pressed {
     -fx-scale-x: 0.95;
     -fx-scale-y: 0.95;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 2, 0, 1, 1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 2, 0, 1, 1);
 }
 
 /* Boutons standards */
@@ -128,7 +124,7 @@
 
 .secondary-button {
     -fx-background-color: -fx-background-light;
-    -fx-text-fill: -fx-text-color;
+    -fx-text-fill: -fx-primary-color;
     -fx-font-size: 14px;
     -fx-background-radius: 5;
     -fx-border-color: -fx-primary-color;
@@ -139,7 +135,8 @@
 }
 
 .secondary-button:hover {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: derive(-fx-primary-color, 80%);
+    -fx-text-fill: -fx-primary-color;
 }
 
 .danger-button {
@@ -157,13 +154,13 @@
 
 /* Interface de jeu */
 .game-info-bar {
-    -fx-background-color: linear-gradient(to bottom, #333333, #222222);
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF, #EEEEEE);
     -fx-border-color: -fx-primary-color;
     -fx-border-width: 0 0 3 0;
 }
 
 .player-info {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-color: rgba(255, 255, 255, 0.8);
     -fx-background-radius: 10;
     -fx-padding: 10;
 }
@@ -171,7 +168,7 @@
 .player-name {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-secondary-color;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .player-stat {
@@ -183,7 +180,7 @@
     -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-primary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(255, 107, 0, 0.8), 10, 0, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(66, 133, 244, 0.4), 5, 0, 0, 0);
 }
 
 .round-label {
@@ -193,14 +190,14 @@
 }
 
 .game-area {
-    -fx-background-color: black;
+    -fx-background-color: #E8E8E8;
 }
 
 .game-message {
     -fx-font-size: 48px;
     -fx-font-weight: bold;
-    -fx-text-fill: -fx-secondary-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1), 20, 0, 5, 5);
+    -fx-text-fill: -fx-primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 10, 0, 2, 2);
 }
 
 .control-bar {
@@ -216,7 +213,7 @@
 
 /* Sélection des joueurs */
 .player-selection-box {
-    -fx-background-color: rgba(255, 107, 0, 0.1);
+    -fx-background-color: rgba(66, 133, 244, 0.1);
     -fx-background-radius: 15;
     -fx-border-color: -fx-primary-color;
     -fx-border-width: 2;
@@ -235,11 +232,11 @@
     -fx-font-size: 48px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-danger-color;
-    -fx-effect: dropshadow(three-pass-box, rgba(220, 20, 60, 0.8), 15, 0, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(234, 67, 53, 0.4), 8, 0, 0, 0);
 }
 
 .player-avatar {
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 10, 0, 2, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 1, 1);
 }
 
 /* ComboBox et autres contrôles */
@@ -257,16 +254,17 @@
 }
 
 .combo-box-popup .list-view .list-cell:hover {
-    -fx-background-color: -fx-primary-color;
+    -fx-background-color: derive(-fx-primary-color, 80%);
+    -fx-text-fill: -fx-primary-color;
 }
 
 /* Slider */
 .slider {
-    -fx-control-inner-background: -fx-background-light;
+    -fx-control-inner-background: #E8E8E8;
 }
 
 .slider .track {
-    -fx-background-color: -fx-background-light;
+    -fx-background-color: #E8E8E8;
     -fx-background-radius: 5;
 }
 
@@ -286,7 +284,7 @@
 
 .tab-pane .tab {
     -fx-background-color: -fx-background-light;
-    -fx-text-fill: white;
+    -fx-text-fill: -fx-text-color;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
@@ -295,73 +293,10 @@
     -fx-background-color: -fx-primary-color;
 }
 
-.tab-pane .tab .tab-label {
+.tab-pane .tab:selected .tab-label {
     -fx-text-fill: white;
 }
 
-/* ListView */
-.list-view {
-    -fx-background-color: -fx-background-light;
-    -fx-border-color: -fx-primary-color;
-    -fx-border-width: 2;
-}
-
-.list-view .list-cell {
-    -fx-background-color: -fx-background-light;
+.tab-pane .tab .tab-label {
     -fx-text-fill: -fx-text-color;
-    -fx-font-size: 14px;
-}
-
-.list-view .list-cell:selected {
-    -fx-background-color: -fx-primary-color;
-}
-
-/* CheckBox */
-.check-box {
-    -fx-text-fill: -fx-text-color;
-    -fx-font-size: 14px;
-}
-
-.check-box .box {
-    -fx-background-color: -fx-background-light;
-    -fx-border-color: -fx-primary-color;
-    -fx-border-width: 2;
-}
-
-.check-box:selected .box {
-    -fx-background-color: -fx-primary-color;
-}
-
-/* Dialog */
-.dialog-pane {
-    -fx-background-color: -fx-background-dark;
-}
-
-.dialog-pane .header-panel {
-    -fx-background-color: -fx-background-light;
-}
-
-.dialog-pane .content {
-    -fx-text-fill: -fx-text-color;
-}
-
-/* Animations */
-@keyframes pulse {
-    0% {
-        -fx-scale-x: 1;
-        -fx-scale-y: 1;
-    }
-    50% {
-        -fx-scale-x: 1.05;
-        -fx-scale-y: 1.05;
-    }
-    100% {
-        -fx-scale-x: 1;
-        -fx-scale-y: 1;
-    }
-}
-
-/* Effets spéciaux */
-.glow-effect {
-    -fx-effect: dropshadow(gaussian, -fx-primary-color, 20, 0.5, 0, 0);
 }
