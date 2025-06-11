@@ -10,6 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -232,12 +234,14 @@ public class ProfileManagerController {
 
         // Boutons
         ButtonType saveButton = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButton, ButtonType.CANCEL);
+        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
 
         // Formulaire
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
 
         TextField firstNameField = new TextField(profile != null ? profile.getFirstName() : "");
         TextField lastNameField = new TextField(profile != null ? profile.getLastName() : "");
@@ -250,9 +254,140 @@ public class ProfileManagerController {
         grid.add(new Label("Pseudo:"), 0, 2);
         grid.add(nicknameField, 1, 2);
 
-        // TODO: Ajouter la sélection d'avatar
+        // Sélection d'avatar
+        grid.add(new Label("Avatar:"), 0, 3);
 
-        dialog.getDialogPane().setContent(grid);
+        // Zone pour les avatars disponibles
+        HBox avatarContainer = new HBox(10);
+        avatarContainer.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        // Avatar sélectionné actuellement
+        ImageView selectedAvatarView = new ImageView();
+        selectedAvatarView.setFitWidth(64);
+        selectedAvatarView.setFitHeight(64);
+
+        // Chemin de l'avatar actuellement sélectionné
+        String[] selectedAvatarPath = new String[1];
+        selectedAvatarPath[0] = profile != null ? profile.getAvatarPath() : "/images/avatars/default.png";
+
+        try {
+            selectedAvatarView.setImage(new Image(getClass().getResourceAsStream(selectedAvatarPath[0])));
+        } catch (Exception e) {
+            selectedAvatarView.setImage(new Image(getClass().getResourceAsStream("/images/avatars/default.png")));
+        }
+
+        avatarContainer.getChildren().add(selectedAvatarView);
+
+        // Bouton pour choisir l'avatar
+        Button chooseAvatarButton = new Button("Choisir");
+        avatarContainer.getChildren().add(chooseAvatarButton);
+
+        grid.add(avatarContainer, 1, 3);
+
+        // Conteneur principal
+        VBox mainContainer = new VBox(20);
+        mainContainer.getChildren().add(grid);
+
+        // Personnaliser la position des boutons
+        ButtonBar buttonBar = (ButtonBar) dialog.getDialogPane().lookup(".button-bar");
+        buttonBar.getButtons().clear(); // Supprimer les boutons par défaut
+
+        // Créer nos propres boutons
+        Button cancelBtn = (Button) dialog.getDialogPane().lookupButton(cancelButton);
+        Button saveBtn = (Button) dialog.getDialogPane().lookupButton(saveButton);
+
+        // Définir la taille des boutons
+        cancelBtn.setPrefWidth(100);
+        saveBtn.setPrefWidth(100);
+
+        // Conteneur pour les boutons
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(javafx.geometry.Pos.CENTER);
+        buttonContainer.getChildren().addAll(cancelBtn, saveBtn);
+
+        // Ajouter les boutons au conteneur principal
+        mainContainer.getChildren().add(buttonContainer);
+
+        dialog.getDialogPane().setContent(mainContainer);
+
+        // Gestionnaire pour le choix d'avatar
+        chooseAvatarButton.setOnAction(e -> {
+            Dialog<String> avatarDialog = new Dialog<>();
+            avatarDialog.setTitle("Choisir un avatar");
+            avatarDialog.setHeaderText("Sélectionnez votre avatar");
+
+            // Grille d'avatars
+            GridPane avatarGrid = new GridPane();
+            avatarGrid.setHgap(10);
+            avatarGrid.setVgap(10);
+            avatarGrid.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+
+            // Liste des avatars disponibles
+            String[] avatarFiles = {
+                    "/images/avatars/default.png",
+                    "/images/avatars/avatar1.png",
+                    "/images/avatars/avatar2.png",
+                    "/images/avatars/avatar3.png",
+                    "/images/avatars/avatar4.png",
+                    "/images/avatars/avatar5.png",
+                    "/images/avatars/avatar6.png",
+                    "/images/avatars/avatar7.png",
+                    "/images/avatars/avatar8.png"
+            };
+
+            ToggleGroup avatarToggleGroup = new ToggleGroup();
+            int col = 0;
+            int row = 0;
+
+            for (String avatarFile : avatarFiles) {
+                try {
+                    Image avatarImage = new Image(getClass().getResourceAsStream(avatarFile));
+                    ImageView avatarView = new ImageView(avatarImage);
+                    avatarView.setFitWidth(64);
+                    avatarView.setFitHeight(64);
+
+                    RadioButton avatarRadio = new RadioButton();
+                    avatarRadio.setGraphic(avatarView);
+                    avatarRadio.setToggleGroup(avatarToggleGroup);
+                    avatarRadio.setUserData(avatarFile);
+
+                    // Sélectionner l'avatar actuel
+                    if (avatarFile.equals(selectedAvatarPath[0])) {
+                        avatarRadio.setSelected(true);
+                    }
+
+                    avatarGrid.add(avatarRadio, col, row);
+
+                    col++;
+                    if (col > 2) {
+                        col = 0;
+                        row++;
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Erreur lors du chargement de l'avatar: " + avatarFile);
+                }
+            }
+
+            // Boutons du dialogue
+            ButtonType selectButton = new ButtonType("Sélectionner", ButtonBar.ButtonData.OK_DONE);
+            avatarDialog.getDialogPane().getButtonTypes().addAll(selectButton, ButtonType.CANCEL);
+
+            avatarDialog.getDialogPane().setContent(avatarGrid);
+
+            // Résultat du dialogue
+            avatarDialog.setResultConverter(dialogBtn -> {
+                if (dialogBtn == selectButton && avatarToggleGroup.getSelectedToggle() != null) {
+                    return (String) avatarToggleGroup.getSelectedToggle().getUserData();
+                }
+                return null;
+            });
+
+            // Traiter le résultat
+            avatarDialog.showAndWait().ifPresent(avatarPath -> {
+                selectedAvatarPath[0] = avatarPath;
+                selectedAvatarView.setImage(new Image(getClass().getResourceAsStream(avatarPath)));
+            });
+        });
 
         // Validation
         dialog.getDialogPane().lookupButton(saveButton).setDisable(true);
@@ -272,11 +407,13 @@ public class ProfileManagerController {
         // Convertisseur de résultat
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButton) {
-                return new PlayerProfile(
+                PlayerProfile newProfile = new PlayerProfile(
                         firstNameField.getText().trim(),
                         lastNameField.getText().trim(),
                         nicknameField.getText().trim()
                 );
+                newProfile.setAvatarPath(selectedAvatarPath[0]);
+                return newProfile;
             }
             return null;
         });
@@ -298,10 +435,32 @@ public class ProfileManagerController {
 
         File file = fileChooser.showSaveDialog(profileListView.getScene().getWindow());
         if (file != null) {
-            if (profileManager.exportStatistics(file.getName())) {
+            if (profileManager.exportStatistics(file.getAbsolutePath())) {
                 showInfo("Export réussi", "Les statistiques ont été exportées avec succès.");
             } else {
                 showError("Erreur d'export", "Impossible d'exporter les statistiques.");
+            }
+        }
+    }
+
+    /**
+     * Importe les statistiques depuis un fichier CSV
+     */
+    @FXML
+    private void handleImportStats() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Importer les statistiques");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichiers CSV", "*.csv")
+        );
+
+        File file = fileChooser.showOpenDialog(profileListView.getScene().getWindow());
+        if (file != null) {
+            if (profileManager.importStatistics(file.getAbsolutePath())) {
+                refreshProfileList(); // Actualiser la liste des profils
+                showInfo("Import réussi", "Les statistiques ont été importées avec succès.");
+            } else {
+                showError("Erreur d'import", "Impossible d'importer les statistiques. Vérifiez le format du fichier.");
             }
         }
     }
@@ -354,3 +513,4 @@ public class ProfileManagerController {
         alert.showAndWait();
     }
 }
+

@@ -47,8 +47,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);
 
-        // Maximiser la fenêtre mais sans le plein écran pour les menus
-        primaryStage.setMaximized(true);
+        // Ne pas maximiser la fenêtre au démarrage
+        // primaryStage.setMaximized(true);
 
         // Ne pas activer le plein écran au démarrage
         // primaryStage.setFullScreen(true);
