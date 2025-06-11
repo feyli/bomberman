@@ -8,7 +8,7 @@ import javafx.stage.Stage;
  * Gestionnaire de scènes pour les transitions entre les écrans
  * Préserve les paramètres comme le mode plein écran
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class SceneManager {

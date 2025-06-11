@@ -5,7 +5,7 @@ import fr.amu.iut.bomberman.utils.Direction;
 /**
  * Représente un joueur dans le jeu Bomberman
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class Player {

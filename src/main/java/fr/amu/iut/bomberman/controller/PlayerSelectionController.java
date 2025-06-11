@@ -28,7 +28,7 @@ import java.util.prefs.Preferences;
  * Contrôleur pour la sélection des joueurs
  * Permet de choisir les profils avant de commencer une partie
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class PlayerSelectionController {

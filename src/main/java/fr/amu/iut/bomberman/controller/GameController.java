@@ -26,7 +26,7 @@ import java.util.Objects;
  * Contrôleur principal du jeu
  * Gère la boucle de jeu, les entrées et la logique
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class GameController implements GameModel.GameModelListener {

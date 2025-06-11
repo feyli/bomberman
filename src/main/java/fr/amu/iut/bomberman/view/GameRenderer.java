@@ -17,7 +17,7 @@ import java.util.Map;
  * Classe responsable du rendu graphique du jeu
  * Dessine tous les éléments visuels sur le canvas
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class GameRenderer {

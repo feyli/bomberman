@@ -6,7 +6,7 @@ import java.util.prefs.Preferences;
 /**
  * Gestionnaire de mode plein écran pour l'application
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class FullScreenManager {

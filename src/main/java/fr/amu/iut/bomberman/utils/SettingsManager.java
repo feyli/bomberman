@@ -9,7 +9,7 @@ import java.util.Properties;
  * Gestionnaire des paramètres du jeu
  * Stocke et charge les préférences de l'utilisateur
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class SettingsManager {

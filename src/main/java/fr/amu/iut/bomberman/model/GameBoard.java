@@ -12,7 +12,7 @@ import java.util.Random;
  * Classe représentant le plateau de jeu
  * Gère la grille, les murs, les bombes et les power-ups
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class GameBoard {

@@ -10,7 +10,7 @@ import java.util.Map;
  * Gestionnaire des sons et musiques du jeu
  * Gère la lecture et le volume des effets sonores
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class SoundManager {

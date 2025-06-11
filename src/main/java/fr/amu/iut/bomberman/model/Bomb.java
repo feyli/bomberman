@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Représente une bombe dans le jeu
  *
- * @author Super Bomberman Team
+ * @author Groupe_3_6
  * @version 1.0
  */
 public class Bomb {
