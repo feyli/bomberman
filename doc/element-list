@@ -1,0 +1,6 @@
+module:fr.amu.iut.bomberman
+fr.amu.iut.bomberman
+fr.amu.iut.bomberman.controller
+fr.amu.iut.bomberman.model
+fr.amu.iut.bomberman.utils
+fr.amu.iut.bomberman.view
